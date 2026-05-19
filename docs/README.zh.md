@@ -1,5 +1,7 @@
 # nhm-deepagents
 
+[简体中文](/docs/README.zh.md) | [English](/docs/README.en.md) | [日本語](/docs/README.ja.md) | [繁体中文](/docs/README.zh-TW.md)
+
 一个用于深度智能体（deep agents）的 Python 项目。
 
 ## 概览
