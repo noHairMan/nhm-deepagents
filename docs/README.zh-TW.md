@@ -1,5 +1,7 @@
 # NHM-深度代理
 
+[簡體中文](/docs/README.zh.md)\|[英語](/docs/README.en.md)\|[日本人](/docs/README.ja.md)\|[繁體中文](/docs/README.zh-TW.md)
+
 一個用於深度智能體（deep agents）的 Python 專案。
 
 ## 概覽
