@@ -1,5 +1,7 @@
 # nhm-deepagents
 
+[簡体字中国語](/docs/README.zh.md)\|[英語](/docs/README.en.md)\|[日本語](/docs/README.ja.md)\|[繁体中文](/docs/README.zh-TW.md)
+
 ディープエージェント用の Python プロジェクト。
 
 ## 概要
