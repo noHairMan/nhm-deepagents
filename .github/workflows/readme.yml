@@ -1,0 +1,42 @@
+name: Translate README
+
+on:
+  push:
+    branches:
+      - "main"
+    paths:
+      - "docs/**"
+      - ".github/workflows/readme.yml"
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 18.x
+
+      - name: Adding README - Chinese Traditional
+        uses: noHairMan/translate-readme@main
+        with:
+          LANG: zh-TW
+          OUTPUT_DIR: "docs"
+
+      - name: Adding README - English
+        uses: noHairMan/translate-readme@main
+        with:
+          LANG: en
+          OUTPUT_DIR: "docs"
+
+      - name: Adding README - Japanese
+        uses: noHairMan/translate-readme@main
+        with:
+          LANG: ja
+          OUTPUT_DIR: "docs"

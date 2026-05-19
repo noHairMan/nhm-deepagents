@@ -1,0 +1,23 @@
+[project]
+name = "nhm-deepagents"
+version = "0.1.0"
+requires-python = ">=3.14"
+dependencies = []
+
+[tool.uv.sources]
+[[tool.uv.index]]
+url = "https://pypi.python.org/simple/"
+default = true
+
+[tool.black]
+line_length = 120
+
+[tool.isort]
+profile = "black"
+src_paths = ["src"]
+py_version = 314
+skip_gitignore = true
+sections = ["FUTURE", "STDLIB", "THIRDPARTY", "FIRSTPARTY", "LOCALFOLDER"]
+known_first_party = ["tomorrow"]
+multi_line_output = 3
+line_length = 120
