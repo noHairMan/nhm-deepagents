@@ -1,5 +1,7 @@
 # nhm-deepagents
 
+[Simplified Chinese](/docs/README.zh.md)\|[English](/docs/README.en.md)\|[Japanese](/docs/README.ja.md)\|[Traditional Chinese](/docs/README.zh-TW.md)
+
 A Python project for deep agents.
 
 ## Overview
@@ -9,14 +11,14 @@ A Python project for deep agents.
 ## Environmental requirements
 
 -   **Python**: >= 3.14
--   **包管理器**:[uv](https://github.com/astral-sh/uv)
+-   **Package manager**:[uv](https://github.com/astral-sh/uv)
 
 ## Installation and setup
 
 Please follow these steps to start developing:
 
 1.  **Install`uv`**:
-    如果您还没有安装 `uv`, you can follow its[官方仓库](https://github.com/astral-sh/uv)Follow the instructions in .
+    If you haven't installed it yet`uv`, you can follow its[Official warehouse](https://github.com/astral-sh/uv)Follow the instructions in .
 
 2.  **Clone repository**:
     ```bash
@@ -38,7 +40,7 @@ Please follow these steps to start developing:
 
 This project uses`black`and`isort`Format it and use`pre-commit`Conduct quality checks.
 
--   **格式化代码**:
+-   **Format code**:
     ```bash
     uv run black .
     uv run isort .
@@ -66,4 +68,4 @@ This project uses`black`and`isort`Format it and use`pre-commit`Conduct quality c
 
 ## license
 
-This project uses**Apache License 2.0** 许可证。有关详情，请参阅 [LICENSE](../LICENSE)document.
+本项目采用 **Apache License 2.0**license. For details, see[LICENSE](../LICENSE)document.
