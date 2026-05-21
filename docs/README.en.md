@@ -8,6 +8,8 @@ A Python project to build and run Deep Agents using a modern LLM framework.
 
 `nhm-deepagents`is a professional Python project focusing on deep agents. It leverages modern Python features (3.14+) and powerful tools to provide a high-quality development experience for AI agent research and applications.
 
+Project internal code and application prefix**`tomorrow`**Based on a character from the game Death Stranding 2: On the Beach**Tomorrow**(played by Elle Fanning). In the plot, she is the daughter of protagonist Sam Bridges, who was also revealed to be a character in the previous game.**Lou**(BB-28)。
+
 The project currently contains a psychological expert agent that can be used`deepagents`The framework analyzes user input and provides recommendations.
 
 ## 🛠️ Technology stack
@@ -19,7 +21,7 @@ The project currently contains a psychological expert agent that can be used`dee
 -   **Configuration management**:[Dynaconf](https://www.dynaconf.com/)
 -   **Code quality**:`black`,`isort`,`pre-commit`
 
-## 📋 环境要求
+## 📋 Environmental requirements
 
 -   **Python 3.14+**
 -   **uv**: A fast Python package installer and parser.
@@ -54,7 +56,7 @@ The project currently contains a psychological expert agent that can be used`dee
 
 ### Run application
 
-运行主入口点：
+Run the main entry point:
 
 ```bash
 uv run python src/main.py
@@ -96,7 +98,7 @@ Commonly used development scripts:
 -   `src/tomorrow/`: Core package directory.
     -   `core/agent.py`: Define deep agents and their instructions.
     -   `settings.py`: Default configuration value.
-    -   `utils/conf.py`: Dynaconf 初始化逻辑。
+    -   `utils/conf.py`: Dynaconf initialization logic.
     -   `utils/functional.py`: Functional utility (e.g.`SimpleLazyObject`）。
 -   `docs/`: Multilingual documentation.
 -   `pyproject.toml`: Project metadata, dependencies, and tool configuration.
