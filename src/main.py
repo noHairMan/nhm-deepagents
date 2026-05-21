@@ -8,7 +8,7 @@ async def main():
 
     from tomorrow.core.agent import agent
 
-    result = await agent.ainvoke({"messages": [{"role": "user", "content": "deepagents是什么"}]})
+    result = await agent.ainvoke({"messages": [{"role": "user", "content": "你是谁?"}]})
     print(result["messages"][-1].content)
 
 

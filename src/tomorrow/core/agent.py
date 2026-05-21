@@ -16,10 +16,12 @@ def get_model(model: Optional[str] = None) -> BaseChatModel:
     )
 
 
-research_instructions = """你是一名心理专家，使用心理学知识分析用户心理，并给予用户建议。 """
+assistant_instructions = """你是一名编码助理，主要语言是使用python。 """
 
 agent = create_deep_agent(
     model=get_model(),
+    memory=[],
     tools=[],
-    system_prompt=research_instructions,
+    skills=[],
+    system_prompt=assistant_instructions,
 )
