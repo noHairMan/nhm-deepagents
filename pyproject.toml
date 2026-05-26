@@ -5,8 +5,10 @@ requires-python = ">=3.14"
 dependencies = [
     "deepagents>=0.6.2",
     "dynaconf>=3.2.13",
+    "fastapi>=0.136.3",
     "langchain-ollama>=1.1.0",
     "langgraph-checkpoint-sqlite>=3.1.0",
+    "uvicorn>=0.48.0",
 ]
 
 [dependency-groups]
@@ -28,11 +30,11 @@ src_paths = ["src"]
 py_version = 314
 skip_gitignore = true
 sections = ["FUTURE", "STDLIB", "THIRDPARTY", "FIRSTPARTY", "LOCALFOLDER"]
-known_first_party = ["tomorrow"]
+known_first_party = ["tomorrow", "rainy"]
 multi_line_output = 3
 line_length = 120
 
 [tool.pytest.ini_options]
 pythonpath = ["src"]
-testpaths = ["tests"]
+testpaths = ["tests/tomorrow", "tests/rainy"]
 python_files = ["*.py"]

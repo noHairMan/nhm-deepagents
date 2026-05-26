@@ -217,6 +217,7 @@ __marimo__/
 # Streamlit
 .streamlit/secrets.toml
 
-.idea/
+.idea
 *.db
 *.db-*
+logs
