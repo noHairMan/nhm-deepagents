@@ -6,6 +6,12 @@ dependencies = [
     "deepagents>=0.6.2",
     "dynaconf>=3.2.13",
     "langchain-ollama>=1.1.0",
+    "langgraph-checkpoint-sqlite>=3.1.0",
+]
+
+[dependency-groups]
+dev = [
+    "pytest>=9.0.3",
 ]
 
 [tool.uv.sources]
@@ -25,3 +31,8 @@ sections = ["FUTURE", "STDLIB", "THIRDPARTY", "FIRSTPARTY", "LOCALFOLDER"]
 known_first_party = ["tomorrow"]
 multi_line_output = 3
 line_length = 120
+
+[tool.pytest.ini_options]
+pythonpath = ["src"]
+testpaths = ["tests"]
+python_files = ["*.py"]

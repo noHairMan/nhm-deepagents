@@ -4,7 +4,7 @@
 
 ## 1. 构建与配置说明
 
-本项目使用 [uv](https://github.com/astral-sh/uv) 作为包管理和环境管理工具。
+本项目使用 [uv](https://github.com/astral-sh/uv) (通常位于 `/opt/homebrew/bin/uv`) 作为包管理和环境管理工具。
 
 ### 环境设置
 1.  **安装依赖**:

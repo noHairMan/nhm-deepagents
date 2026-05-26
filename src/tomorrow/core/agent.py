@@ -1,10 +1,13 @@
+import contextlib
 from typing import Optional
 
 from deepagents import create_deep_agent
 from langchain_core.language_models import BaseChatModel
+from langchain_core.messages import SystemMessage
 from langchain_ollama import ChatOllama
 
-from tomorrow.utils.conf import settings
+from tomorrow.conf import settings
+from tomorrow.core.checkpoints import get_checkpointer_context
 
 
 def get_model(model: Optional[str] = None) -> BaseChatModel:
@@ -16,12 +19,14 @@ def get_model(model: Optional[str] = None) -> BaseChatModel:
     )
 
 
-assistant_instructions = """你是一名编码助理，主要语言是使用python。 """
-
-agent = create_deep_agent(
-    model=get_model(),
-    memory=[],
-    tools=[],
-    skills=[],
-    system_prompt=assistant_instructions,
-)
+@contextlib.asynccontextmanager
+async def create_agent():
+    async with get_checkpointer_context() as checkpointer:
+        yield create_deep_agent(
+            model=get_model(),
+            memory=[],
+            tools=[],
+            skills=[],
+            system_prompt=SystemMessage(content="""你是一名智能助理，运用你的知识尽可能的回答用户问题。"""),
+            checkpointer=checkpointer,
+        )
