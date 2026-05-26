@@ -7,7 +7,7 @@ default_stages: [ pre-commit, pre-push ]
 files: ''
 exclude: ^$
 fail_fast: false
-minimum_pre_commit_version: 3.3.3
+minimum_pre_commit_version: 4.5.0
 repos:
   - repo: https://github.com/pre-commit/pre-commit-hooks
     rev: v6.0.0
