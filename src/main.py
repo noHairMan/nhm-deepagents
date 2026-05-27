@@ -9,8 +9,8 @@ def get_unicorn_server():
 
     config = uvicorn.Config(
         "rainy.app:app",
-        host="0.0.0.0",
-        port=8000,
+        host=settings.HOST,
+        port=settings.PORT,
         reload=True,
         log_config=settings.LOGGING,
     )
