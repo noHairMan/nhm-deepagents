@@ -1,73 +1,31 @@
-# 开发者指南 (AGENTS.md)
+# 智能体开发指南 (AGENTS.md)
 
-本文档旨在为开发人员提供关于 `nhm-deepagents` 项目的构建、测试及开发的详细信息。
+## 1. 环境与配置
+- **包管理**: 使用 `uv`。执行 `uv sync` 安装依赖。
+- **配置管理**: 基于 `Dynaconf`。
+  - `TOMORROW_APP` / `RAINY_APP`: 应用名/环境变量前缀。
+  - `TOMORROW_SETTINGS_MODULE` / `RAINY_SETTINGS_MODULE`: 设置模块路径。
+- **运行时依赖**: 必须运行 Ollama，默认模型 `qwen3.5:9b`。
 
-## 1. 构建与配置说明
-
-本项目使用 [uv](https://github.com/astral-sh/uv) (通常位于 `/opt/homebrew/bin/uv`) 作为包管理和环境管理工具。
-
-### 环境设置
-1.  **安装依赖**:
-    使用 `uv sync` 命令来同步依赖并创建虚拟环境。
-    ```bash
-    uv sync
-    ```
-2.  **配置环境**:
-    项目使用 `Dynaconf` 进行配置管理，通过环境变量控制加载行为。
-    - `TOMORROW_APP`: 定义应用名称（同时作为环境变量前缀，默认值为 `tomorrow`）。
-    - `TOMORROW_SETTINGS_MODULE`: 定义设置文件的模块路径或文件路径。
-
-### 运行时依赖
-- **Ollama**: 必须安装并运行 Ollama 服务。
-- **模型**: 默认需要 `qwen3.5:9b`。
+## 2. 测试规范
+- **框架**: `pytest`。
+- **目录结构**: `tests/` 与 `src/` 严格对应（路径与文件名一致）。
+- **编写规范**: 必须使用以 `Test` 开头的测试类包裹测试方法。
+- **运行测试**:
   ```bash
-  ollama pull qwen3.5:9b
+  PYTHONPATH=src TOMORROW_APP=tomorrow TOMORROW_SETTINGS_MODULE=tomorrow.settings uv run pytest
   ```
 
-## 2. 测试指南
+## 3. 编码规范
+- **格式化**: Black (line-length = 120)。
+- **排序**: Isort (与 Black 兼容)。
+- **核心文件**:
+  - `src/tomorrow/core/agent.py`: Deep Agent 定义。
+  - `src/tomorrow/conf/config.py`: 配置加载实现。
+  - `src/tomorrow/settings.py`: `tomorrow` 默认配置。
+  - `src/rainy/settings.py`: `rainy` 默认配置。
+- **注意事项**: 修改配置项需同步更新 `settings.py`；环境变量优先级最高。
 
-项目使用 `pytest` 作为测试框架。
-
-### 运行测试
-由于源代码位于 `src` 目录，且配置加载依赖于环境变量，在项目根目录下运行测试时建议使用以下命令：
-```bash
-PYTHONPATH=src TOMORROW_APP=tomorrow TOMORROW_SETTINGS_MODULE=src.tomorrow.settings uv run pytest
-```
-
-### 添加新测试
-- 测试文件应存放在 `tests/` 目录下，并以 `test_*.py` 命名。
-- 若需要测试涉及 LLM 的异步逻辑，建议使用 `pytest-asyncio`。
-
-### 测试示例
-以下是一个验证配置加载和模型实例化的简单示例（已验证通过）：
-
-```python
-from tomorrow.core.agent import get_model
-from langchain_ollama import ChatOllama
-
-def test_get_model_initialization():
-    """验证模型实例是否能根据给定名称正确创建"""
-    model_name = "test-model"
-    model = get_model(model_name)
-    assert isinstance(model, ChatOllama)
-    assert model.model == model_name
-```
-
-## 3. 额外开发信息
-
-### 代码规范
-- **格式化**: 项目遵循 Black 格式化规范，行宽设置为 **120**。
-- **导入排序**: 使用 Isort 进行导入排序，配置与 Black 兼容。
-- **静态检查**: 建议安装 `pre-commit` 钩子。
-  ```bash
-  uv run pre-commit install
-  ```
-
-### 项目核心结构
-- `src/tomorrow/core/agent.py`: 包含深度智能体（Deep Agent）的定义。
-- `src/tomorrow/utils/conf.py`: 封装了基于 Dynaconf 的配置加载逻辑。
-- `src/tomorrow/settings.py`: 存储项目的默认配置项。
-
-### 开发注意事项
-- 修改配置项后，请务必更新 `src/tomorrow/settings.py`。
-- 环境变量加载具有高优先级，默认前缀为 `TOMORROW_`。
+## 4. 智能体指令
+- **文档维护**: 本文档 (`AGENTS.md`) 是为代码编辑智能体设计的，仅包含智能体执行任务所需的关键技术信息。
+- **修改原则**: 修改此文档时，应保持其简洁性，确保只保留必要的环境配置、测试规范和编码约束。
