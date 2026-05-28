@@ -8,18 +8,24 @@
 
 `nhm-deepagents`是一個專注於深度智能體的專業 Python 專案。它利用現代 Python 特性 (3.14+) 和強大的工具，為 AI 智能體研究和應用提供高品質的開發體驗。
 
-專案內部代號及應用前綴**`tomorrow`**取自遊戲《死亡擱淺 2：冥灘之上》（Death Stranding 2: On the Beach）中的角色**明天**（艾莉·範甯飾演）。在劇情中，她是主角山姆布里吉斯（Sam Bridges）的女兒，也被揭露為前作中的**大樓**(BB-28)。
+專案內部包含兩個主要模組：
 
-該項目目前包含一個心理專家智能體，可以使用`deepagents`框架分析使用者輸入並提供建議。
+-   **`tomorrow`**: 核心智能體模組。代號取自遊戲《死亡擱淺 2：冥灘之上》（Death Stranding 2: On the Beach）中的角色**明天**（艾莉·範甯飾演）。在劇情中，她是主角山姆布里吉斯（Sam Bridges）的女兒，也被揭露為前作中的**大樓**(BB-28)。
+-   **`rainy`**: 基於 FastAPI 的 API 服務模組。代號同樣取自《死亡擱淺 2》中的角色**下雨天**（由忽那汐裡飾演）。在遊戲中，她擁有引發「時間雨」（Timefall）和具有治癒能力的「核心雨」（Corefall）的神奇力量，被描述為既能傷害也能治癒的「藥（Pharmakon）」。本模組整合了統一回應格式、處理時間中間件等功能。
+
+該項目目前包含一個心理專家智能體，可以使用`deepagents`框架分析使用者輸入並提供建議，並透過`rainy`模組對外提供 API 介面。
 
 ## 🛠️ 技術棧
 
 -   **語言**:[Python](https://www.python.org/)>= 3.14
 -   **套件管理器**:[紫外線](https://github.com/astral-sh/uv)
+-   **API 框架**:[迅速](https://fastapi.tiangolo.com/)
+-   **Web 伺服器**:[獨角獸](https://www.uvicorn.org/)
 -   **智能體框架**:[深度代理](https://github.com/zongxuheng/deepagents)(基於 LangGraph/LangChain)
 -   **LLM 提供者**:[成為](https://ollama.com/)(透過`langchain-ollama`)
 -   **配置管理**:[動態會議](https://www.dynaconf.com/)
 -   **代碼品質**:`black`,`isort`,`pre-commit`
+-   **測試與覆蓋率**:`pytest`,`coverage`
 
 ## 📋 環境要求
 
@@ -54,6 +60,11 @@
     uv run pre-commit install
     ```
 
+5.  **啟動 Ollama 並取得模型**:
+    ```bash
+    ollama pull qwen3.5:9b
+    ```
+
 ### 運行應用
 
 運行主入口點：
@@ -64,11 +75,13 @@ uv run python src/main.py
 
 ## ⚙️ 配置
 
-該項目使用**動態會議**進行配置管理。設定定義在`src/tomorrow/settings.py`中，可以透過環境變數或`.env`文件進行覆蓋。
+該項目使用**動態會議**進行配置管理。設定分別定義在`src/tomorrow/settings.py`（明天）和`src/rainy/settings.py`(Rainy) 中，可以透過環境變數或`.env`文件進行覆蓋。
 
 ### 環境變數
 
-環境變數預設以前綴`TOMORROW_`開頭。
+環境變數預設以前綴`TOMORROW_`(核心模組) 或`RAINY_`(API 模組) 開頭。
+
+#### Tomorrow 配置 (核心)
 
 | 變數                         | 描述             | 預設值                      |
 | -------------------------- | -------------- | ------------------------ |
@@ -76,6 +89,17 @@ uv run python src/main.py
 | `TOMORROW_DEFAULT_MODEL`   | 預設使用的 LLM 模型   | `qwen3.5:9b`             |
 | `TOMORROW_APP`             | 應用名稱（用作環境變數前綴） | `tomorrow`               |
 | `TOMORROW_SETTINGS_MODULE` | 設定模組的路徑        | `tomorrow.settings`      |
+| `TOMORROW_CHECKPOINT`      | 檢查點配置          | `{"type": "memory"}`     |
+
+#### Rainy 設定 (API)
+
+| 變數                      | 描述             | 預設值              |
+| ----------------------- | -------------- | ---------------- |
+| `RAINY_HOST`            | API 服務監聽位址     | `localhost`      |
+| `RAINY_PORT`            | API 服務連接埠      | `8000`           |
+| `RAINY_APP`             | 應用名稱（用作環境變數前綴） | `rainy`          |
+| `RAINY_SETTINGS_MODULE` | 設定模組的路徑        | `rainy.settings` |
+| `RAINY_MIDDLEWARE`      | 啟用的中間件列表       | (見 settings.py)  |
 
 ## 📜 腳本
 
@@ -94,12 +118,18 @@ uv run python src/main.py
 
 ## 📂 專案結構
 
--   `src/main.py`: 應用的主入口點。設定環境並調用智能體。
--   `src/tomorrow/`: 核心包目錄。
+-   `src/main.py`: 應用的主入口點。設定環境並啟動 Uvicorn 伺服器。
+-   `src/tomorrow/`: 核心智能體包目錄。
     -   `core/agent.py`: 定義深度智能體及其指令。
+    -   `core/checkpoints/`: 檢查點實作（Memory, SQLite 等）。
     -   `settings.py`: 預設配置值。
-    -   `utils/conf.py`: Dynaconf 初始化邏輯。
-    -   `utils/functional.py`: 功能實用程式（例如`SimpleLazyObject`）。
+    -   `utils/functional.py`: 功能實用程式。
+-   `src/rainy/`: API 服務包目錄。
+    -   `app.py`: FastAPI 應用程式定義。
+    -   `api/endpoints/`: API 路由定義。
+    -   `middleware/`: 自訂中間件（處理時間、統一回應格式）。
+    -   `settings.py`: API 模組預設配置。
+-   `tests/`: 測試目錄，結構與`src`保持一致。
 -   `docs/`: 多國語言文件。
 -   `pyproject.toml`: 專案元資料、依賴項和工具配置。
 -   `uv.lock`: 鎖定依賴版本。
@@ -107,13 +137,27 @@ uv run python src/main.py
 
 ## 🧪 測試
 
--   TODO: 使用`pytest`實現單元測試和整合測試。
--   TODO: 新增用於自動測試的 CI 流程。
+項目使用`pytest`進行測試，並要求**100%**的測試覆蓋率。
 
-運行測試（實現後）：
+### 運行測試
+
+-   **運行 Tomorrow 測試**:
+    ```bash
+    PYTHONPATH=src TOMORROW_APP=tomorrow TOMORROW_SETTINGS_MODULE=tomorrow.settings uv run pytest tests/tomorrow
+    ```
+
+-   **運行 Rainy 測試**:
+    ```bash
+    PYTHONPATH=src RAINY_APP=rainy RAINY_SETTINGS_MODULE=rainy.settings uv run pytest tests/rainy
+    ```
+
+### 運行覆蓋率測試
 
 ```bash
-uv run pytest
+PYTHONPATH=src \
+TOMORROW_APP=tomorrow TOMORROW_SETTINGS_MODULE=tomorrow.settings \
+RAINY_APP=rainy RAINY_SETTINGS_MODULE=rainy.settings \
+uv run coverage run --rcfile=pyproject.toml -m pytest && uv run coverage report --rcfile=pyproject.toml
 ```
 
 ## 📄 許可證
