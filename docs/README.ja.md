@@ -8,18 +8,24 @@
 
 `nhm-deepagents`は、ディープ エージェントに焦点を当てたプロフェッショナルな Python プロジェクトです。最新の Python 機能 (3.14 以降) と強力なツールを活用して、AI エージェントの研究とアプリケーションに高品質の開発エクスペリエンスを提供します。
 
-プロジェクトの内部コードとアプリケーションのプレフィックス**`tomorrow`** 取自游戏《死亡搁浅 2：冥滩之上》（Death Stranding 2: On the Beach）中的角色 **明日**（エル・ファニングが演じる）。プロットでは、彼女は主人公サム・ブリッジスの娘であり、前作のキャラクターでもあることが明らかになりました。**ルー**(BB-28)。
+プロジェクトには 2 つの主要モジュールが含まれています。
 
-プロジェクトには現在、使用できる心理学の専門家エージェントが含まれています。`deepagents`このフレームワークはユーザー入力を分析し、推奨事項を提供します。
+-   **`tomorrow`**: コアエージェントモジュール。コードネームはゲーム『デス・ストランディング2: オン・ザ・ビーチ』の登場人物から取られている。**明日**（エル・ファニングが演じる）。プロットでは、彼女は主人公サム・ブリッジズの娘であり、前作のキャラクターでもあることが明らかになりました。**ルー**(BB-28)。
+-   **`rainy`**: FastAPIをベースとしたAPIサービスモジュール。コードネームもデス・ストランディング2のキャラクターから取られています**雨が降る**（忽那汐里が演じる）。ゲーム内では「タイムフォール」と回復の「コアフォール」を引き起こす魔法の力を持ち、傷つけることも治すこともできる「ファルマコン」として描かれている。応答フォーマットの統一や処理時間のミドルウェアなどの機能を統合したモジュールです。
+
+プロジェクトには現在、使用できる心理学の専門家エージェントが含まれています。`deepagents`このフレームワークはユーザー入力を分析し、次の方法で提案を提供します。`rainy`このモジュールは、外部への API インターフェイスを提供します。
 
 ## 🛠️ テクノロジースタック
 
 -   **言語**:[パイソン](https://www.python.org/)>= 3.14
 -   **包管理器**:[紫外線](https://github.com/astral-sh/uv)
+-   **APIフレームワーク**:[早い](https://fastapi.tiangolo.com/)
+-   **ウェブサーバー**:[ユビコーン](https://www.uvicorn.org/)
 -   **エージェントフレームワーク**:[ディープエージェント](https://github.com/zongxuheng/deepagents)(LangGraph/LangChainに基づく)
 -   **LLMプロバイダー**:[であること](https://ollama.com/)（合格`langchain-ollama`)
 -   **配置管理**:[ダイナコンフ](https://www.dynaconf.com/)
 -   **コードの品質**:`black`,`isort`,`pre-commit`
+-   **テストと適用範囲**:`pytest`,`coverage`
 
 ## 📋 環境要件
 
@@ -36,7 +42,7 @@
 ### インストール
 
 1.  **インストール`uv`**:
-    请按照 [UV公式倉庫](https://github.com/astral-sh/uv)の指示に従ってください。
+    フォローしてください[UV公式倉庫](https://github.com/astral-sh/uv)の指示に従ってください。
 
 2.  **リポジトリのクローンを作成する**:
     ```bash
@@ -54,6 +60,11 @@
     uv run pre-commit install
     ```
 
+5.  **Ollama を起動してモデルを取得します**:
+    ```bash
+    ollama pull qwen3.5:9b
+    ```
+
 ### アプリケーションを実行する
 
 メイン エントリ ポイントを実行します。
@@ -64,11 +75,13 @@ uv run python src/main.py
 
 ## ⚙️ 配置
 
-このプロジェクトでは、**ダイナコンフ**構成管理を実行します。設定は次のように定義されています`src/tomorrow/settings.py`、環境変数または`.env`ファイルが上書きされます。
+このプロジェクトでは、**ダイナコンフ**構成管理を実行します。設定はそれぞれ次のように定義されています。`src/tomorrow/settings.py`(明日)和`src/rainy/settings.py`(雨)、環境変数を使用することも、`.env`ファイルが上書きされます。
 
 ### 環境変数
 
-环境变量默认以前缀 `TOMORROW_`始まり。
+環境変数にはデフォルトで接頭辞が付けられます`TOMORROW_`(コアモジュール) または`RAINY_`(API モジュール) が最初にあります。
+
+#### Tomorrow 配置 (核心)
 
 | 変数                         | 説明する                      | デフォルト値                   |
 | -------------------------- | ------------------------- | ------------------------ |
@@ -76,6 +89,17 @@ uv run python src/main.py
 | `TOMORROW_DEFAULT_MODEL`   | デフォルトで使用される LLM モデル       | `qwen3.5:9b`             |
 | `TOMORROW_APP`             | アプリケーション名 (環境変数の接頭辞として使用) | `tomorrow`               |
 | `TOMORROW_SETTINGS_MODULE` | モジュールパスを設定する              | `tomorrow.settings`      |
+| `TOMORROW_CHECKPOINT`      | チェックポイントの構成               | `{"type": "memory"}`     |
+
+#### Rainy 配置 (API)
+
+| 変数                      | 説明する                      | デフォルト値           |
+| ----------------------- | ------------------------- | ---------------- |
+| `RAINY_HOST`            | APIサービスリスニングアドレス          | `localhost`      |
+| `RAINY_PORT`            | APIサービスポート                | `8000`           |
+| `RAINY_APP`             | アプリケーション名 (環境変数の接頭辞として使用) | `rainy`          |
+| `RAINY_SETTINGS_MODULE` | モジュールパスを設定する              | `rainy.settings` |
+| `RAINY_MIDDLEWARE`      | 有効なミドルウェアのリスト             | (settings.pyを参照) |
 
 ## 📜 脚本
 
@@ -94,12 +118,18 @@ uv run python src/main.py
 
 ## 📂 プロジェクトの構造
 
--   `src/main.py`: アプリケーションのメイン エントリ ポイント。環境をセットアップし、エージェントを呼び出します。
--   `src/tomorrow/`: コアパッケージディレクトリ。
+-   `src/main.py`: アプリケーションのメイン エントリ ポイント。環境をセットアップし、Uvicorn サーバーを起動します。
+-   `src/tomorrow/`: コア エージェント パッケージ ディレクトリ。
     -   `core/agent.py`: ディープエージェントとその命令を定義します。
+    -   `core/checkpoints/`: チェックポイントの実装 (メモリ、SQLite など)。
     -   `settings.py`: デフォルトの設定値。
-    -   `utils/conf.py`: Dynaconf 初期化ロジック。
-    -   `utils/functional.py`: 機能的有用性 (例:`SimpleLazyObject`）。
+    -   `utils/functional.py`：機能ユーティリティ。
+-   `src/rainy/`: API サービス パッケージのディレクトリ。
+    -   `app.py`: FastAPI アプリケーション定義。
+    -   `api/endpoints/`: API ルート定義。
+    -   `middleware/`：カスタムミドルウェア（処理時間、統一応答形式）。
+    -   `settings.py`: API モジュールのデフォルト設定。
+-   `tests/`: テストディレクトリ、構造、および`src`保持一致。
 -   `docs/`: 多言語ドキュメント。
 -   `pyproject.toml`: プロジェクトのメタデータ、依存関係、およびツール構成。
 -   `uv.lock`: 依存関係のバージョンをロックします。
@@ -107,13 +137,27 @@ uv run python src/main.py
 
 ## 🧪 テスト
 
--   TODO: 使用`pytest`単体テストと結合テストを実施します。
--   TODO: 自動テスト用の CI プロセスを追加します。
+プロジェクト利用`pytest`テストを実行して質問する**100%**テスト範囲。
 
-テストの実行 (実装後):
+### テストの実行
+
+-   **明日のテストを実行する**:
+    ```bash
+    PYTHONPATH=src TOMORROW_APP=tomorrow TOMORROW_SETTINGS_MODULE=tomorrow.settings uv run pytest tests/tomorrow
+    ```
+
+-   **Rainy テストを実行する**:
+    ```bash
+    PYTHONPATH=src RAINY_APP=rainy RAINY_SETTINGS_MODULE=rainy.settings uv run pytest tests/rainy
+    ```
+
+### カバレッジテストを実行する
 
 ```bash
-uv run pytest
+PYTHONPATH=src \
+TOMORROW_APP=tomorrow TOMORROW_SETTINGS_MODULE=tomorrow.settings \
+RAINY_APP=rainy RAINY_SETTINGS_MODULE=rainy.settings \
+uv run coverage run --rcfile=pyproject.toml -m pytest && uv run coverage report --rcfile=pyproject.toml
 ```
 
 ## 📄ライセンス
