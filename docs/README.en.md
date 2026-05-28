@@ -8,18 +8,24 @@ A Python project to build and run Deep Agents using a modern LLM framework.
 
 `nhm-deepagents`is a professional Python project focusing on deep agents. It leverages modern Python features (3.14+) and powerful tools to provide a high-quality development experience for AI agent research and applications.
 
-Project internal code and application prefix**`tomorrow`**Based on a character from the game Death Stranding 2: On the Beach**Tomorrow**(played by Elle Fanning). In the plot, she is the daughter of protagonist Sam Bridges, who was also revealed to be a character in the previous game.**Lou**(BB-28)。
+The project contains two main modules:
 
-The project currently contains a psychological expert agent that can be used`deepagents`The framework analyzes user input and provides recommendations.
+-   **`tomorrow`**: Core agent module. The codename is taken from a character in the game "Death Stranding 2: On the Beach"**Tomorrow**(played by Elle Fanning). In the plot, she is the daughter of protagonist Sam Bridges, who was also revealed to be a character in the previous game.**Lou**(BB-28)。
+-   **`rainy`**: API service module based on FastAPI. The codename is also taken from a character in Death Stranding 2**Rainy**(played by Shiori Kutsuna). In the game, she has the magical power to cause "Timefall" and the healing "Corefall", and is described as a "Pharmakon" that can both hurt and heal. This module integrates functions such as unified response format and processing time middleware.
+
+The project currently contains a psychological expert agent that can be used`deepagents`The framework analyzes user input and provides suggestions via`rainy`The module provides an API interface to the outside world.
 
 ## 🛠️ Technology stack
 
 -   **language**:[Python](https://www.python.org/)>= 3.14
 -   **Package manager**:[uv](https://github.com/astral-sh/uv)
+-   **API framework**:[speedy](https://fastapi.tiangolo.com/)
+-   **Web server**:[Uvicorn](https://www.uvicorn.org/)
 -   **agent framework**:[deepagents](https://github.com/zongxuheng/deepagents)(Based on LangGraph/LangChain)
 -   **LLM provider**:[To be](https://ollama.com/)(pass`langchain-ollama`)
 -   **Configuration management**:[Dynaconf](https://www.dynaconf.com/)
 -   **Code quality**:`black`,`isort`,`pre-commit`
+-   **Testing and Coverage**:`pytest`,`coverage`
 
 ## 📋 Environmental requirements
 
@@ -54,6 +60,11 @@ The project currently contains a psychological expert agent that can be used`dee
     uv run pre-commit install
     ```
 
+5.  **Start Ollama and get the model**:
+    ```bash
+    ollama pull qwen3.5:9b
+    ```
+
 ### Run application
 
 Run the main entry point:
@@ -64,11 +75,13 @@ uv run python src/main.py
 
 ## ⚙️ Configuration
 
-This project uses**Dynaconf**Perform configuration management. Settings are defined in`src/tomorrow/settings.py`, which can be passed through environment variables or`.env`file is overwritten.
+This project uses**Dynaconf**Perform configuration management. The settings are respectively defined in`src/tomorrow/settings.py`(Tomorrow) 和`src/rainy/settings.py`(Rainy), you can use environment variables or`.env`file is overwritten.
 
 ### environment variables
 
-Environment variables are prefixed by default`TOMORROW_`beginning.
+Environment variables are prefixed by default`TOMORROW_`(core module) or`RAINY_`(API module) at the beginning.
+
+#### Tomorrow configuration (core)
 
 | variable                   | describe                                               | default value            |
 | -------------------------- | ------------------------------------------------------ | ------------------------ |
@@ -76,6 +89,17 @@ Environment variables are prefixed by default`TOMORROW_`beginning.
 | `TOMORROW_DEFAULT_MODEL`   | LLM model used by default                              | `qwen3.5:9b`             |
 | `TOMORROW_APP`             | Application name (used as environment variable prefix) | `tomorrow`               |
 | `TOMORROW_SETTINGS_MODULE` | Set module path                                        | `tomorrow.settings`      |
+| `TOMORROW_CHECKPOINT`      | Checkpoint configuration                               | `{"type": "memory"}`     |
+
+#### Rainy configuration (API)
+
+| variable                | describe                                               | default value     |
+| ----------------------- | ------------------------------------------------------ | ----------------- |
+| `RAINY_HOST`            | API service listening address                          | `localhost`       |
+| `RAINY_PORT`            | API service port                                       | `8000`            |
+| `RAINY_APP`             | Application name (used as environment variable prefix) | `rainy`           |
+| `RAINY_SETTINGS_MODULE` | Set module path                                        | `rainy.settings`  |
+| `RAINY_MIDDLEWARE`      | List of enabled middlewares                            | (see settings.py) |
 
 ## 📜 Screenplay
 
@@ -94,12 +118,18 @@ Commonly used development scripts:
 
 ## 📂 Project structure
 
--   `src/main.py`: The main entry point of the application. Set up the environment and invoke the agent.
--   `src/tomorrow/`: Core package directory.
+-   `src/main.py`: The main entry point of the application. Set up the environment and start the Uvicorn server.
+-   `src/tomorrow/`: Core agent package directory.
     -   `core/agent.py`: Define deep agents and their instructions.
+    -   `core/checkpoints/`: Checkpoint implementation (Memory, SQLite, etc.).
     -   `settings.py`: Default configuration value.
-    -   `utils/conf.py`: Dynaconf initialization logic.
-    -   `utils/functional.py`: Functional utility (e.g.`SimpleLazyObject`）。
+    -   `utils/functional.py`: Function utility.
+-   `src/rainy/`: API service package directory.
+    -   `app.py`: FastAPI application definition.
+    -   `api/endpoints/`: API route definition.
+    -   `middleware/`: Custom middleware (processing time, unified response format).
+    -   `settings.py`: API module default configuration.
+-   `tests/`: Test directory, structure and`src`Be consistent.
 -   `docs/`: Multilingual documentation.
 -   `pyproject.toml`: Project metadata, dependencies, and tool configuration.
 -   `uv.lock`: Lock dependency versions.
@@ -107,13 +137,27 @@ Commonly used development scripts:
 
 ## 🧪 Test
 
--   TODO: use`pytest`Implement unit testing and integration testing.
--   TODO: Add CI process for automated testing.
+Project use`pytest`run a test and ask**100%**test coverage.
 
-Running the test (after implementation):
+### Run tests
+
+-   **Run the Tomorrow test**:
+    ```bash
+    PYTHONPATH=src TOMORROW_APP=tomorrow TOMORROW_SETTINGS_MODULE=tomorrow.settings uv run pytest tests/tomorrow
+    ```
+
+-   **Run Rainy tests**:
+    ```bash
+    PYTHONPATH=src RAINY_APP=rainy RAINY_SETTINGS_MODULE=rainy.settings uv run pytest tests/rainy
+    ```
+
+### Run coverage tests
 
 ```bash
-uv run pytest
+PYTHONPATH=src \
+TOMORROW_APP=tomorrow TOMORROW_SETTINGS_MODULE=tomorrow.settings \
+RAINY_APP=rainy RAINY_SETTINGS_MODULE=rainy.settings \
+uv run coverage run --rcfile=pyproject.toml -m pytest && uv run coverage report --rcfile=pyproject.toml
 ```
 
 ## 📄 License
