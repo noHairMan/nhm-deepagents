@@ -13,6 +13,7 @@ dependencies = [
 
 [dependency-groups]
 dev = [
+    "coverage>=7.14.1",
     "pre-commit>=4.6.0",
     "pytest>=9.0.3",
 ]
@@ -39,3 +40,35 @@ line_length = 120
 pythonpath = ["src"]
 testpaths = ["tests/tomorrow", "tests/rainy"]
 python_files = ["*.py"]
+
+[tool.coverage.run]
+branch = true
+concurrency = [
+    "thread",
+]
+data_file = ".coverage"
+disable_warnings = []
+source = [
+    "src/tomorrow",
+    "src/rainy",
+]
+omit = [
+    "tests/*",
+]
+relative_files = true
+
+[tool.coverage.report]
+exclude_also = []
+format = "text"
+sort = "Name"
+ignore_errors = true
+
+[tool.coverage.html]
+directory = "coverage"
+
+[tool.coverage.json]
+output = ".coverage.json"
+pretty_print = true
+
+[tool.coverage.xml]
+output = ".coverage.xml"

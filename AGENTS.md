@@ -1,4 +1,4 @@
-# 智能体开发指南 (AGENTS.md)
+# 智能体开发指南
 
 ## 1. 环境与配置
 - **包管理**: 使用 `uv`。执行 `uv sync` 安装依赖。
@@ -12,8 +12,20 @@
 - **目录结构**: `tests/` 与 `src/` 严格对应（路径与文件名一致）。
 - **编写规范**: 必须使用以 `Test` 开头的测试类包裹测试方法。
 - **运行测试**:
+  - `tomorrow`:
+    ```bash
+    PYTHONPATH=src TOMORROW_APP=tomorrow TOMORROW_SETTINGS_MODULE=tomorrow.settings uv run pytest tests/tomorrow
+    ```
+  - `rainy`:
+    ```bash
+    PYTHONPATH=src RAINY_APP=rainy RAINY_SETTINGS_MODULE=rainy.settings uv run pytest tests/rainy
+    ```
+- **运行覆盖率测试**:
   ```bash
-  PYTHONPATH=src TOMORROW_APP=tomorrow TOMORROW_SETTINGS_MODULE=tomorrow.settings uv run pytest
+  PYTHONPATH=src \
+  TOMORROW_APP=tomorrow TOMORROW_SETTINGS_MODULE=tomorrow.settings \
+  RAINY_APP=rainy RAINY_SETTINGS_MODULE=rainy.settings \
+  uv run coverage run --rcfile=pyproject.toml -m pytest && uv run coverage report --rcfile=pyproject.toml
   ```
 
 ## 3. 编码规范
@@ -27,5 +39,9 @@
 - **注意事项**: 修改配置项需同步更新 `settings.py`；环境变量优先级最高。
 
 ## 4. 智能体指令
-- **文档维护**: 本文档 (`AGENTS.md`) 是为代码编辑智能体设计的，仅包含智能体执行任务所需的关键技术信息。
+- **测试覆盖率要求**:
+  - 每次更改代码后，必须运行上述覆盖率测试命令。
+  - 智能体必须确保生成对应的测试代码。
+  - 测试覆盖率必须达到 **100%**。
+- **文档维护**: 本文档是为代码编辑智能体设计的，仅包含智能体执行任务所需的关键技术信息。
 - **修改原则**: 修改此文档时，应保持其简洁性，确保只保留必要的环境配置、测试规范和编码约束。
