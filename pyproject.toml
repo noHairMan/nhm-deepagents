@@ -16,6 +16,7 @@ dev = [
     "coverage>=7.14.1",
     "pre-commit>=4.6.0",
     "pytest>=9.0.3",
+    "pytest-asyncio>=1.4.0",
 ]
 
 [tool.uv.sources]

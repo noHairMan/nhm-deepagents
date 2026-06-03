@@ -19,8 +19,7 @@ UNIFY_RESPONSE_FORMAT_EXCLUDE = ["/docs", "/redoc", "/openapi.json"]
 
 LOG_LEVEL = logging.getLevelName(logging.INFO)
 LOG_ROOT = BASE_DIR.parent / "logs"
-if not os.path.exists(LOG_ROOT):
-    os.mkdir(LOG_ROOT)
+os.makedirs(LOG_ROOT, exist_ok=True)
 LOGGING = {
     "version": 1,
     "disable_existing_loggers": True,
