@@ -1,7 +1,7 @@
 [project]
 name = "nhm-deepagents"
 version = "0.1.0"
-requires-python = ">=3.14"
+requires-python = ">=3.14,<3.15"
 dependencies = [
     "deepagents>=0.6.2",
     "dynaconf>=3.2.13",
@@ -17,6 +17,7 @@ dev = [
     "pre-commit>=4.6.0",
     "pytest>=9.0.3",
     "pytest-asyncio>=1.4.0",
+    "tox>=4.24.2",
 ]
 
 [tool.uv.sources]
@@ -73,3 +74,18 @@ pretty_print = true
 
 [tool.coverage.xml]
 output = ".coverage.xml"
+
+[tool.tox]
+env_list = ["py314"]
+requires = ["tox-uv"]
+uv_python_preference = "system"
+
+[tool.tox.env_run_base]
+description = "Run tests with coverage"
+dependency_groups = ["dev"]
+pass_env = ["COVERAGE_FILE", "TOMORROW_APP", "RAINY_APP", "TOMORROW_SETTINGS_MODULE", "RAINY_SETTINGS_MODULE"]
+set_env = { PYTHONPATH = "{toxinidir}/src" }
+allowlist_externals = ["uv"]
+commands = [
+    ["coverage", "run", "--rcfile={toxinidir}/pyproject.toml", "-m", "pytest"]
+]
