@@ -1,5 +1,7 @@
 # NHM-深度代理
 
+[![Imports: isort](https://img.shields.io/badge/imports-isort-%231674b1?style=flat&labelColor=ef8336)](https://isort.readthedocs.io/)
+
 [簡體中文](/docs/README.zh.md)\|[英語](/docs/README.en.md)\|[日本人](/docs/README.ja.md)\|[繁體中文](/docs/README.zh-TW.md)
 
 一個使用現代 LLM 框架建構和運行「深度智能體」（Deep Agents）的 Python 專案。
@@ -127,6 +129,7 @@ uv run python src/main.py
 -   `src/rainy/`: API 服務包目錄。
     -   `app.py`: FastAPI 應用程式定義。
     -   `api/endpoints/`: API 路由定義。
+        -   `chat.py`: 聊天接口，整合了深度智能體模組。
     -   `middleware/`: 自訂中間件（處理時間、統一回應格式）。
     -   `settings.py`: API 模組預設配置。
 -   `tests/`: 測試目錄，結構與`src`保持一致。
