@@ -1,5 +1,7 @@
 # nhm-deepagents
 
+[![Imports: isort](https://img.shields.io/badge/imports-isort-%231674b1?style=flat&labelColor=ef8336)](https://isort.readthedocs.io/)
+
 [Simplified Chinese](/docs/README.zh.md)\|[English](/docs/README.en.md)\|[Japanese](/docs/README.ja.md)\|[Traditional Chinese](/docs/README.zh-TW.md)
 
 A Python project to build and run Deep Agents using a modern LLM framework.
@@ -127,6 +129,7 @@ Commonly used development scripts:
 -   `src/rainy/`: API service package directory.
     -   `app.py`: FastAPI application definition.
     -   `api/endpoints/`: API route definition.
+        -   `chat.py`: Chat interface, integrated with deep agent module.
     -   `middleware/`: Custom middleware (processing time, unified response format).
     -   `settings.py`: API module default configuration.
 -   `tests/`: Test directory, structure and`src`Be consistent.
