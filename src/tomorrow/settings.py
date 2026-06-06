@@ -3,7 +3,7 @@ from typing import Final
 
 from tomorrow.models.constants.checkpoint import CheckpointType
 
-APP: Final = "TOMORROW"
+APP: Final = "tomorrow"
 BASE_DIR: Final = Path(__file__).resolve().parent.parent
 
 OLLAMA_BASE_URL = "http://localhost:11434"

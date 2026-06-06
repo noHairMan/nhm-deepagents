@@ -3,7 +3,7 @@ import os
 from pathlib import Path
 from typing import Final
 
-APP: Final = "RAINY"
+APP: Final = "rainy"
 BASE_DIR: Final = Path(__file__).resolve().parent.parent
 
 HOST: str = "localhost"
@@ -13,6 +13,7 @@ MIDDLEWARE = [
     "rainy.middleware.unify_response_format",
     "rainy.middleware.add_process_time_header",
 ]
+
 
 UNIFY_RESPONSE_FORMAT_EXCLUDE = ["/docs", "/redoc", "/openapi.json"]
 

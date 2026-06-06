@@ -1,32 +1,33 @@
-import asyncio
 import os
+from pathlib import Path
 
 
-def get_unicorn_server():
+def run_server():
     import uvicorn
 
     from rainy.conf import settings
 
-    config = uvicorn.Config(
+    uvicorn.run(
         "rainy.app:app",
         host=settings.HOST,
         port=settings.PORT,
         reload=True,
-        log_config=settings.LOGGING,
+        reload_dirs=[
+            str(Path(__file__).resolve().parent / "rainy"),
+            str(Path(__file__).resolve().parent / "tomorrow"),
+        ],
+        log_config=settings.LOGGING.to_dict(),
     )
-    server = uvicorn.Server(config)
-    return server
 
 
-async def main():
+def main():
     os.environ.setdefault("TOMORROW_APP", "tomorrow")
     os.environ.setdefault("TOMORROW_SETTINGS_MODULE", "tomorrow.settings")
     os.environ.setdefault("RAINY_APP", "rainy")
     os.environ.setdefault("RAINY_SETTINGS_MODULE", "rainy.settings")
 
-    server = get_unicorn_server()
-    return await server.serve()
+    run_server()
 
 
 if __name__ == "__main__":
-    asyncio.run(main())
+    main()

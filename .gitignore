@@ -222,3 +222,4 @@ __marimo__/
 *.db-*
 logs/
 coverage/
+.run/
