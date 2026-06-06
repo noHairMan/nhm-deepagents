@@ -29,14 +29,25 @@ class TestResponseMiddleware:
 
     def test_chat_response_wrapped(self):
         """验证聊天接口返回被包装"""
-        response = self.client.post("/api/chat", json={"message": "hello"})
-        assert response.status_code == 200
-        data = response.json()
-        assert "code" in data
-        assert data["code"] == 0
-        assert "data" in data
-        assert data["data"] is None  # chat 接口目前返回 None
-        assert data["message"] == "成功"
+        from unittest.mock import AsyncMock, patch
+
+        from langchain_core.messages import AIMessage
+
+        mock_agent = AsyncMock()
+        mock_agent.ainvoke.return_value = {"messages": [AIMessage(content="test answer")]}
+
+        with patch("rainy.api.endpoints.chat.create_agent") as mock_create_agent:
+            mock_create_agent.return_value.__aenter__.return_value = mock_agent
+            mock_create_agent.return_value.__aexit__.return_value = AsyncMock()
+
+            response = self.client.post("/api/chat", json={"message": "hello"})
+            assert response.status_code == 200
+            data = response.json()
+            assert "code" in data
+            assert data["code"] == 0
+            assert "data" in data
+            assert data["data"]["answer"] == "test answer"
+            assert data["message"] == "成功"
 
     def test_docs_not_wrapped(self):
         """验证文档路径不被包装"""

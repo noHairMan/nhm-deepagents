@@ -1,4 +1,4 @@
-from unittest.mock import AsyncMock, MagicMock, patch
+from unittest.mock import MagicMock, patch
 
 import pytest
 from langchain_core.messages import SystemMessage
@@ -11,7 +11,7 @@ class TestAgent:
         with patch("tomorrow.core.agent.ChatOllama") as mock_ollama:
             from tomorrow.conf import settings
 
-            model = get_model("test-model")
+            get_model("test-model")
             mock_ollama.assert_called_once_with(
                 model="test-model",
                 base_url=settings.OLLAMA_BASE_URL,
@@ -22,7 +22,7 @@ class TestAgent:
         with patch("tomorrow.core.agent.ChatOllama") as mock_ollama:
             from tomorrow.conf import settings
 
-            model = get_model()
+            get_model()
             mock_ollama.assert_called_once_with(
                 model="qwen3.5:9b",
                 base_url=settings.OLLAMA_BASE_URL,
