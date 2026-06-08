@@ -27,27 +27,30 @@ class TestResponseMiddleware:
         assert data["data"] == {"status": "ok"}
         assert data["message"] == "成功"
 
-    def test_chat_response_wrapped(self):
-        """验证聊天接口返回被包装"""
-        from unittest.mock import AsyncMock, patch
+    def test_chat_response_not_wrapped(self):
+        """验证聊天接口为 SSE 流式响应，不被统一格式中间件包装"""
+        from unittest.mock import MagicMock, patch
 
-        from langchain_core.messages import AIMessage
+        from langchain_core.messages import AIMessageChunk
 
-        mock_agent = AsyncMock()
-        mock_agent.ainvoke.return_value = {"messages": [AIMessage(content="test answer")]}
+        class FakeAgent:
+            async def astream_events(self, *args, **kwargs):
+                yield {
+                    "event": "on_chat_model_stream",
+                    "data": {"chunk": AIMessageChunk(content="test answer")},
+                }
 
-        with patch("rainy.api.endpoints.chat.create_agent") as mock_create_agent:
-            mock_create_agent.return_value.__aenter__.return_value = mock_agent
-            mock_create_agent.return_value.__aexit__.return_value = AsyncMock()
+        mock_create_agent = MagicMock()
+        mock_create_agent.return_value.__aenter__.return_value = FakeAgent()
+        mock_create_agent.return_value.__aexit__.return_value = None
 
-            response = self.client.post("/api/chat", json={"message": "hello"})
+        with patch("rainy.api.endpoints.chat.create_agent", mock_create_agent):
+            response = self.client.post("/api/chat/stream", json={"message": "hello"})
             assert response.status_code == 200
-            data = response.json()
-            assert "code" in data
-            assert data["code"] == 0
-            assert "data" in data
-            assert data["data"]["answer"] == "test answer"
-            assert data["message"] == "成功"
+            assert "text/event-stream" in response.headers.get("Content-Type", "")
+            assert "test answer" in response.text
+            # 流式响应不应被包装成统一 JSON 格式
+            assert "code" not in response.text
 
     def test_docs_not_wrapped(self):
         """验证文档路径不被包装"""
