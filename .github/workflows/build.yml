@@ -9,6 +9,7 @@ on:
       - "tests/**"
       - "pyproject.toml"
       - "uv.lock"
+      - ".github/workflows/build.yml"
   push:
     branches:
       - "main"
@@ -17,7 +18,7 @@ on:
       - "tests/**"
       - "pyproject.toml"
       - "uv.lock"
-      - ".github/workflows/*.yml"
+      - ".github/workflows/build.yml"
 
 jobs:
   build:
