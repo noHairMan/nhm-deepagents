@@ -145,7 +145,7 @@ Commonly used development scripts:
 -   `tests/`: Test directory, structure and`src`Be consistent.
 -   `docs/`: Multilingual documentation.
 -   `pyproject.toml`: Project metadata, dependencies, and tool configuration.
--   `uv.lock`: 锁定依赖版本。
+-   `uv.lock`: Lock dependency versions.
 -   `LICENSE`: Apache License 2.0。
 
 ## 🧪 Test
