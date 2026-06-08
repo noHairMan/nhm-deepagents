@@ -1,6 +1,6 @@
 # nhm-deepagents
 
-[![Imports: isort](https://img.shields.io/badge/imports-isort-%231674b1?style=flat&labelColor=ef8336)](https://isort.readthedocs.io/)
+[![Imports: isort](https://img.shields.io/badge/imports-isort-%231674b1?style=flat&labelColor=ef8336)](https://isort.readthedocs.io/)[![Coverage badge](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/noHairMan/nhm-deepagents/python-coverage-comment-action-data/endpoint.json)](https://htmlpreview.github.io/?https://github.com/noHairMan/nhm-deepagents/blob/python-coverage-comment-action-data/htmlcov/index.html)
 
 [Simplified Chinese](/docs/README.zh.md)\|[English](/docs/README.en.md)\|[Japanese](/docs/README.ja.md)\|[Traditional Chinese](/docs/README.zh-TW.md)
 
@@ -26,7 +26,7 @@ The project currently contains a psychological expert agent that can be used`dee
 -   **agent framework**:[deepagents](https://github.com/zongxuheng/deepagents)(Based on LangGraph/LangChain)
 -   **LLM provider**:[To be](https://ollama.com/)(pass`langchain-ollama`)
 -   **Configuration management**:[Dynaconf](https://www.dynaconf.com/)
--   **Code quality**:`black`,`isort`,`pre-commit`
+-   **代码质量**:`black`,`isort`,`pre-commit`
 -   **Testing and Coverage**:`pytest`,`coverage`
 
 ## 📋 Environmental requirements
