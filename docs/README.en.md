@@ -15,7 +15,15 @@ The project contains two main modules:
 -   **`tomorrow`**: Core agent module. The codename is taken from a character in the game "Death Stranding 2: On the Beach"**Tomorrow**(played by Elle Fanning). In the plot, she is the daughter of protagonist Sam Bridges, who was also revealed to be a character in the previous game.**Lou**(BB-28)。
 -   **`rainy`**: API service module based on FastAPI. The codename is also taken from a character in Death Stranding 2**Rainy**(played by Shiori Kutsuna). In the game, she has the magical power to cause "Timefall" and the healing "Corefall", and is described as a "Pharmakon" that can both hurt and heal. This module integrates functions such as unified response format and processing time middleware.
 
-The project currently contains a psychological expert agent that can be used`deepagents`The framework analyzes user input and provides suggestions via`rainy`The module provides an API interface to the outside world.
+The project currently contains a general smart assistant agent that can be used`deepagents`The framework analyzes user input and provides suggestions via`rainy`The module provides external synchronization (`/api/chat`) and streaming (`/api/chat/stream`) API interface.
+
+## ⚙️ CI/CD
+
+The project integrates GitHub Actions workflows, including:
+
+-   **Testing and Coverage**: Automatically run tests and check code coverage.
+-   **Document translation**: automatically`README.zh.md`Translated into multiple languages ​​(English, Japanese, Traditional Chinese).
+-   **Code specifications**: Automatic execution`black`and`isort`examine.
 
 ## 🛠️ Technology stack
 
@@ -26,7 +34,7 @@ The project currently contains a psychological expert agent that can be used`dee
 -   **agent framework**:[deepagents](https://github.com/zongxuheng/deepagents)(Based on LangGraph/LangChain)
 -   **LLM provider**:[To be](https://ollama.com/)(pass`langchain-ollama`)
 -   **Configuration management**:[Dynaconf](https://www.dynaconf.com/)
--   **代码质量**:`black`,`isort`,`pre-commit`
+-   **Code quality**:`black`,`isort`,`pre-commit`, Type Hinting
 -   **Testing and Coverage**:`pytest`,`coverage`
 
 ## 📋 Environmental requirements
@@ -129,13 +137,15 @@ Commonly used development scripts:
 -   `src/rainy/`: API service package directory.
     -   `app.py`: FastAPI application definition.
     -   `api/endpoints/`: API route definition.
-        -   `chat.py`: Chat interface, integrated with deep agent module.
+        -   `chat.py`: Synchronous and streaming chat interface, integrated with deep agent module.
+        -   `health.py`: Health check interface.
+        -   `urls.py`: Unified routing mounting.
     -   `middleware/`: Custom middleware (processing time, unified response format).
     -   `settings.py`: API module default configuration.
 -   `tests/`: Test directory, structure and`src`Be consistent.
 -   `docs/`: Multilingual documentation.
 -   `pyproject.toml`: Project metadata, dependencies, and tool configuration.
--   `uv.lock`: Lock dependency versions.
+-   `uv.lock`: 锁定依赖版本。
 -   `LICENSE`: Apache License 2.0。
 
 ## 🧪 Test
@@ -155,6 +165,8 @@ Project use`pytest`run a test and ask**100%**test coverage.
     ```
 
 ### Run coverage tests
+
+It is required that test coverage must reach**100%**。
 
 ```bash
 PYTHONPATH=src \
