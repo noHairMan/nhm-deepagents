@@ -1,6 +1,6 @@
 # NHM-深度代理
 
-[![Imports: isort](https://img.shields.io/badge/imports-isort-%231674b1?style=flat&labelColor=ef8336)](https://isort.readthedocs.io/)
+[![Imports: isort](https://img.shields.io/badge/imports-isort-%231674b1?style=flat&labelColor=ef8336)](https://isort.readthedocs.io/)[![Coverage badge](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/noHairMan/nhm-deepagents/python-coverage-comment-action-data/endpoint.json)](https://htmlpreview.github.io/?https://github.com/noHairMan/nhm-deepagents/blob/python-coverage-comment-action-data/htmlcov/index.html)
 
 [簡體中文](/docs/README.zh.md)\|[英語](/docs/README.en.md)\|[日本人](/docs/README.ja.md)\|[繁體中文](/docs/README.zh-TW.md)
 
@@ -127,12 +127,12 @@ uv run python src/main.py
     -   `settings.py`: 預設配置值。
     -   `utils/functional.py`: 功能實用程式。
 -   `src/rainy/`: API 服務包目錄。
-    -   `app.py`: FastAPI 應用程式定義。
+    -   `app.py`: FastAPI 应用定义。
     -   `api/endpoints/`: API 路由定義。
         -   `chat.py`: 聊天接口，整合了深度智能體模組。
     -   `middleware/`: 自訂中間件（處理時間、統一回應格式）。
     -   `settings.py`: API 模組預設配置。
--   `tests/`: 測試目錄，結構與`src`保持一致。
+-   `tests/`: 测试目录，结构与 `src`保持一致。
 -   `docs/`: 多國語言文件。
 -   `pyproject.toml`: 專案元資料、依賴項和工具配置。
 -   `uv.lock`: 鎖定依賴版本。
