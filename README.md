@@ -7,7 +7,7 @@
 | src/rainy/\_\_init\_\_.py                     |        0 |        0 |        0 |        0 |     100% |           |
 | src/rainy/api/\_\_init\_\_.py                 |        0 |        0 |        0 |        0 |     100% |           |
 | src/rainy/api/endpoints/\_\_init\_\_.py       |        0 |        0 |        0 |        0 |     100% |           |
-| src/rainy/api/endpoints/chat.py               |       13 |        0 |        0 |        0 |     100% |           |
+| src/rainy/api/endpoints/chat.py               |       28 |        0 |        6 |        0 |     100% |           |
 | src/rainy/api/endpoints/health.py             |        7 |        0 |        0 |        0 |     100% |           |
 | src/rainy/api/endpoints/urls.py               |        6 |        0 |        0 |        0 |     100% |           |
 | src/rainy/app.py                              |        9 |        0 |        2 |        0 |     100% |           |
@@ -37,7 +37,7 @@
 | src/tomorrow/utils/\_\_init\_\_.py            |        0 |        0 |        0 |        0 |     100% |           |
 | src/tomorrow/utils/functional.py              |      224 |        0 |       58 |        0 |     100% |           |
 | src/tomorrow/utils/log.py                     |        6 |        0 |        0 |        0 |     100% |           |
-| **TOTAL**                                     |  **439** |    **0** |   **74** |    **0** | **100%** |           |
+| **TOTAL**                                     |  **454** |    **0** |   **80** |    **0** | **100%** |           |
 
 
 ## Setup coverage badge
