@@ -1,0 +1,97 @@
+name: Build
+
+on:
+  pull_request:
+    branches:
+      - "main"
+    paths:
+      - "src/**"
+      - "tests/**"
+      - "pyproject.toml"
+      - "uv.lock"
+  push:
+    branches:
+      - "main"
+    paths:
+      - "src/**"
+      - "tests/**"
+      - "pyproject.toml"
+      - "uv.lock"
+      - ".github/workflows/*.yml"
+
+jobs:
+  build:
+    strategy:
+      matrix:
+        python_version: ["3.14"]
+
+    name: "Python ${{ matrix.python_version }}"
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: true
+
+      - name: Set up Python
+        id: setup-python
+        uses: actions/setup-python@v6
+        with:
+          python-version: ${{ matrix.python_version }}
+
+      - name: Install Uv
+        uses: "astral-sh/setup-uv@v6"
+        with:
+          version: "latest"
+          python-version: "${{ matrix.python_version }}"
+          working-directory: "."
+
+      - name: Run tests
+        run: |
+          uv run coverage run --rcfile=pyproject.toml -m pytest
+        env:
+          PYTHONPATH: "src"
+          TOMORROW_APP: "tomorrow"
+          TOMORROW_SETTINGS_MODULE: "tomorrow.settings"
+          RAINY_APP: "rainy"
+          RAINY_SETTINGS_MODULE: "rainy.settings"
+          COVERAGE_FILE: ".coverage.${{ matrix.python_version }}"
+
+      - name: Store coverage file
+        uses: actions/upload-artifact@v4
+        with:
+          name: coverage-${{ matrix.python_version }}
+          path: .coverage.${{ matrix.python_version }}
+          include-hidden-files: true
+
+  coverage:
+    name: Run tests & display coverage
+    needs: build
+    runs-on: ubuntu-latest
+    permissions:
+      pull-requests: write
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: true
+
+      - uses: actions/download-artifact@v4
+        id: download
+        with:
+          pattern: coverage-*
+          merge-multiple: true
+
+      - name: Coverage comment
+        id: coverage_comment
+        uses: py-cov-action/python-coverage-comment-action@v3
+        with:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          MERGE_COVERAGE_FILES: true
+
+      - name: Store Pull Request comment to be posted
+        uses: actions/upload-artifact@v4
+        if: steps.coverage_comment.outputs.COMMENT_FILE_WRITTEN == 'true'
+        with:
+          name: python-coverage-comment-action
+          path: python-coverage-comment-action.txt
