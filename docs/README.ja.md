@@ -1,6 +1,6 @@
 # nhm-deepagents
 
-[![Imports: isort](https://img.shields.io/badge/imports-isort-%231674b1?style=flat&labelColor=ef8336)](https://isort.readthedocs.io/)
+[![Imports: isort](https://img.shields.io/badge/imports-isort-%231674b1?style=flat&labelColor=ef8336)](https://isort.readthedocs.io/)[![Coverage badge](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/noHairMan/nhm-deepagents/python-coverage-comment-action-data/endpoint.json)](https://htmlpreview.github.io/?https://github.com/noHairMan/nhm-deepagents/blob/python-coverage-comment-action-data/htmlcov/index.html)
 
 [簡体字中国語](/docs/README.zh.md)\|[英語](/docs/README.en.md)\|[日本語](/docs/README.ja.md)\|[繁体中文](/docs/README.zh-TW.md)
 
@@ -21,9 +21,9 @@
 
 -   **言語**:[パイソン](https://www.python.org/)>= 3.14
 -   **包管理器**:[紫外線](https://github.com/astral-sh/uv)
--   **APIフレームワーク**:[早い](https://fastapi.tiangolo.com/)
+-   **APIフレームワーク**:[速い](https://fastapi.tiangolo.com/)
 -   **ウェブサーバー**:[ユビコーン](https://www.uvicorn.org/)
--   **エージェントフレームワーク**:[ディープエージェント](https://github.com/zongxuheng/deepagents)(LangGraph/LangChainに基づく)
+-   **エージェントフレームワーク**:[deepagents](https://github.com/zongxuheng/deepagents)(LangGraph/LangChainに基づく)
 -   **LLMプロバイダー**:[であること](https://ollama.com/)（合格`langchain-ollama`)
 -   **配置管理**:[ダイナコンフ](https://www.dynaconf.com/)
 -   **コードの品質**:`black`,`isort`,`pre-commit`
