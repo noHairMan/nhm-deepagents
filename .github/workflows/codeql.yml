@@ -18,6 +18,14 @@ on:
       - "src/**"
       - "pyproject.toml"
       - "uv.lock"
+      - ".github/workflows/codeql.yml"
+  push:
+    branches: [ "main" ]
+    paths:
+      - "src/**"
+      - "pyproject.toml"
+      - "uv.lock"
+      - ".github/workflows/codeql.yml"
   workflow_dispatch:
 
 jobs:

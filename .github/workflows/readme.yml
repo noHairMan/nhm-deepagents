@@ -5,7 +5,7 @@ on:
     branches:
       - "main"
     paths:
-      - "docs/**"
+      - "docs/README.zh.md"
       - ".github/workflows/readme.yml"
 
 jobs:
