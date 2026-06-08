@@ -15,7 +15,15 @@
 -   **`tomorrow`**: 核心智能體模組。代號取自遊戲《死亡擱淺 2：冥灘之上》（Death Stranding 2: On the Beach）中的角色**明天**（艾莉·範甯飾演）。在劇情中，她是主角山姆布里吉斯（Sam Bridges）的女兒，也被揭露為前作中的**大樓**(BB-28)。
 -   **`rainy`**: 基於 FastAPI 的 API 服務模組。代號同樣取自《死亡擱淺 2》中的角色**下雨天**（由忽那汐裡飾演）。在遊戲中，她擁有引發「時間雨」（Timefall）和具有治癒能力的「核心雨」（Corefall）的神奇力量，被描述為既能傷害也能治癒的「藥（Pharmakon）」。本模組整合了統一回應格式、處理時間中間件等功能。
 
-該項目目前包含一個心理專家智能體，可以使用`deepagents`框架分析使用者輸入並提供建議，並透過`rainy`模組對外提供 API 介面。
+該專案目前包含一個通用的智慧助理智能體，可以使用`deepagents`框架分析使用者輸入並提供建議，並透過`rainy`模組對外提供同步（`/api/chat`）及流式（`/api/chat/stream`） API 介面。
+
+## ⚙️ CI/CD
+
+專案整合了 GitHub Actions 工作流程，包括：
+
+-   **測試與覆蓋率**: 自動執行測試並檢查程式碼覆蓋率。
+-   **文件翻譯**: 自動將`README.zh.md`翻译为多种语言（English, 日本語, 繁体中文）。
+-   **程式碼規範**: 自動執行`black`和`isort`檢查。
 
 ## 🛠️ 技術棧
 
@@ -26,7 +34,7 @@
 -   **智能體框架**:[深度代理](https://github.com/zongxuheng/deepagents)(基於 LangGraph/LangChain)
 -   **LLM 提供者**:[成為](https://ollama.com/)(透過`langchain-ollama`)
 -   **配置管理**:[動態會議](https://www.dynaconf.com/)
--   **代碼品質**:`black`,`isort`,`pre-commit`
+-   **代碼品質**:`black`,`isort`,`pre-commit`, 類型提示 (Type Hinting)
 -   **測試與覆蓋率**:`pytest`,`coverage`
 
 ## 📋 環境要求
@@ -127,12 +135,14 @@ uv run python src/main.py
     -   `settings.py`: 預設配置值。
     -   `utils/functional.py`: 功能實用程式。
 -   `src/rainy/`: API 服務包目錄。
-    -   `app.py`: FastAPI 应用定义。
+    -   `app.py`: FastAPI 應用程式定義。
     -   `api/endpoints/`: API 路由定義。
-        -   `chat.py`: 聊天接口，整合了深度智能體模組。
+        -   `chat.py`: 同步及串流聊天接口，整合了深度智能體模組。
+        -   `health.py`: 健康檢查介面。
+        -   `urls.py`: 統一路由掛載。
     -   `middleware/`: 自訂中間件（處理時間、統一回應格式）。
     -   `settings.py`: API 模組預設配置。
--   `tests/`: 测试目录，结构与 `src`保持一致。
+-   `tests/`: 測試目錄，結構與`src`保持一致。
 -   `docs/`: 多國語言文件。
 -   `pyproject.toml`: 專案元資料、依賴項和工具配置。
 -   `uv.lock`: 鎖定依賴版本。
@@ -155,6 +165,8 @@ uv run python src/main.py
     ```
 
 ### 運行覆蓋率測試
+
+要求測試覆蓋率必須達到**100%**。
 
 ```bash
 PYTHONPATH=src \
