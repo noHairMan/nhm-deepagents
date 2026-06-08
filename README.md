@@ -12,10 +12,10 @@
 | src/rainy/api/endpoints/urls.py               |        6 |        0 |        0 |        0 |     100% |           |
 | src/rainy/app.py                              |        9 |        0 |        2 |        0 |     100% |           |
 | src/rainy/conf/\_\_init\_\_.py                |        1 |        0 |        0 |        0 |     100% |           |
-| src/rainy/conf/config.py                      |       11 |        0 |        0 |        0 |     100% |           |
+| src/rainy/conf/config.py                      |       12 |        0 |        0 |        0 |     100% |           |
 | src/rainy/middleware/\_\_init\_\_.py          |        2 |        0 |        0 |        0 |     100% |           |
-| src/rainy/middleware/process\_time.py         |        8 |        0 |        0 |        0 |     100% |           |
-| src/rainy/middleware/response.py              |       15 |        0 |        4 |        0 |     100% |           |
+| src/rainy/middleware/process\_time.py         |       10 |        0 |        0 |        0 |     100% |           |
+| src/rainy/middleware/response.py              |       16 |        0 |        4 |        0 |     100% |           |
 | src/rainy/models/\_\_init\_\_.py              |        2 |        0 |        0 |        0 |     100% |           |
 | src/rainy/models/constants/\_\_init\_\_.py    |        2 |        0 |        0 |        0 |     100% |           |
 | src/rainy/models/constants/business\_code.py  |        8 |        0 |        0 |        0 |     100% |           |
@@ -23,13 +23,13 @@
 | src/rainy/settings.py                         |       14 |        0 |        0 |        0 |     100% |           |
 | src/tomorrow/\_\_init\_\_.py                  |        0 |        0 |        0 |        0 |     100% |           |
 | src/tomorrow/conf/\_\_init\_\_.py             |        1 |        0 |        0 |        0 |     100% |           |
-| src/tomorrow/conf/config.py                   |       11 |        0 |        0 |        0 |     100% |           |
+| src/tomorrow/conf/config.py                   |       12 |        0 |        0 |        0 |     100% |           |
 | src/tomorrow/core/\_\_init\_\_.py             |        0 |        0 |        0 |        0 |     100% |           |
 | src/tomorrow/core/agent.py                    |       15 |        0 |        0 |        0 |     100% |           |
-| src/tomorrow/core/checkpoints/\_\_init\_\_.py |       16 |        0 |        4 |        0 |     100% |           |
+| src/tomorrow/core/checkpoints/\_\_init\_\_.py |       18 |        0 |        4 |        0 |     100% |           |
 | src/tomorrow/core/checkpoints/memory.py       |        3 |        0 |        0 |        0 |     100% |           |
 | src/tomorrow/core/checkpoints/sqlite.py       |        5 |        0 |        0 |        0 |     100% |           |
-| src/tomorrow/core/enums.py                    |       32 |        0 |        6 |        0 |     100% |           |
+| src/tomorrow/core/enums.py                    |       33 |        0 |        6 |        0 |     100% |           |
 | src/tomorrow/models/\_\_init\_\_.py           |        0 |        0 |        0 |        0 |     100% |           |
 | src/tomorrow/models/constants/\_\_init\_\_.py |        1 |        0 |        0 |        0 |     100% |           |
 | src/tomorrow/models/constants/checkpoint.py   |        7 |        0 |        0 |        0 |     100% |           |
@@ -37,7 +37,7 @@
 | src/tomorrow/utils/\_\_init\_\_.py            |        0 |        0 |        0 |        0 |     100% |           |
 | src/tomorrow/utils/functional.py              |      224 |        0 |       58 |        0 |     100% |           |
 | src/tomorrow/utils/log.py                     |        6 |        0 |        0 |        0 |     100% |           |
-| **TOTAL**                                     |  **454** |    **0** |   **80** |    **0** | **100%** |           |
+| **TOTAL**                                     |  **462** |    **0** |   **80** |    **0** | **100%** |           |
 
 
 ## Setup coverage badge
