@@ -15,7 +15,14 @@
 - **`tomorrow`**: 核心智能体模块。代号取自游戏《死亡搁浅 2：冥滩之上》（Death Stranding 2: On the Beach）中的角色 **Tomorrow**（由艾丽·范宁饰演）。在剧情中，她是主角山姆·布里吉斯（Sam Bridges）的女儿，也被揭示为前作中的 **Lou** (BB-28)。
 - **`rainy`**: 基于 FastAPI 的 API 服务模块。代号同样取自《死亡搁浅 2》中的角色 **Rainy**（由忽那汐里饰演）。在游戏中，她拥有引发“时间雨”（Timefall）和具有治愈能力的“核心雨”（Corefall）的神奇力量，被描述为既能伤害也能治愈的“药（Pharmakon）”。该模块集成了统一响应格式、处理时间中间件等功能。
 
-该项目目前包含一个心理专家智能体，可以使用 `deepagents` 框架分析用户输入并提供建议，并通过 `rainy` 模块对外提供 API 接口。
+该项目目前包含一个通用的智能助理智能体，可以使用 `deepagents` 框架分析用户输入并提供建议，并通过 `rainy` 模块对外提供同步（`/api/chat`）及流式（`/api/chat/stream`） API 接口。
+
+## ⚙️ CI/CD
+
+项目集成了 GitHub Actions 工作流，包括：
+- **测试与覆盖率**: 自动运行测试并检查代码覆盖率。
+- **文档翻译**: 自动将 `README.zh.md` 翻译为多种语言（English, 日本語, 繁体中文）。
+- **代码规范**: 自动执行 `black` 和 `isort` 检查。
 
 ## 🛠️ 技术栈
 
@@ -26,7 +33,7 @@
 - **智能体框架**: [deepagents](https://github.com/zongxuheng/deepagents) (基于 LangGraph/LangChain)
 - **LLM 提供商**: [Ollama](https://ollama.com/) (通过 `langchain-ollama`)
 - **配置管理**: [Dynaconf](https://www.dynaconf.com/)
-- **代码质量**: `black`, `isort`, `pre-commit`
+- **代码质量**: `black`, `isort`, `pre-commit`, 类型提示 (Type Hinting)
 - **测试与覆盖率**: `pytest`, `coverage`
 
 ## 📋 环境要求
@@ -128,7 +135,9 @@ uv run python src/main.py
 - `src/rainy/`: API 服务包目录。
   - `app.py`: FastAPI 应用定义。
   - `api/endpoints/`: API 路由定义。
-    - `chat.py`: 聊天接口，集成了深度智能体模块。
+    - `chat.py`: 同步及流式聊天接口，集成了深度智能体模块。
+    - `health.py`: 健康检查接口。
+    - `urls.py`: 统一路由挂载。
   - `middleware/`: 自定义中间件（处理时间、统一响应格式）。
   - `settings.py`: API 模块默认配置。
 - `tests/`: 测试目录，结构与 `src` 保持一致。
@@ -154,6 +163,8 @@ uv run python src/main.py
   ```
 
 ### 运行覆盖率测试
+
+要求测试覆盖率必须达到 **100%**。
 
 ```bash
 PYTHONPATH=src \

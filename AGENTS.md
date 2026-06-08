@@ -34,6 +34,7 @@
 ## 3. 编码规范
 - **格式化**: Black (line-length = 120)。
 - **排序**: Isort (与 Black 兼容)。
+- **类型提示**: 必须为所有方法和函数添加明确的类型注释 (Type Hinting)，确保代码的类型安全。
 - **核心文件**:
   - `src/tomorrow/core/agent.py`: Deep Agent 定义。
   - `src/tomorrow/conf/config.py`: 配置加载实现。

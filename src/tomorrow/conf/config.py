@@ -1,9 +1,10 @@
 import os
+from typing import Any
 
 from tomorrow.utils.functional import SimpleLazyObject
 
 
-def _get_settings():
+def _get_settings() -> Any:
     from dynaconf import Dynaconf
 
     app_name = os.environ.get("TOMORROW_APP", "tomorrow")
