@@ -1,6 +1,6 @@
 # nhm-deepagents
 
-[![Imports: isort](https://img.shields.io/badge/imports-isort-%231674b1?style=flat&labelColor=ef8336)](https://isort.readthedocs.io/)[![Coverage badge](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/noHairMan/nhm-deepagents/python-coverage-comment-action-data/endpoint.json)](https://htmlpreview.github.io/?https://github.com/noHairMan/nhm-deepagents/blob/python-coverage-comment-action-data/htmlcov/index.html)
+[![Lint: Ruff](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/astral-sh/ruff/main/assets/badge/v2.json)](https://github.com/astral-sh/ruff)[![Coverage badge](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/noHairMan/nhm-deepagents/python-coverage-comment-action-data/endpoint.json)](https://htmlpreview.github.io/?https://github.com/noHairMan/nhm-deepagents/blob/python-coverage-comment-action-data/htmlcov/index.html)
 
 [簡体字中国語](/docs/README.zh.md)\|[英語](/docs/README.en.md)\|[日本語](/docs/README.ja.md)\|[繁体中文](/docs/README.zh-TW.md)
 
@@ -13,7 +13,7 @@
 プロジェクトには 2 つの主要なモジュールが含まれています。
 
 -   **`tomorrow`**: コアエージェントモジュール。コードネームはゲーム『デス・ストランディング2: オン・ザ・ビーチ』の登場人物から取られている。**明日**（エル・ファニングが演じる）。プロットでは、彼女は主人公サム・ブリッジスの娘であり、前作のキャラクターでもあることが明らかになりました。**ルー**(BB-28)。
--   **`rainy`**: FastAPIをベースとしたAPIサービスモジュール。コードネームもデス・ストランディング2のキャラクターから取られています**雨が降る**（由忽那汐里饰演）。在游戏中，她拥有引发“时间雨”（Timefall）和具有治愈能力的“核心雨”（Corefall）的神奇力量，被描述为既能伤害也能治愈的“药（Pharmakon）”。该模块集成了统一响应格式、处理时间中间件等功能。
+-   **`rainy`**: FastAPIをベースとしたAPIサービスモジュール。コードネームもデス・ストランディング2のキャラクターから取られています**雨が降る**（忽那汐里が演じる）。ゲーム内では「タイムフォール」と回復の「コアフォール」を引き起こす魔法の力を持ち、傷つけることも治すこともできる「ファルマコン」として描かれている。応答フォーマットの統一や処理時間のミドルウェアなどの機能を統合したモジュールです。
 
 プロジェクトには現在、使用できる一般的なスマート アシスタント エージェントが含まれています`deepagents`このフレームワークはユーザー入力を分析し、次の方法で提案を提供します。`rainy`このモジュールは外部同期を提供します (`/api/chat`) およびストリーミング (`/api/chat/stream`) API インターフェース。
 
@@ -23,18 +23,18 @@
 
 -   **テストと適用範囲**: テストを自動的に実行し、コード カバレッジをチェックします。
 -   **文書翻訳**： 自動的に`README.zh.md`多言語（英語、日本語、繁体字中国語）に翻訳されます。
--   **コード仕様**：自動実行`black`そして`isort`診る。
+-   **コード仕様**：自動実行`ruff`確認してフォーマットしてください。
 
 ## 🛠️ テクノロジースタック
 
 -   **言語**:[パイソン](https://www.python.org/)>= 3.14
 -   **包管理器**:[紫外線](https://github.com/astral-sh/uv)
--   **API 框架**:[早い](https://fastapi.tiangolo.com/)
+-   **APIフレームワーク**:[速い](https://fastapi.tiangolo.com/)
 -   **ウェブサーバー**:[ユビコーン](https://www.uvicorn.org/)
 -   **エージェントフレームワーク**:[ディープエージェント](https://github.com/zongxuheng/deepagents)(LangGraph/LangChainに基づく)
 -   **LLMプロバイダー**:[であること](https://ollama.com/)（合格`langchain-ollama`)
 -   **配置管理**:[ダイナコンフ](https://www.dynaconf.com/)
--   **コードの品質**:`black`,`isort`,`pre-commit`、タイプヒント
+-   **コードの品質**:`ruff`,`pre-commit`、タイプヒント
 -   **テストと適用範囲**:`pytest`,`coverage`
 
 ## 📋 環境要件
@@ -115,10 +115,10 @@ uv run python src/main.py
 
 一般的に使用される開発スクリプト:
 
--   **フォーマットコード**:
+-   **コードをチェックしてフォーマットする**:
     ```bash
-    uv run black .
-    uv run isort .
+    uv run ruff check . --fix
+    uv run ruff format .
     ```
 
 -   **コミット前フックを手動で実行する**:
@@ -129,8 +129,8 @@ uv run python src/main.py
 ## 📂 プロジェクトの構造
 
 -   `src/main.py`: アプリケーションのメイン エントリ ポイント。環境をセットアップし、Uvicorn サーバーを起動します。
--   `src/tomorrow/`: 核心智能体包目录。
-    -   `core/agent.py`: 定义深度智能体及其指令。
+-   `src/tomorrow/`: コア エージェント パッケージ ディレクトリ。
+    -   `core/agent.py`: ディープエージェントとその命令を定義します。
     -   `core/checkpoints/`: チェックポイントの実装 (メモリ、SQLite など)。
     -   `settings.py`: デフォルトの設定値。
     -   `utils/functional.py`：機能ユーティリティ。
