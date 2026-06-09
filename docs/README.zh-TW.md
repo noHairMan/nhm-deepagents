@@ -15,7 +15,13 @@
 -   **`tomorrow`**: 核心智能體模組。代號取自遊戲《死亡擱淺 2：冥灘之上》（Death Stranding 2: On the Beach）中的角色**明天**（艾莉·範甯飾演）。在劇情中，她是主角山姆布里吉斯（Sam Bridges）的女兒，也被揭露為前作中的**大樓**(BB-28)。
 -   **`rainy`**: 基於 FastAPI 的 API 服務模組。代號同樣取自《死亡擱淺 2》中的角色**下雨天**（由忽那汐裡飾演）。在遊戲中，她擁有引發「時間雨」（Timefall）和具有治癒能力的「核心雨」（Corefall）的神奇力量，被描述為既能傷害也能治癒的「藥（Pharmakon）」。本模組整合了統一回應格式、處理時間中間件等功能。
 
-該專案目前包含一個通用的智慧助理智能體，可以使用`deepagents`框架分析使用者輸入並提供建議，並透過`rainy`模組對外提供同步（`/api/chat`）及流式（`/api/chat/stream`） API 介面。
+該專案提供了一個通用的智慧助理智能體，利用`deepagents`框架分析使用者輸入，並透過`rainy`模組對外提供同步（`/api/chat`）及**流式（`/api/chat/stream`）**API 介面。
+
+### 核心功能
+
+-   **深度智能體**: 集成`deepagents`框架，支援複雜任務處理與狀態管理。
+-   **高效能 API**: 基於 FastAPI 構建，支援同步回應與 Server-Sent Events (SSE) 串流輸出。
+-   **可靠性保障**: 強制類型提示、Ruff 靜態檢查、100% 測試覆蓋率要求。
 
 ## ⚙️ CI/CD
 
@@ -23,7 +29,8 @@
 
 -   **測試與覆蓋率**: 自動執行測試並檢查程式碼覆蓋率。
 -   **文件翻譯**: 自動將`README.zh.md`翻译为多种语言（English, 日本語, 繁体中文）。
--   **程式碼規範**: 自動執行`ruff`檢查與格式化。
+-   **程式碼規範**: 自動執行`ruff`檢查與格式化，確保程式碼風格統一且高品質。
+-   **CI 流程優化**: 增強了工作流程觸發路徑規則，僅在相關程式碼或配置變動時觸發構建，提升效率。
 
 ## 🛠️ 技術棧
 
@@ -34,7 +41,7 @@
 -   **智能體框架**:[深度代理](https://github.com/zongxuheng/deepagents)(基於 LangGraph/LangChain)
 -   **LLM 提供者**:[成為](https://ollama.com/)(透過`langchain-ollama`)
 -   **配置管理**:[動態會議](https://www.dynaconf.com/)
--   **代碼品質**:`ruff`,`pre-commit`, 類型提示 (Type Hinting)
+-   **代碼品質**:[拉夫](https://github.com/astral-sh/ruff)(替代 Black 和 Isort)、`pre-commit`、強制型別提示 (Strict Type Hinting)
 -   **測試與覆蓋率**:`pytest`,`coverage`
 
 ## 📋 環境要求
@@ -111,7 +118,7 @@ uv run python src/main.py
 | `RAINY_SETTINGS_MODULE` | 設定模組的路徑        | `rainy.settings` |
 | `RAINY_MIDDLEWARE`      | 啟用的中間件列表       | (見 settings.py)  |
 
-## 📜 脚本
+## 📜 腳本
 
 常用的開發腳本：
 
