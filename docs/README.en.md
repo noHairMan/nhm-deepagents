@@ -1,6 +1,6 @@
 # nhm-deepagents
 
-[![Imports: isort](https://img.shields.io/badge/imports-isort-%231674b1?style=flat&labelColor=ef8336)](https://isort.readthedocs.io/)[![Coverage badge](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/noHairMan/nhm-deepagents/python-coverage-comment-action-data/endpoint.json)](https://htmlpreview.github.io/?https://github.com/noHairMan/nhm-deepagents/blob/python-coverage-comment-action-data/htmlcov/index.html)
+[![Lint: Ruff](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/astral-sh/ruff/main/assets/badge/v2.json)](https://github.com/astral-sh/ruff)[![Coverage badge](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/noHairMan/nhm-deepagents/python-coverage-comment-action-data/endpoint.json)](https://htmlpreview.github.io/?https://github.com/noHairMan/nhm-deepagents/blob/python-coverage-comment-action-data/htmlcov/index.html)
 
 [Simplified Chinese](/docs/README.zh.md)\|[English](/docs/README.en.md)\|[Japanese](/docs/README.ja.md)\|[Traditional Chinese](/docs/README.zh-TW.md)
 
@@ -23,7 +23,7 @@ The project integrates GitHub Actions workflows, including:
 
 -   **Testing and Coverage**: Automatically run tests and check code coverage.
 -   **Document translation**: automatically`README.zh.md`Translated into multiple languages ​​(English, Japanese, Traditional Chinese).
--   **Code specifications**: Automatic execution`black`and`isort`examine.
+-   **Code specifications**: Automatic execution`ruff`Check and format.
 
 ## 🛠️ Technology stack
 
@@ -34,7 +34,7 @@ The project integrates GitHub Actions workflows, including:
 -   **agent framework**:[deepagents](https://github.com/zongxuheng/deepagents)(Based on LangGraph/LangChain)
 -   **LLM provider**:[To be](https://ollama.com/)(pass`langchain-ollama`)
 -   **Configuration management**:[Dynaconf](https://www.dynaconf.com/)
--   **Code quality**:`black`,`isort`,`pre-commit`, Type Hinting
+-   **Code quality**:`ruff`,`pre-commit`, Type Hinting
 -   **Testing and Coverage**:`pytest`,`coverage`
 
 ## 📋 Environmental requirements
@@ -115,10 +115,10 @@ Environment variables are prefixed by default`TOMORROW_`(core module) or`RAINY_`
 
 Commonly used development scripts:
 
--   **Format code**:
+-   **Check and format code**:
     ```bash
-    uv run black .
-    uv run isort .
+    uv run ruff check . --fix
+    uv run ruff format .
     ```
 
 -   **Run the pre-commit hook manually**:
