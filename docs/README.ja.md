@@ -13,7 +13,7 @@
 プロジェクトには 2 つの主要モジュールが含まれています。
 
 -   **`tomorrow`**: コアエージェントモジュール。コードネームはゲーム『デス・ストランディング2: オン・ザ・ビーチ』の登場人物から取られている。**明日**（エル・ファニングが演じる）。プロットでは、彼女は主人公サム・ブリッジスの娘であり、前作のキャラクターでもあることが明らかになりました。**ルー**(BB-28)。
--   **`rainy`**: FastAPIをベースとしたAPIサービスモジュール。コードネームもデス・ストランディング2のキャラクターから取られています**雨が降る**（忽那汐里が演じる）。ゲーム内では「タイムフォール」と治癒の「コアフォール」を引き起こす魔法の力を持ち、傷つけることも治すこともできる「ファルマコン」として描かれている。応答フォーマットの統一や処理時間のミドルウェアなどの機能を統合したモジュールです。
+-   **`rainy`**: FastAPIをベースとしたAPIサービスモジュール。コードネームもデス・ストランディング2のキャラクターから取られています**雨が降る**（忽那汐里が演じる）。ゲーム内では「タイムフォール」と回復の「コアフォール」を引き起こす魔法の力を持ち、傷つけることも治すこともできる「ファルマコン」として描かれている。応答フォーマットの統一や処理時間のミドルウェアなどの機能を統合したモジュールです。
 
 このプロジェクトは、`deepagents`フレームワークはユーザー入力を分析して渡します`rainy`このモジュールは外部同期を提供します (`/api/chat`）そして**ストリーミング (`/api/chat/stream`）**APIインターフェース。
 
@@ -36,7 +36,7 @@
 
 -   **言語**:[パイソン](https://www.python.org/)>= 3.14
 -   **包管理器**:[紫外線](https://github.com/astral-sh/uv)
--   **APIフレームワーク**:[早い](https://fastapi.tiangolo.com/)
+-   **APIフレームワーク**:[速い](https://fastapi.tiangolo.com/)
 -   **ウェブサーバー**:[ユビコーン](https://www.uvicorn.org/)
 -   **エージェントフレームワーク**:[ディープエージェント](https://github.com/zongxuheng/deepagents)(LangGraph/LangChainに基づく)
 -   **LLMプロバイダー**:[であること](https://ollama.com/)（合格`langchain-ollama`)
@@ -100,13 +100,13 @@ uv run python src/main.py
 
 #### Tomorrow 配置 (核心)
 
-| 変数                         | 説明する                      | デフォルト値                   |
-| -------------------------- | ------------------------- | ------------------------ |
-| `TOMORROW_OLLAMA_BASE_URL` | Ollama サービスのベース アドレス      | `http://localhost:11434` |
-| `TOMORROW_DEFAULT_MODEL`   | デフォルトで使用される LLM モデル       | `qwen3.5:9b`             |
-| `TOMORROW_APP`             | アプリケーション名 (環境変数の接頭辞として使用) | `tomorrow`               |
-| `TOMORROW_SETTINGS_MODULE` | モジュールパスを設定する              | `tomorrow.settings`      |
-| `TOMORROW_CHECKPOINT`      | チェックポイントの構成               | `{"type": "memory"}`     |
+| 変数                         | 説明する                      | デフォルト値                            |
+| -------------------------- | ------------------------- | --------------------------------- |
+| `TOMORROW_OLLAMA_BASE_URL` | Ollama サービスのベース アドレス      | `http://localhost:11434`          |
+| `TOMORROW_DEFAULT_MODEL`   | デフォルトで使用される LLM モデル       | `qwen3.5:9b`                      |
+| `TOMORROW_APP`             | アプリケーション名 (環境変数の接頭辞として使用) | `tomorrow`                        |
+| `TOMORROW_SETTINGS_MODULE` | モジュールパスを設定する              | `tomorrow.settings`               |
+| `TOMORROW_CHECKPOINT`      | チェックポイントの構成               | `{"type": CheckpointType.MEMORY}` |
 
 #### Rainy 配置 (API)
 
