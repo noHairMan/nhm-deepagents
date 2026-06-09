@@ -1,6 +1,6 @@
 import json
 import uuid
-from typing import AsyncGenerator
+from collections.abc import AsyncGenerator
 
 from fastapi import APIRouter
 from fastapi.responses import StreamingResponse
@@ -19,7 +19,7 @@ class ChatResponse(BaseModel):
     answer: str
 
 
-async def stream_chat(message: str) -> AsyncGenerator[str, None]:
+async def stream_chat(message: str) -> AsyncGenerator[str]:
     """以 SSE 形式流式输出智能体生成的内容。"""
     async with create_agent() as agent:
         async for event in agent.astream_events(

@@ -1,5 +1,6 @@
 import contextlib
-from typing import AsyncGenerator, Optional
+from collections.abc import AsyncGenerator
+from typing import Optional
 
 from langgraph.checkpoint.base import BaseCheckpointSaver
 
@@ -8,7 +9,7 @@ from tomorrow.models.constants import CheckpointType
 
 
 @contextlib.asynccontextmanager
-async def get_checkpointer_context() -> AsyncGenerator[Optional[BaseCheckpointSaver], None]:
+async def get_checkpointer_context() -> AsyncGenerator[Optional[BaseCheckpointSaver]]:
     checkpoint_type = settings.CHECKPOINT["type"]
     match checkpoint_type:
         case CheckpointType.SQLITE:

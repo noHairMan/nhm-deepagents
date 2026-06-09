@@ -1,4 +1,4 @@
-from typing import Generic, Optional, TypeVar
+from typing import Optional, TypeVar
 
 from pydantic import BaseModel
 
@@ -7,7 +7,7 @@ from rainy.models.constants import BusinessCode
 T = TypeVar("T")
 
 
-class BaseResponse(BaseModel, Generic[T]):
+class BaseResponse[T](BaseModel):
     """
     业务响应基类
     """
@@ -17,7 +17,7 @@ class BaseResponse(BaseModel, Generic[T]):
     data: Optional[T] = None
 
     @classmethod
-    def success(cls, data: Optional[T] = None, message: Optional[str] = None) -> "BaseResponse[T]":
+    def success(cls, data: Optional[T] = None, message: Optional[str] = None) -> BaseResponse[T]:
         return cls(code=BusinessCode.SUCCESS, message=message or BusinessCode.SUCCESS.label, data=data)
 
     @classmethod
@@ -26,5 +26,5 @@ class BaseResponse(BaseModel, Generic[T]):
         code: BusinessCode = BusinessCode.ERROR,
         message: Optional[str] = None,
         data: Optional[T] = None,
-    ) -> "BaseResponse[T]":
+    ) -> BaseResponse[T]:
         return cls(code=code, message=message or code.label, data=data)

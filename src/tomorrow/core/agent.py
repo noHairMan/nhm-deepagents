@@ -1,5 +1,6 @@
 import contextlib
-from typing import Any, AsyncGenerator, Optional
+from collections.abc import AsyncGenerator
+from typing import Any, Optional
 
 from deepagents import create_deep_agent
 from langchain_core.language_models import BaseChatModel
@@ -20,7 +21,7 @@ def get_model(model: Optional[str] = None) -> BaseChatModel:
 
 
 @contextlib.asynccontextmanager
-async def create_agent() -> AsyncGenerator[Any, None]:
+async def create_agent() -> AsyncGenerator[Any]:
     async with get_checkpointer_context() as checkpointer:
         yield create_deep_agent(
             model=get_model(),

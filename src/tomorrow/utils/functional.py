@@ -22,11 +22,11 @@ class cached_property:
 
     @staticmethod
     def func(instance):
-        raise TypeError("Cannot use cached_property instance without calling " "__set_name__() on it.")
+        raise TypeError("Cannot use cached_property instance without calling __set_name__() on it.")
 
     def __init__(self, func):
         self.real_func = func
-        self.__doc__ = getattr(func, "__doc__")
+        self.__doc__ = func.__doc__
 
     def __set_name__(self, owner, name):
         if self.name is None:
@@ -34,7 +34,7 @@ class cached_property:
             self.func = self.real_func
         elif name != self.name:
             raise TypeError(
-                "Cannot assign the same cached_property to two different names " "(%r and %r)." % (self.name, name),
+                "Cannot assign the same cached_property to two different names (%r and %r)." % (self.name, name),
             )
 
     def __get__(self, instance, cls=None):
@@ -406,7 +406,7 @@ class SimpleLazyObject(LazyObject):
             repr_attr = self._setupfunc
         else:
             repr_attr = self._wrapped
-        return "<{}: {!r}>".format(type(self).__name__, repr_attr)
+        return f"<{type(self).__name__}: {repr_attr!r}>"
 
     def __copy__(self):
         if self._wrapped is empty:
@@ -462,4 +462,4 @@ def import_string(dotted_path):
     try:
         return getattr(module, class_name)
     except AttributeError as err:
-        raise ImportError('Module "{}" does not define a "{}" attribute/class'.format(module_path, class_name)) from err
+        raise ImportError(f'Module "{module_path}" does not define a "{class_name}" attribute/class') from err

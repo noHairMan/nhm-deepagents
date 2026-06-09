@@ -1,5 +1,5 @@
 from enum import Enum, EnumMeta
-from typing import Any, List, Optional, Tuple
+from typing import Any, Optional
 
 
 class ChoicesMeta(EnumMeta):
@@ -9,20 +9,20 @@ class ChoicesMeta(EnumMeta):
         return member in cls.values
 
     @property
-    def choices(cls) -> List[Tuple[Any, str]]:
+    def choices(cls) -> list[tuple[Any, str]]:
         return [(item.value, item.label) for item in cls]
 
     @property
-    def values(cls) -> List[Any]:
+    def values(cls) -> list[Any]:
         return [item.value for item in cls]
 
     @property
-    def labels(cls) -> List[str]:
+    def labels(cls) -> list[str]:
         return [item.label for item in cls]
 
 
 class Choices(Enum, metaclass=ChoicesMeta):
-    def __new__(cls, value: Any, label: Optional[str] = None) -> "Choices":
+    def __new__(cls, value: Any, label: Optional[str] = None) -> Choices:
         if issubclass(cls, int):
             obj = int.__new__(cls, value)
         elif issubclass(cls, str):

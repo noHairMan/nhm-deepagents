@@ -1,6 +1,6 @@
 # nhm-deepagents
 
-[![Imports: isort](https://img.shields.io/badge/imports-isort-%231674b1?style=flat&labelColor=ef8336)](https://isort.readthedocs.io/)
+[![Lint: Ruff](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/astral-sh/ruff/main/assets/badge/v2.json)](https://github.com/astral-sh/ruff)
 [![Coverage badge](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/noHairMan/nhm-deepagents/python-coverage-comment-action-data/endpoint.json)](https://htmlpreview.github.io/?https://github.com/noHairMan/nhm-deepagents/blob/python-coverage-comment-action-data/htmlcov/index.html)
 
 [简体中文](/docs/README.zh.md) | [English](/docs/README.en.md) | [日本語](/docs/README.ja.md) | [繁体中文](/docs/README.zh-TW.md)
@@ -22,7 +22,7 @@
 项目集成了 GitHub Actions 工作流，包括：
 - **测试与覆盖率**: 自动运行测试并检查代码覆盖率。
 - **文档翻译**: 自动将 `README.zh.md` 翻译为多种语言（English, 日本語, 繁体中文）。
-- **代码规范**: 自动执行 `black` 和 `isort` 检查。
+- **代码规范**: 自动执行 `ruff` 检查与格式化。
 
 ## 🛠️ 技术栈
 
@@ -33,7 +33,7 @@
 - **智能体框架**: [deepagents](https://github.com/zongxuheng/deepagents) (基于 LangGraph/LangChain)
 - **LLM 提供商**: [Ollama](https://ollama.com/) (通过 `langchain-ollama`)
 - **配置管理**: [Dynaconf](https://www.dynaconf.com/)
-- **代码质量**: `black`, `isort`, `pre-commit`, 类型提示 (Type Hinting)
+- **代码质量**: `ruff`, `pre-commit`, 类型提示 (Type Hinting)
 - **测试与覆盖率**: `pytest`, `coverage`
 
 ## 📋 环境要求
@@ -113,10 +113,10 @@ uv run python src/main.py
 
 常用的开发脚本：
 
-- **格式化代码**:
+- **检查与格式化代码**:
   ```bash
-  uv run black .
-  uv run isort .
+  uv run ruff check . --fix
+  uv run ruff format .
   ```
 
 - **手动运行 pre-commit 钩子**:

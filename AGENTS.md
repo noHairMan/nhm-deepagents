@@ -7,7 +7,7 @@
   - `TOMORROW_SETTINGS_MODULE` / `RAINY_SETTINGS_MODULE`: 设置模块路径。
 - **运行时依赖**: 必须运行 Ollama，默认模型 `qwen3.5:9b`。
 - **路径与环境加载**:
-  - 如果智能体无法找到某个命令，必须通过当前 Shell 的 **Login Shell** 模式执行，以强制加载完整的用户环境配置）。
+  - 如果智能体无法找到某个命令，必须通过当前 Shell 的 **Login Shell** 模式执行，以强制加载完整的用户环境配置（比如说zsh -i -c "uv version"）。
 
 ## 2. 测试规范
 - **框架**: `pytest`。
@@ -32,8 +32,7 @@
   ```
 
 ## 3. 编码规范
-- **格式化**: Black (line-length = 120)。
-- **排序**: Isort (与 Black 兼容)。
+- **Lint & 格式化**: Ruff。
 - **类型提示**: 必须为所有方法和函数添加明确的类型注释 (Type Hinting)，确保代码的类型安全。
 - **核心文件**:
   - `src/tomorrow/core/agent.py`: Deep Agent 定义。
