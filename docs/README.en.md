@@ -17,11 +17,11 @@ The project contains two main modules:
 
 This project provides a general smart assistant agent that utilizes`deepagents`The framework analyzes user input and passes`rainy`The module provides external synchronization (`/api/chat`)and**streaming (`/api/chat/stream`）**API interface.
 
-### Core functions
+### 核心功能
 
 -   **deep agent**: Integrated`deepagents`Framework to support complex task processing and status management.
 -   **High performance API**: Built on FastAPI, supports synchronous responses and Server-Sent Events (SSE) streaming output.
--   **Reliability guaranteed**: Forced type hints, Ruff static checking, 100% test coverage requirement.
+-   **可靠性保障**: Forced type hints, Ruff static checking, 100% test coverage requirement.
 
 ## ⚙️ CI/CD
 
@@ -100,13 +100,13 @@ Environment variables are prefixed by default`TOMORROW_`(core module) or`RAINY_`
 
 #### Tomorrow configuration (core)
 
-| variable                   | describe                                               | default value            |
-| -------------------------- | ------------------------------------------------------ | ------------------------ |
-| `TOMORROW_OLLAMA_BASE_URL` | The base address of the Ollama service                 | `http://localhost:11434` |
-| `TOMORROW_DEFAULT_MODEL`   | LLM model used by default                              | `qwen3.5:9b`             |
-| `TOMORROW_APP`             | Application name (used as environment variable prefix) | `tomorrow`               |
-| `TOMORROW_SETTINGS_MODULE` | Set module path                                        | `tomorrow.settings`      |
-| `TOMORROW_CHECKPOINT`      | Checkpoint configuration                               | `{"type": "memory"}`     |
+| variable                   | describe                                               | default value                     |
+| -------------------------- | ------------------------------------------------------ | --------------------------------- |
+| `TOMORROW_OLLAMA_BASE_URL` | The base address of the Ollama service                 | `http://localhost:11434`          |
+| `TOMORROW_DEFAULT_MODEL`   | LLM model used by default                              | `qwen3.5:9b`                      |
+| `TOMORROW_APP`             | Application name (used as environment variable prefix) | `tomorrow`                        |
+| `TOMORROW_SETTINGS_MODULE` | Set module path                                        | `tomorrow.settings`               |
+| `TOMORROW_CHECKPOINT`      | Checkpoint configuration                               | `{"type": CheckpointType.MEMORY}` |
 
 #### Rainy configuration (API)
 
