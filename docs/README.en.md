@@ -15,7 +15,13 @@ The project contains two main modules:
 -   **`tomorrow`**: Core agent module. The codename is taken from a character in the game "Death Stranding 2: On the Beach"**Tomorrow**(played by Elle Fanning). In the plot, she is the daughter of protagonist Sam Bridges, who was also revealed to be a character in the previous game.**Lou**(BB-28)。
 -   **`rainy`**: API service module based on FastAPI. The codename is also taken from a character in Death Stranding 2**Rainy**(played by Shiori Kutsuna). In the game, she has the magical power to cause "Timefall" and the healing "Corefall", and is described as a "Pharmakon" that can both hurt and heal. This module integrates functions such as unified response format and processing time middleware.
 
-The project currently contains a general smart assistant agent that can be used`deepagents`The framework analyzes user input and provides suggestions via`rainy`The module provides external synchronization (`/api/chat`) and streaming (`/api/chat/stream`) API interface.
+This project provides a general smart assistant agent that utilizes`deepagents`The framework analyzes user input and passes`rainy`The module provides external synchronization (`/api/chat`)and**streaming (`/api/chat/stream`）**API interface.
+
+### Core functions
+
+-   **deep agent**: Integrated`deepagents`Framework to support complex task processing and status management.
+-   **High performance API**: Built on FastAPI, supports synchronous responses and Server-Sent Events (SSE) streaming output.
+-   **Reliability guaranteed**: Forced type hints, Ruff static checking, 100% test coverage requirement.
 
 ## ⚙️ CI/CD
 
@@ -23,7 +29,8 @@ The project integrates GitHub Actions workflows, including:
 
 -   **Testing and Coverage**: Automatically run tests and check code coverage.
 -   **Document translation**: automatically`README.zh.md`Translated into multiple languages ​​(English, Japanese, Traditional Chinese).
--   **Code specifications**: Automatic execution`ruff`Check and format.
+-   **Code specifications**: Automatic execution`ruff`Check and format to ensure consistent code style and high quality.
+-   **CI process optimization**: Enhanced workflow trigger path rules, triggering builds only when relevant code or configuration changes, improving efficiency.
 
 ## 🛠️ Technology stack
 
@@ -34,7 +41,7 @@ The project integrates GitHub Actions workflows, including:
 -   **agent framework**:[deepagents](https://github.com/zongxuheng/deepagents)(Based on LangGraph/LangChain)
 -   **LLM provider**:[To be](https://ollama.com/)(pass`langchain-ollama`)
 -   **Configuration management**:[Dynaconf](https://www.dynaconf.com/)
--   **Code quality**:`ruff`,`pre-commit`, Type Hinting
+-   **Code quality**:[Ruff](https://github.com/astral-sh/ruff)(replaces Black and Isort),`pre-commit`, Strict Type Hinting
 -   **Testing and Coverage**:`pytest`,`coverage`
 
 ## 📋 Environmental requirements
