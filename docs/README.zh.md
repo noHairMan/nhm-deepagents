@@ -96,14 +96,13 @@ uv run python src/main.py
 环境变量默认以前缀 `TOMORROW_` (核心模块) 或 `RAINY_` (API 模块) 开头。
 
 #### Tomorrow 配置 (核心)
-
 | 变量 | 描述 | 默认值 |
 |----------|-------------|---------|
 | `TOMORROW_OLLAMA_BASE_URL` | Ollama 服务的基地址 | `http://localhost:11434` |
 | `TOMORROW_DEFAULT_MODEL` | 默认使用的 LLM 模型 | `qwen3.5:9b` |
 | `TOMORROW_APP` | 应用名称（用作环境变量前缀） | `tomorrow` |
 | `TOMORROW_SETTINGS_MODULE` | 设置模块的路径 | `tomorrow.settings` |
-| `TOMORROW_CHECKPOINT` | 检查点配置 | `{"type": "memory"}` |
+| `TOMORROW_CHECKPOINT` | 检查点配置 | `{"type": CheckpointType.MEMORY}` |
 
 #### Rainy 配置 (API)
 
