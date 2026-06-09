@@ -38,7 +38,7 @@
 -   **套件管理器**:[紫外線](https://github.com/astral-sh/uv)
 -   **API 框架**:[迅速](https://fastapi.tiangolo.com/)
 -   **Web 伺服器**:[獨角獸](https://www.uvicorn.org/)
--   **智能體框架**:[深度代理](https://github.com/zongxuheng/deepagents)(基於 LangGraph/LangChain)
+-   **智能體框架**:[deepagents](https://github.com/zongxuheng/deepagents)(基於 LangGraph/LangChain)
 -   **LLM 提供者**:[成為](https://ollama.com/)(透過`langchain-ollama`)
 -   **配置管理**:[動態會議](https://www.dynaconf.com/)
 -   **代碼品質**:[拉夫](https://github.com/astral-sh/ruff)(替代 Black 和 Isort)、`pre-commit`、強制型別提示 (Strict Type Hinting)
@@ -67,7 +67,7 @@
     cd nhm-deepagents
     ```
 
-3.  **同步依賴並建立虛擬環境**:
+3.  **同步依赖并创建虚拟环境**:
     ```bash
     uv sync
     ```
@@ -100,13 +100,13 @@ uv run python src/main.py
 
 #### Tomorrow 配置 (核心)
 
-| 變數                         | 描述             | 預設值                      |
-| -------------------------- | -------------- | ------------------------ |
-| `TOMORROW_OLLAMA_BASE_URL` | Ollama 服務的基底地址 | `http://localhost:11434` |
-| `TOMORROW_DEFAULT_MODEL`   | 預設使用的 LLM 模型   | `qwen3.5:9b`             |
-| `TOMORROW_APP`             | 應用名稱（用作環境變數前綴） | `tomorrow`               |
-| `TOMORROW_SETTINGS_MODULE` | 設定模組的路徑        | `tomorrow.settings`      |
-| `TOMORROW_CHECKPOINT`      | 檢查點配置          | `{"type": "memory"}`     |
+| 變數                         | 描述             | 預設值                               |
+| -------------------------- | -------------- | --------------------------------- |
+| `TOMORROW_OLLAMA_BASE_URL` | Ollama 服務的基底地址 | `http://localhost:11434`          |
+| `TOMORROW_DEFAULT_MODEL`   | 預設使用的 LLM 模型   | `qwen3.5:9b`                      |
+| `TOMORROW_APP`             | 應用名稱（用作環境變數前綴） | `tomorrow`                        |
+| `TOMORROW_SETTINGS_MODULE` | 設定模組的路徑        | `tomorrow.settings`               |
+| `TOMORROW_CHECKPOINT`      | 檢查點配置          | `{"type": CheckpointType.MEMORY}` |
 
 #### Rainy 設定 (API)
 
