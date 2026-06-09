@@ -1,6 +1,6 @@
 # NHM-深度代理
 
-[![Imports: isort](https://img.shields.io/badge/imports-isort-%231674b1?style=flat&labelColor=ef8336)](https://isort.readthedocs.io/)[![Coverage badge](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/noHairMan/nhm-deepagents/python-coverage-comment-action-data/endpoint.json)](https://htmlpreview.github.io/?https://github.com/noHairMan/nhm-deepagents/blob/python-coverage-comment-action-data/htmlcov/index.html)
+[![Lint: Ruff](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/astral-sh/ruff/main/assets/badge/v2.json)](https://github.com/astral-sh/ruff)[![Coverage badge](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/noHairMan/nhm-deepagents/python-coverage-comment-action-data/endpoint.json)](https://htmlpreview.github.io/?https://github.com/noHairMan/nhm-deepagents/blob/python-coverage-comment-action-data/htmlcov/index.html)
 
 [簡體中文](/docs/README.zh.md)\|[英語](/docs/README.en.md)\|[日本人](/docs/README.ja.md)\|[繁體中文](/docs/README.zh-TW.md)
 
@@ -23,7 +23,7 @@
 
 -   **測試與覆蓋率**: 自動執行測試並檢查程式碼覆蓋率。
 -   **文件翻譯**: 自動將`README.zh.md`翻译为多种语言（English, 日本語, 繁体中文）。
--   **程式碼規範**: 自動執行`black`和`isort`檢查。
+-   **程式碼規範**: 自動執行`ruff`檢查與格式化。
 
 ## 🛠️ 技術棧
 
@@ -34,7 +34,7 @@
 -   **智能體框架**:[深度代理](https://github.com/zongxuheng/deepagents)(基於 LangGraph/LangChain)
 -   **LLM 提供者**:[成為](https://ollama.com/)(透過`langchain-ollama`)
 -   **配置管理**:[動態會議](https://www.dynaconf.com/)
--   **代碼品質**:`black`,`isort`,`pre-commit`, 類型提示 (Type Hinting)
+-   **代碼品質**:`ruff`,`pre-commit`, 類型提示 (Type Hinting)
 -   **測試與覆蓋率**:`pytest`,`coverage`
 
 ## 📋 環境要求
@@ -111,14 +111,14 @@ uv run python src/main.py
 | `RAINY_SETTINGS_MODULE` | 設定模組的路徑        | `rainy.settings` |
 | `RAINY_MIDDLEWARE`      | 啟用的中間件列表       | (見 settings.py)  |
 
-## 📜 腳本
+## 📜 脚本
 
 常用的開發腳本：
 
--   **格式化程式碼**:
+-   **檢查與格式化程式碼**:
     ```bash
-    uv run black .
-    uv run isort .
+    uv run ruff check . --fix
+    uv run ruff format .
     ```
 
 -   **手動運行 pre-commit 鉤子**:
