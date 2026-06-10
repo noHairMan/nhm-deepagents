@@ -7,12 +7,14 @@
 | src/rainy/\_\_init\_\_.py                     |        0 |        0 |        0 |        0 |     100% |           |
 | src/rainy/api/\_\_init\_\_.py                 |        0 |        0 |        0 |        0 |     100% |           |
 | src/rainy/api/endpoints/\_\_init\_\_.py       |        0 |        0 |        0 |        0 |     100% |           |
-| src/rainy/api/endpoints/chat.py               |       25 |        0 |        4 |        0 |     100% |           |
+| src/rainy/api/endpoints/chat.py               |       24 |        0 |        4 |        0 |     100% |           |
 | src/rainy/api/endpoints/health.py             |        7 |        0 |        0 |        0 |     100% |           |
 | src/rainy/api/endpoints/urls.py               |        6 |        0 |        0 |        0 |     100% |           |
-| src/rainy/app.py                              |        9 |        0 |        2 |        0 |     100% |           |
+| src/rainy/app.py                              |       10 |        0 |        2 |        0 |     100% |           |
 | src/rainy/conf/\_\_init\_\_.py                |        1 |        0 |        0 |        0 |     100% |           |
 | src/rainy/conf/config.py                      |       12 |        0 |        0 |        0 |     100% |           |
+| src/rainy/dependencies.py                     |        3 |        0 |        0 |        0 |     100% |           |
+| src/rainy/lifespan.py                         |       12 |        0 |        0 |        0 |     100% |           |
 | src/rainy/middleware/\_\_init\_\_.py          |        2 |        0 |        0 |        0 |     100% |           |
 | src/rainy/middleware/process\_time.py         |       11 |        0 |        0 |        0 |     100% |           |
 | src/rainy/middleware/response.py              |       17 |        0 |        4 |        0 |     100% |           |
@@ -25,7 +27,7 @@
 | src/tomorrow/conf/\_\_init\_\_.py             |        1 |        0 |        0 |        0 |     100% |           |
 | src/tomorrow/conf/config.py                   |       12 |        0 |        0 |        0 |     100% |           |
 | src/tomorrow/core/\_\_init\_\_.py             |        0 |        0 |        0 |        0 |     100% |           |
-| src/tomorrow/core/agent.py                    |       15 |        0 |        0 |        0 |     100% |           |
+| src/tomorrow/core/agent.py                    |       32 |        0 |        2 |        0 |     100% |           |
 | src/tomorrow/core/checkpoints/\_\_init\_\_.py |       19 |        0 |        4 |        0 |     100% |           |
 | src/tomorrow/core/checkpoints/memory.py       |        3 |        0 |        0 |        0 |     100% |           |
 | src/tomorrow/core/checkpoints/sqlite.py       |        5 |        0 |        0 |        0 |     100% |           |
@@ -37,7 +39,7 @@
 | src/tomorrow/utils/\_\_init\_\_.py            |        0 |        0 |        0 |        0 |     100% |           |
 | src/tomorrow/utils/functional.py              |      224 |        0 |       58 |        0 |     100% |           |
 | src/tomorrow/utils/log.py                     |        6 |        0 |        0 |        0 |     100% |           |
-| **TOTAL**                                     |  **462** |    **0** |   **78** |    **0** | **100%** |           |
+| **TOTAL**                                     |  **494** |    **0** |   **80** |    **0** | **100%** |           |
 
 
 ## Setup coverage badge
