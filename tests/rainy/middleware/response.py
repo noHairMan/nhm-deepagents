@@ -29,7 +29,6 @@ class TestResponseMiddleware:
 
     def test_chat_response_not_wrapped(self):
         """验证聊天接口为 SSE 流式响应，不被统一格式中间件包装"""
-        from unittest.mock import MagicMock, patch
 
         from langchain_core.messages import AIMessageChunk
 
@@ -40,17 +39,18 @@ class TestResponseMiddleware:
                     "data": {"chunk": AIMessageChunk(content="test answer")},
                 }
 
-        mock_create_agent = MagicMock()
-        mock_create_agent.return_value.__aenter__.return_value = FakeAgent()
-        mock_create_agent.return_value.__aexit__.return_value = None
+        from tomorrow.core.agent import AgentManager
 
-        with patch("rainy.api.endpoints.chat.create_agent", mock_create_agent):
+        AgentManager.set_agent(FakeAgent())
+        try:
             response = self.client.post("/api/chat/stream", json={"message": "hello"})
             assert response.status_code == 200
             assert "text/event-stream" in response.headers.get("Content-Type", "")
             assert "test answer" in response.text
             # 流式响应不应被包装成统一 JSON 格式
             assert "code" not in response.text
+        finally:
+            AgentManager.clear_agent()
 
     def test_docs_not_wrapped(self):
         """验证文档路径不被包装"""

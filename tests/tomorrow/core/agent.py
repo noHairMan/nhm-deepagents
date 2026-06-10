@@ -3,7 +3,7 @@ from unittest.mock import MagicMock, patch
 import pytest
 from langchain_core.messages import SystemMessage
 
-from tomorrow.core.agent import create_agent, get_model
+from tomorrow.core.agent import AgentManager, get_model
 
 
 class TestAgent:
@@ -30,7 +30,7 @@ class TestAgent:
             )
 
     @pytest.mark.asyncio
-    async def test_create_agent(self):
+    async def test_get_agent_context(self):
         mock_checkpointer = MagicMock()
         mock_agent = MagicMock()
 
@@ -41,9 +41,19 @@ class TestAgent:
             mock_context.return_value.__aexit__.return_value = None
 
             with patch("tomorrow.core.agent.create_deep_agent", return_value=mock_agent) as mock_create:
-                async with create_agent() as agent:
+                async with AgentManager.get_agent_context() as agent:
                     assert agent == mock_agent
                     mock_create.assert_called_once()
                     args, kwargs = mock_create.call_args
                     assert kwargs["checkpointer"] == mock_checkpointer
                     assert isinstance(kwargs["system_prompt"], SystemMessage)
+
+    def test_create_agent(self):
+        mock_checkpointer = MagicMock()
+        mock_agent = MagicMock()
+        with patch("tomorrow.core.agent.create_deep_agent", return_value=mock_agent) as mock_create:
+            agent = AgentManager.create_agent(mock_checkpointer)
+            assert agent == mock_agent
+            mock_create.assert_called_once()
+            args, kwargs = mock_create.call_args
+            assert kwargs["checkpointer"] == mock_checkpointer

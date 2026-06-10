@@ -49,6 +49,7 @@ ignore = [
     "SIM202",
     "UP007",
     "UP045",
+    "B008",
 ]
 
 [tool.ruff.lint.per-file-ignores]

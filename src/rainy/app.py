@@ -2,9 +2,10 @@ from fastapi import FastAPI
 
 from rainy.api.endpoints.urls import router
 from rainy.conf import settings
+from rainy.lifespan import lifespan
 from tomorrow.utils.functional import import_string
 
-app = FastAPI(title=settings.APP)
+app = FastAPI(title=settings.APP, lifespan=lifespan)
 app.include_router(router)
 
 for middleware_path in settings.MIDDLEWARE:

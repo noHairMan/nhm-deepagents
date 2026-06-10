@@ -1,5 +1,5 @@
 import contextlib
-from typing import Optional
+from typing import Any, Optional
 
 from deepagents import create_deep_agent
 from langchain_core.language_models import BaseChatModel
@@ -19,10 +19,28 @@ def get_model(model: Optional[str] = None) -> BaseChatModel:
     )
 
 
-@contextlib.asynccontextmanager
-async def create_agent():
-    async with get_checkpointer_context() as checkpointer:
-        yield create_deep_agent(
+class AgentManager:
+    """Agent 管理器，用于在生命周期内持有 Agent 实例并提供创建方法。"""
+
+    _agent: Optional[Any] = None
+
+    @classmethod
+    def set_agent(cls, agent: Any) -> None:
+        cls._agent = agent
+
+    @classmethod
+    def get_agent(cls) -> Any:
+        if cls._agent is None:
+            raise RuntimeError("Agent has not been initialized. Ensure lifespan is running.")
+        return cls._agent
+
+    @classmethod
+    def clear_agent(cls) -> None:
+        cls._agent = None
+
+    @staticmethod
+    def create_agent(checkpointer: Optional[Any] = None):
+        return create_deep_agent(
             model=get_model(),
             memory=[],
             tools=[],
@@ -30,3 +48,9 @@ async def create_agent():
             system_prompt=SystemMessage(content="""你是一名智能助理，运用你的知识尽可能的回答用户问题。"""),
             checkpointer=checkpointer,
         )
+
+    @staticmethod
+    @contextlib.asynccontextmanager
+    async def get_agent_context():
+        async with get_checkpointer_context() as checkpointer:
+            yield AgentManager.create_agent(checkpointer)
