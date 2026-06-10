@@ -20,8 +20,9 @@ This project provides a general smart assistant agent that utilizes`deepagents`T
 ### Core functions
 
 -   **deep agent**: Integrated`deepagents`Framework to support complex task processing and status management.
+-   **life cycle management**: introduction`AgentManager`Unified management of the creation and destruction of agent instances ensures graceful initialization of resources.
 -   **High performance API**: Built on FastAPI, supports synchronous responses and Server-Sent Events (SSE) streaming output.
--   **可靠性保障**: Forced type hints, Ruff static checking, 100% test coverage requirement.
+-   **Reliability guaranteed**: Forced type hints, Ruff static checking, 100% test coverage requirement.
 
 ## ⚙️ CI/CD
 
@@ -137,12 +138,13 @@ Commonly used development scripts:
 
 -   `src/main.py`: The main entry point of the application. Set up the environment and start the Uvicorn server.
 -   `src/tomorrow/`: Core agent package directory.
-    -   `core/agent.py`: Define deep agents and their instructions.
+    -   `core/agent.py`: Define deep agents and their instructions, providing`AgentManager`Perform life cycle management.
     -   `core/checkpoints/`: Checkpoint implementation (Memory, SQLite, etc.).
     -   `settings.py`: Default configuration value.
     -   `utils/functional.py`: Function utility.
 -   `src/rainy/`: API service package directory.
-    -   `app.py`: FastAPI application definition.
+    -   `app.py`: FastAPI application definition, integrated life cycle management and routing.
+    -   `lifespan.py`: Handle the startup and shutdown logic of the application and manage the life cycle of the agent instance.
     -   `api/endpoints/`: API route definition.
         -   `chat.py`: Synchronous and streaming chat interface, integrated with deep agent module.
         -   `health.py`: Health check interface.
