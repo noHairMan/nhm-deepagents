@@ -48,13 +48,15 @@ class TestChat:
     def test_chat_sync(self):
         """验证同步聊天接口一次性返回完整回答。"""
         with self._patch_agent(answer="你好，世界") as mock_create:
-            response = self.client.post("/api/chat", json={"message": "hi", "thread_id": "test_thread"})
+            response = self.client.post(
+                "/api/chat", json={"message": "hi", "thread_id": "00000000-0000-0000-0000-000000000001"}
+            )
             agent_instance = mock_create.return_value.__aenter__.return_value
         assert response.status_code == 200
         data = response.json()
         # 经统一响应中间件包装
         assert data["data"]["answer"] == "你好，世界"
-        assert agent_instance.invoked_config["configurable"]["thread_id"] == "test_thread"
+        assert str(agent_instance.invoked_config["configurable"]["thread_id"]) == "00000000-0000-0000-0000-000000000001"
 
     def test_chat_sync_no_thread_id(self):
         """验证未传递 thread_id 时自动生成。"""
@@ -74,7 +76,7 @@ class TestChat:
         ]
         with self._patch_agent(events=events) as mock_create:
             with self.client.stream(
-                "POST", "/api/chat/stream", json={"message": "hi", "thread_id": "test_stream_thread"}
+                "POST", "/api/chat/stream", json={"message": "hi", "thread_id": "00000000-0000-0000-0000-000000000002"}
             ) as response:
                 assert response.status_code == 200
                 assert "text/event-stream" in response.headers["content-type"]
@@ -89,7 +91,7 @@ class TestChat:
         assert "，世界" in decoded_body
         # 空内容不应产生数据行（你好、，世界 共 2 行 data:）
         assert body.count("data: ") == 3
-        assert agent_instance.invoked_config["configurable"]["thread_id"] == "test_stream_thread"
+        assert str(agent_instance.invoked_config["configurable"]["thread_id"]) == "00000000-0000-0000-0000-000000000002"
 
     def test_chat_stream_no_thread_id(self):
         """验证流式接口未传递 thread_id 时自动生成。"""
