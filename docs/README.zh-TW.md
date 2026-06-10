@@ -20,6 +20,7 @@
 ### 核心功能
 
 -   **深度智能體**: 集成`deepagents`框架，支援複雜任務處理與狀態管理。
+-   **生命週期管理**: 引入`AgentManager`統一管理智能體實例的創建與銷毀，確保資源的優雅初始化。
 -   **高效能 API**: 基於 FastAPI 構建，支援同步回應與 Server-Sent Events (SSE) 串流輸出。
 -   **可靠性保障**: 強制類型提示、Ruff 靜態檢查、100% 測試覆蓋率要求。
 
@@ -92,11 +93,11 @@ uv run python src/main.py
 
 ## ⚙️ 配置
 
-該項目使用**動態會議**進行配置管理。設定分別定義在`src/tomorrow/settings.py`（明天）和`src/rainy/settings.py`(Rainy) 中，可以透過環境變數或`.env`文件進行覆蓋。
+該項目使用**動態會議**進行配置管理。設定分別定義在`src/tomorrow/settings.py`（明天）和`src/rainy/settings.py`(Rainy) 中，可以透過環境變數或`.env` 文件进行覆盖。
 
 ### 環境變數
 
-環境變數預設以前綴`TOMORROW_`(核心模組) 或`RAINY_`(API 模組) 開頭。
+环境变量默认以前缀 `TOMORROW_`(核心模組) 或`RAINY_`(API 模組) 開頭。
 
 #### Tomorrow 配置 (核心)
 
@@ -137,12 +138,13 @@ uv run python src/main.py
 
 -   `src/main.py`: 應用的主入口點。設定環境並啟動 Uvicorn 伺服器。
 -   `src/tomorrow/`: 核心智能體包目錄。
-    -   `core/agent.py`: 定義深度智能體及其指令。
+    -   `core/agent.py`: 定義深度智能體及其指令，提供`AgentManager`進行生命週期管理。
     -   `core/checkpoints/`: 檢查點實作（Memory, SQLite 等）。
     -   `settings.py`: 預設配置值。
     -   `utils/functional.py`: 功能實用程式。
 -   `src/rainy/`: API 服務包目錄。
-    -   `app.py`: FastAPI 應用程式定義。
+    -   `app.py`: FastAPI 應用程式定義，整合生命週期管理與路由。
+    -   `lifespan.py`: 處理應用的啟動與關閉邏輯，管理智能體實例生命週期。
     -   `api/endpoints/`: API 路由定義。
         -   `chat.py`: 同步及串流聊天接口，整合了深度智能體模組。
         -   `health.py`: 健康檢查介面。
