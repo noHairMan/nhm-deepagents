@@ -24,6 +24,7 @@
 
 ### 核心功能
 - **深度智能体**: 集成 `deepagents` 框架，支持复杂任务处理与状态管理。
+- **生命周期管理**: 引入 `AgentManager` 统一管理智能体实例的创建与销毁，确保资源的优雅初始化。
 - **高性能 API**: 基于 FastAPI 构建，支持同步响应与 Server-Sent Events (SSE) 流式输出。
 - **可靠性保障**: 强制类型提示、Ruff 静态检查、100% 测试覆盖率要求。
 
@@ -138,12 +139,13 @@ uv run python src/main.py
 
 - `src/main.py`: 应用的主入口点。设置环境并启动 Uvicorn 服务器。
 - `src/tomorrow/`: 核心智能体包目录。
-  - `core/agent.py`: 定义深度智能体及其指令。
+  - `core/agent.py`: 定义深度智能体及其指令，提供 `AgentManager` 进行生命周期管理。
   - `core/checkpoints/`: 检查点实现（Memory, SQLite 等）。
   - `settings.py`: 默认配置值。
   - `utils/functional.py`: 功能实用程序。
 - `src/rainy/`: API 服务包目录。
-  - `app.py`: FastAPI 应用定义。
+  - `app.py`: FastAPI 应用定义，集成生命周期管理与路由。
+  - `lifespan.py`: 处理应用的启动与关闭逻辑，管理智能体实例生命周期。
   - `api/endpoints/`: API 路由定义。
     - `chat.py`: 同步及流式聊天接口，集成了深度智能体模块。
     - `health.py`: 健康检查接口。
