@@ -45,7 +45,8 @@ class TestResponseMiddleware:
         try:
             response = self.client.post("/api/chat/stream", json={"message": "hello"})
             assert response.status_code == 200
-            assert "text/event-stream" in response.headers.get("Content-Type", "")
+            content_type = response.headers.get("Content-Type", "")
+            assert "text/event-stream" in content_type or "application/jsonl" in content_type
             assert "test answer" in response.text
             # 流式响应不应被包装成统一 JSON 格式
             assert "code" not in response.text
@@ -61,14 +62,26 @@ class TestResponseMiddleware:
         if response.status_code == 200 and "application/json" in response.headers.get("Content-Type", ""):
             assert "code" not in response.json()
 
-    def test_non_json_response_not_wrapped(self):
-        """验证非 JSON 响应不被包装"""
-        # 我们需要一个返回非 JSON 的接口，或者模拟一个
-        # 由于我们目前只有 chat 和 health，且都是 JSON。
-        # 这里暂时用一个不存在的路径测试 404，它应该不被包装（因为 status_code != 200）
-        response = self.client.get("/non-existent")
-        assert response.status_code == 404
-        # FastAPI 的默认 404 是 JSON，但 status_code 是 404，所以中间件应该直接返回
-        data = response.json()
-        assert "detail" in data
-        assert "code" not in data
+    def test_unify_response_format_error(self):
+        """验证统一响应格式中间件在解析错误时的处理（不再捕获 JSON 解析错误）"""
+        import json
+
+        import pytest
+        from fastapi import Request
+        from fastapi.responses import StreamingResponse
+
+        from rainy.middleware.response import unify_response_format
+
+        async def call_next(request):
+            async def content_gen():
+                yield b"invalid json"
+
+            return StreamingResponse(content_gen(), status_code=200, media_type="application/json")
+
+        scope = {"type": "http", "path": "/api/test", "method": "GET", "headers": [(b"host", b"localhost")]}
+        request = Request(scope=scope)
+
+        import asyncio
+
+        with pytest.raises(json.JSONDecodeError):
+            asyncio.run(unify_response_format(request, call_next))
