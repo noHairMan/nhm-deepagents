@@ -147,7 +147,7 @@ uv run python src/main.py
   - `app.py`: FastAPI 应用定义，集成生命周期管理与路由。
   - `lifespan.py`: 处理应用的启动与关闭逻辑，管理智能体实例生命周期。
   - `api/endpoints/`: API 路由定义。
-    - `chat.py`: 同步及流式聊天接口，集成了深度智能体模块。
+    - `chat.py`: 同步及流式聊天接口（采用类 OpenAI 响应格式），集成了深度智能体模块。
     - `health.py`: 健康检查接口。
     - `urls.py`: 统一路由挂载。
   - `middleware/`: 自定义中间件（处理时间、统一响应格式）。

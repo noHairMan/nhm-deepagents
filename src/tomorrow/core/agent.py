@@ -2,6 +2,7 @@ import contextlib
 from typing import Any, Optional
 
 from deepagents import create_deep_agent
+from deepagents.backends import FilesystemBackend
 from langchain_core.language_models import BaseChatModel
 from langchain_core.messages import SystemMessage
 from langchain_ollama import ChatOllama
@@ -47,6 +48,7 @@ class AgentManager:
             skills=[],
             system_prompt=SystemMessage(content="""你是一名智能助理，运用你的知识尽可能的回答用户问题。"""),
             checkpointer=checkpointer,
+            backend=FilesystemBackend(root_dir=settings.BASE_DIR.parent / "workspace", virtual_mode=True),
         )
 
     @staticmethod

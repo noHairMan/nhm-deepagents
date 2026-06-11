@@ -57,3 +57,12 @@ class TestAgent:
             mock_create.assert_called_once()
             args, kwargs = mock_create.call_args
             assert kwargs["checkpointer"] == mock_checkpointer
+            # 验证 backend 配置
+            backend = kwargs["backend"]
+            from deepagents.backends import FilesystemBackend
+
+            assert isinstance(backend, FilesystemBackend)
+            assert backend.virtual_mode is True
+            from tomorrow.conf import settings
+
+            assert backend.cwd == (settings.BASE_DIR.parent / "workspace").resolve()
