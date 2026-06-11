@@ -15,12 +15,38 @@ class ChatRequest(BaseModel):
     thread_id: UUID = Field(default_factory=uuid4)
 
 
+@router.post("/chat")
+async def chat(request: ChatRequest, agent: Any = Depends(get_agent)) -> str:
+    response = await agent.ainvoke(
+        {"messages": [("user", request.message)]},
+        config={"configurable": {"thread_id": request.thread_id}},
+        version="v2",
+    )
+    return response.value["messages"][-1].content
+
+
 @router.post("/chat/stream")
 async def chat_stream(
     request: ChatRequest,
     agent: Any = Depends(get_agent),
 ) -> EventSourceResponse:
-    """流式接口：直接返回智能体生成的 astream_events 事件流。"""
+
+    async def event_generator():
+        async for event in agent.astream(
+            {"messages": [("user", request.message)]},
+            config={"configurable": {"thread_id": request.thread_id}},
+            version="v2",
+        ):
+            yield f"data: {event}\n\n"
+
+    return EventSourceResponse(event_generator())
+
+
+@router.post("/chat/stream/event")
+async def chat_stream_event(
+    request: ChatRequest,
+    agent: Any = Depends(get_agent),
+) -> EventSourceResponse:
 
     async def event_generator():
         async for event in agent.astream_events(

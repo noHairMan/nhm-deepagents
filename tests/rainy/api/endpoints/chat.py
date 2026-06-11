@@ -26,6 +26,13 @@ class FakeAgent:
         self._answer = answer
         self.invoked_config = None
 
+    async def astream(self, *args, **kwargs):
+        self.invoked_config = kwargs.get("config")
+        if self._events == "FAIL":
+            raise Exception("Model error")
+        for event in self._events:
+            yield event
+
     async def astream_events(self, *args, **kwargs):
         self.invoked_config = kwargs.get("config")
         if self._events == "FAIL":
@@ -37,16 +44,49 @@ class FakeAgent:
         self.invoked_config = kwargs.get("config")
         if self._answer == "FAIL":
             raise Exception("Model error")
-        return {
+        from unittest.mock import MagicMock
+
+        mock_response = MagicMock()
+        mock_response.value = {
             "messages": [
                 HumanMessage(content="User message"),
                 AIMessage(content=self._answer),
             ]
         }
+        return mock_response
 
 
 class TestChat:
     client = TestClient(app)
+
+    def test_chat(self):
+        """验证聊天接口正常返回最后一条消息。"""
+        fake_agent = FakeAgent(answer="Hello, I am an AI.")
+        AgentManager.set_agent(fake_agent)
+        try:
+            response = self.client.post(
+                "/api/chat", json={"message": "hi", "thread_id": "00000000-0000-0000-0000-000000000001"}
+            )
+            assert response.status_code == 200
+            assert response.json()["data"] == "Hello, I am an AI."
+            assert response.json()["code"] == 0
+            assert str(fake_agent.invoked_config["configurable"]["thread_id"]) == "00000000-0000-0000-0000-000000000001"
+        finally:
+            AgentManager.clear_agent()
+
+    def test_chat_error(self):
+        """验证聊天接口发生错误时的处理。"""
+        fake_agent = FakeAgent(answer="FAIL")
+        AgentManager.set_agent(fake_agent)
+        try:
+            import pytest
+
+            client = TestClient(app, raise_server_exceptions=True)
+            with pytest.raises(Exception) as excinfo:
+                client.post("/api/chat", json={"message": "hi"})
+            assert "Model error" in str(excinfo.value)
+        finally:
+            AgentManager.clear_agent()
 
     def test_chat_stream(self):
         """验证流式聊天接口直接输出原始事件流。"""
@@ -96,6 +136,19 @@ class TestChat:
             # 每个 event 都会产生一行数据
             assert body.count("data: {") == 6
             assert str(fake_agent.invoked_config["configurable"]["thread_id"]) == "00000000-0000-0000-0000-000000000002"
+        finally:
+            AgentManager.clear_agent()
+
+    def test_chat_stream_event(self):
+        """验证 chat_stream_event 接口。"""
+        events = [_make_event("event test")]
+        fake_agent = FakeAgent(events=events)
+        AgentManager.set_agent(fake_agent)
+        try:
+            with self.client.stream("POST", "/api/chat/stream/event", json={"message": "hi"}) as response:
+                assert response.status_code == 200
+                body = "".join(response.iter_text())
+                assert "event test" in body
         finally:
             AgentManager.clear_agent()
 

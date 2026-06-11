@@ -33,6 +33,9 @@ class TestResponseMiddleware:
         from langchain_core.messages import AIMessageChunk
 
         class FakeAgent:
+            async def astream(self, *args, **kwargs):
+                yield "test answer"
+
             async def astream_events(self, *args, **kwargs):
                 yield {
                     "event": "on_chat_model_stream",
