@@ -93,11 +93,11 @@ uv run python src/main.py
 
 ## ⚙️ 配置
 
-該項目使用**動態會議**進行配置管理。設定分別定義在`src/tomorrow/settings.py`（明天）和`src/rainy/settings.py`(Rainy) 中，可以透過環境變數或`.env` 文件进行覆盖。
+該項目使用**動態會議**進行配置管理。設定分別定義在`src/tomorrow/settings.py`（明天）和`src/rainy/settings.py`(Rainy) 中，可以透過環境變數或`.env`文件進行覆蓋。
 
 ### 環境變數
 
-环境变量默认以前缀 `TOMORROW_`(核心模組) 或`RAINY_`(API 模組) 開頭。
+環境變數預設以前綴`TOMORROW_`(核心模組) 或`RAINY_`(API 模組) 開頭。
 
 #### Tomorrow 配置 (核心)
 
@@ -146,7 +146,7 @@ uv run python src/main.py
     -   `app.py`: FastAPI 應用程式定義，整合生命週期管理與路由。
     -   `lifespan.py`: 處理應用的啟動與關閉邏輯，管理智能體實例生命週期。
     -   `api/endpoints/`: API 路由定義。
-        -   `chat.py`: 同步及串流聊天接口，整合了深度智能體模組。
+        -   `chat.py`: 同步及串流聊天介面（採用類別 OpenAI 回應格式），整合了深度智慧體模組。
         -   `health.py`: 健康檢查介面。
         -   `urls.py`: 統一路由掛載。
     -   `middleware/`: 自訂中間件（處理時間、統一回應格式）。
