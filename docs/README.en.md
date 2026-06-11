@@ -30,7 +30,7 @@ The project integrates GitHub Actions workflows, including:
 
 -   **Testing and Coverage**: Automatically run tests and check code coverage.
 -   **Document translation**: automatically`README.zh.md`Translated into multiple languages ​​(English, Japanese, Traditional Chinese).
--   **Code specifications**: Automatic execution`ruff`Check and format to ensure consistent code style and high quality.
+-   **代码规范**: Automatic execution`ruff`Check and format to ensure consistent code style and high quality.
 -   **CI process optimization**: Enhanced workflow trigger path rules, triggering builds only when relevant code or configuration changes, improving efficiency.
 
 ## 🛠️ Technology stack
@@ -146,7 +146,7 @@ Commonly used development scripts:
     -   `app.py`: FastAPI application definition, integrated life cycle management and routing.
     -   `lifespan.py`: Handle the startup and shutdown logic of the application and manage the life cycle of the agent instance.
     -   `api/endpoints/`: API route definition.
-        -   `chat.py`: Synchronous and streaming chat interface, integrated with deep agent module.
+        -   `chat.py`: Synchronous and streaming chat interface (using OpenAI-like response format), integrated with deep agent module.
         -   `health.py`: Health check interface.
         -   `urls.py`: Unified routing mounting.
     -   `middleware/`: Custom middleware (processing time, unified response format).
