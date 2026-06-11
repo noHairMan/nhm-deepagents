@@ -14,7 +14,7 @@
 | src/rainy/conf/\_\_init\_\_.py                |        1 |        0 |        0 |        0 |     100% |           |
 | src/rainy/conf/config.py                      |       12 |        0 |        0 |        0 |     100% |           |
 | src/rainy/dependencies.py                     |        3 |        0 |        0 |        0 |     100% |           |
-| src/rainy/lifespan.py                         |       12 |        0 |        0 |        0 |     100% |           |
+| src/rainy/lifespan.py                         |       10 |        0 |        0 |        0 |     100% |           |
 | src/rainy/middleware/\_\_init\_\_.py          |        2 |        0 |        0 |        0 |     100% |           |
 | src/rainy/middleware/process\_time.py         |       11 |        0 |        0 |        0 |     100% |           |
 | src/rainy/middleware/response.py              |       17 |        0 |        4 |        0 |     100% |           |
@@ -39,7 +39,7 @@
 | src/tomorrow/utils/\_\_init\_\_.py            |        0 |        0 |        0 |        0 |     100% |           |
 | src/tomorrow/utils/functional.py              |      224 |        0 |       58 |        0 |     100% |           |
 | src/tomorrow/utils/log.py                     |        6 |        0 |        0 |        0 |     100% |           |
-| **TOTAL**                                     |  **494** |    **0** |   **80** |    **0** | **100%** |           |
+| **TOTAL**                                     |  **492** |    **0** |   **80** |    **0** | **100%** |           |
 
 
 ## Setup coverage badge
