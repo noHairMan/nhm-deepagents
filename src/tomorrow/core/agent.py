@@ -1,12 +1,10 @@
 import contextlib
 from typing import Any, Optional
 
-from daytona import Daytona
 from deepagents import create_deep_agent
 from deepagents.backends import FilesystemBackend
 from langchain_core.language_models import BaseChatModel
 from langchain_core.messages import SystemMessage
-from langchain_daytona import DaytonaSandbox
 from langchain_ollama import ChatOllama
 
 from tomorrow.conf import settings
@@ -22,10 +20,6 @@ def get_backend() -> Any:
         if not root_dir:
             raise ValueError("root_dir is required for Filesystem backend")
         return FilesystemBackend(root_dir=root_dir, virtual_mode=True)
-    elif backend_type == BackendType.DAYTONA:
-        daytona_client = Daytona()
-        sandbox = daytona_client.create()
-        return DaytonaSandbox(sandbox=sandbox)
     else:
         raise ValueError(f"Unsupported backend type: {backend_type}")
 

@@ -6,7 +6,6 @@ dependencies = [
     "deepagents>=0.6.2",
     "dynaconf>=3.2.13",
     "fastapi>=0.136.3",
-    "langchain-daytona>=0.0.6",
     "langchain-ollama>=1.1.0",
     "langgraph-checkpoint-sqlite>=3.1.0",
     "uvicorn>=0.48.0",

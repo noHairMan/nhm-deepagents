@@ -23,7 +23,4 @@ class TestConstants:
     def test_backend_type(self):
         assert BackendType.FILESYSTEM == "filesystem"
         assert BackendType.FILESYSTEM.label == "Filesystem"
-        assert BackendType.DAYTONA == "daytona"
-        assert BackendType.DAYTONA.label == "Daytona"
         assert "filesystem" in BackendType
-        assert "daytona" in BackendType

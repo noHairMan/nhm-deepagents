@@ -13,38 +13,19 @@ class TestAgent:
 
         from tomorrow.conf import settings
 
-        with patch.object(settings, "BACKEND", {"type": BackendType.FILESYSTEM, "root_dir": "/tmp"}):
+        with patch.object(
+            settings, "BACKEND", {"type": BackendType.FILESYSTEM, BackendType.FILESYSTEM.value: {"root_dir": "/tmp"}}
+        ):
             backend = get_backend()
             assert isinstance(backend, FilesystemBackend)
             assert backend.virtual_mode is True
 
-    def test_get_backend_daytona(self):
+    def test_get_backend_filesystem_no_root_dir(self):
         from tomorrow.conf import settings
 
-        mock_daytona_class = MagicMock()
-        mock_daytona_instance = mock_daytona_class.return_value
-        mock_sandbox = MagicMock()
-        mock_daytona_instance.create.return_value = mock_sandbox
-
-        mock_sandbox_class = MagicMock()
-        mock_sandbox_instance = mock_sandbox_class.return_value
-
-        with patch.object(
-            settings,
-            "BACKEND",
-            {
-                "type": BackendType.DAYTONA,
-            },
-        ):
-            with (
-                patch("daytona.Daytona", mock_daytona_class),
-                patch("langchain_daytona.DaytonaSandbox", mock_sandbox_class),
-            ):
-                backend = get_backend()
-                assert backend == mock_sandbox_instance
-                mock_daytona_class.assert_called_once_with()
-                mock_daytona_instance.create.assert_called_once()
-                mock_sandbox_class.assert_called_once_with(sandbox=mock_sandbox)
+        with patch.object(settings, "BACKEND", {"type": BackendType.FILESYSTEM, BackendType.FILESYSTEM.value: {}}):
+            with pytest.raises(ValueError, match="root_dir is required for Filesystem backend"):
+                get_backend()
 
     def test_get_backend_invalid(self):
         from tomorrow.conf import settings

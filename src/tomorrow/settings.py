@@ -17,5 +17,4 @@ BACKEND = {
     BackendType.FILESYSTEM.value: {
         "root_dir": BASE_DIR.parent / ".workspace",
     },
-    BackendType.DAYTONA.value: {},
 }
