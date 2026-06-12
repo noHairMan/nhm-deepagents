@@ -9,7 +9,8 @@ from langchain_ollama import ChatOllama
 
 from tomorrow.conf import settings
 from tomorrow.core.checkpoints import get_checkpointer_context
-from tomorrow.models.constants.backend import BackendType
+from tomorrow.core.store import get_store
+from tomorrow.models.constants import BackendType
 
 
 def get_backend() -> Any:
@@ -62,6 +63,7 @@ class AgentManager:
             system_prompt=SystemMessage(content="""你是一名智能助理，运用你的知识尽可能的回答用户问题。"""),
             checkpointer=checkpointer,
             backend=get_backend(),
+            store=get_store(),
         )
 
     @staticmethod
