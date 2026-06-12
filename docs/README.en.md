@@ -108,7 +108,7 @@ Environment variables are prefixed by default`TOMORROW_`(core module) or`RAINY_`
 | `TOMORROW_APP`             | Application name (used as environment variable prefix) | `tomorrow`                         |
 | `TOMORROW_SETTINGS_MODULE` | Set module path                                        | `tomorrow.settings`                |
 | `TOMORROW_CHECKPOINT`      | Checkpoint configuration                               | `{"type": CheckpointType.MEMORY}`  |
-| `TOMORROW_BACKEND`         | Backend configuration, support`FILESYSTEM`and`DAYTONA` | `{"type": BackendType.FILESYSTEM}` |
+| `TOMORROW_BACKEND`         | Backend configuration, support`FILESYSTEM`             | `{"type": BackendType.FILESYSTEM}` |
 
 #### Rainy configuration (API)
 
@@ -139,7 +139,7 @@ Commonly used development scripts:
 
 -   `src/main.py`: The main entry point of the application. Set up the environment and start the Uvicorn server.
 -   `src/tomorrow/`: Core agent package directory.
-    -   `core/agent.py`: Define deep agents and their instructions, providing`AgentManager`Lifecycle management, support for Filesystem and Daytona sandbox backends (local mode only).
+    -   `core/agent.py`: Define deep agents and their instructions, providing`AgentManager`Perform life cycle management and support Filesystem backend.
     -   `core/checkpoints/`: Checkpoint implementation (Memory, SQLite, etc.).
     -   `models/constants/backend.py`: Define backend type constants.
     -   `settings.py`: Default configuration value.
@@ -159,7 +159,7 @@ Commonly used development scripts:
 -   `uv.lock`: Lock dependency versions.
 -   `LICENSE`: Apache License 2.0。
 
-## 🧪 测试
+## 🧪 Test
 
 Project use`pytest`run a test and ask**100%**test coverage.
 
