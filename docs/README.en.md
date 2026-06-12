@@ -30,7 +30,7 @@ The project integrates GitHub Actions workflows, including:
 
 -   **Testing and Coverage**: Automatically run tests and check code coverage.
 -   **Document translation**: automatically`README.zh.md`Translated into multiple languages ​​(English, Japanese, Traditional Chinese).
--   **代码规范**: Automatic execution`ruff`Check and format to ensure consistent code style and high quality.
+-   **Code specifications**: Automatic execution`ruff`Check and format to ensure consistent code style and high quality.
 -   **CI process optimization**: Enhanced workflow trigger path rules, triggering builds only when relevant code or configuration changes, improving efficiency.
 
 ## 🛠️ Technology stack
@@ -101,13 +101,14 @@ Environment variables are prefixed by default`TOMORROW_`(core module) or`RAINY_`
 
 #### Tomorrow configuration (core)
 
-| variable                   | describe                                               | default value                     |
-| -------------------------- | ------------------------------------------------------ | --------------------------------- |
-| `TOMORROW_OLLAMA_BASE_URL` | The base address of the Ollama service                 | `http://localhost:11434`          |
-| `TOMORROW_DEFAULT_MODEL`   | LLM model used by default                              | `qwen3.5:9b`                      |
-| `TOMORROW_APP`             | Application name (used as environment variable prefix) | `tomorrow`                        |
-| `TOMORROW_SETTINGS_MODULE` | Set module path                                        | `tomorrow.settings`               |
-| `TOMORROW_CHECKPOINT`      | Checkpoint configuration                               | `{"type": CheckpointType.MEMORY}` |
+| variable                   | describe                                               | default value                      |
+| -------------------------- | ------------------------------------------------------ | ---------------------------------- |
+| `TOMORROW_OLLAMA_BASE_URL` | The base address of the Ollama service                 | `http://localhost:11434`           |
+| `TOMORROW_DEFAULT_MODEL`   | LLM model used by default                              | `qwen3.5:9b`                       |
+| `TOMORROW_APP`             | Application name (used as environment variable prefix) | `tomorrow`                         |
+| `TOMORROW_SETTINGS_MODULE` | Set module path                                        | `tomorrow.settings`                |
+| `TOMORROW_CHECKPOINT`      | Checkpoint configuration                               | `{"type": CheckpointType.MEMORY}`  |
+| `TOMORROW_BACKEND`         | Backend configuration, support`FILESYSTEM`and`DAYTONA` | `{"type": BackendType.FILESYSTEM}` |
 
 #### Rainy configuration (API)
 
@@ -138,8 +139,9 @@ Commonly used development scripts:
 
 -   `src/main.py`: The main entry point of the application. Set up the environment and start the Uvicorn server.
 -   `src/tomorrow/`: Core agent package directory.
-    -   `core/agent.py`: Define deep agents and their instructions, providing`AgentManager`Perform life cycle management.
+    -   `core/agent.py`: Define deep agents and their instructions, providing`AgentManager`Lifecycle management, support for Filesystem and Daytona sandbox backends (local mode only).
     -   `core/checkpoints/`: Checkpoint implementation (Memory, SQLite, etc.).
+    -   `models/constants/backend.py`: Define backend type constants.
     -   `settings.py`: Default configuration value.
     -   `utils/functional.py`: Function utility.
 -   `src/rainy/`: API service package directory.
@@ -157,7 +159,7 @@ Commonly used development scripts:
 -   `uv.lock`: Lock dependency versions.
 -   `LICENSE`: Apache License 2.0。
 
-## 🧪 Test
+## 🧪 测试
 
 Project use`pytest`run a test and ask**100%**test coverage.
 
