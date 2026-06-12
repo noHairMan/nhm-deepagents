@@ -12,15 +12,15 @@
 
 プロジェクトには 2 つの主要モジュールが含まれています。
 
--   **`tomorrow`**: コアエージェントモジュール。コードネームはゲーム『デス・ストランディング2: オン・ザ・ビーチ』の登場人物から取られている。**明日**（エル・ファニングが演じる）。プロットでは、彼女は主人公サム・ブリッジスの娘であり、前作のキャラクターでもあることが明らかになりました。**ルー**(BB-28)。
--   **`rainy`**: FastAPIをベースとしたAPIサービスモジュール。コードネームもデス・ストランディング2のキャラクターから取られています**雨が降る**（忽那汐里が演じる）。ゲーム内では「タイムフォール」と治癒の「コアフォール」を引き起こす魔法の力を持ち、傷つけることも治すこともできる「ファルマコン」として描かれている。応答フォーマットの統一や処理時間のミドルウェアなどの機能を統合したモジュールです。
+-   **`tomorrow`**: コアエージェントモジュール。コードネームはゲーム『デス・ストランディング2: オン・ザ・ビーチ』の登場人物から取られている。**明日**（エル・ファニングが演じる）。プロットでは、彼女は主人公サム・ブリッジズの娘であり、前作のキャラクターでもあることが明らかになりました。**ルー**(BB-28)。
+-   **`rainy`**: FastAPIをベースとしたAPIサービスモジュール。コードネームもデス・ストランディング2のキャラクターから取られています**雨が降る**（忽那汐里が演じる）。ゲーム内では「タイムフォール」と回復の「コアフォール」を引き起こす魔法の力を持ち、傷つけることも治すこともできる「ファルマコン」として描かれている。
 
-このプロジェクトは、`deepagents`フレームワークはユーザー入力を分析して渡します`rainy`このモジュールは外部同期を提供します (`/api/chat`）そして**ストリーミング (`/api/chat/stream`）**APIインターフェース。
+该项目提供了一个通用的智能助理智能体，利用 `deepagents`フレームワークはユーザー入力を分析して渡します`rainy`このモジュールは外部同期を提供します (`/api/chat`）そして**ストリーミング (`/api/chat/stream`）**APIインターフェース。
 
 ### コア機能
 
 -   **ディープエージェント**: 集成`deepagents`複雑なタスク処理とステータス管理をサポートするフレームワーク。
--   **ライフサイクル管理**： 導入`AgentManager`エージェント インスタンスの作成と破棄を一元管理することで、リソースの適切な初期化が保証されます。
+-   **ライフサイクル管理**： 導入`AgentManager` 统一管理智能体实例的创建与销毁，确保资源的优雅初始化。
 -   **高性能 API**: FastAPI 上に構築され、同期応答と Server-Sent Events (SSE) ストリーミング出力をサポートします。
 -   **信頼性の保証**: 強制型ヒント、Ruff 静的チェック、100% のテスト カバレッジ要件。
 
@@ -40,7 +40,7 @@
 -   **APIフレームワーク**:[早い](https://fastapi.tiangolo.com/)
 -   **ウェブサーバー**:[ユビコーン](https://www.uvicorn.org/)
 -   **エージェントフレームワーク**:[ディープエージェント](https://github.com/zongxuheng/deepagents)(LangGraph/LangChainに基づく)
--   **LLMプロバイダー**:[であること](https://ollama.com/)（合格`langchain-ollama`)
+-   **LLMプロバイダー**:[であること](https://ollama.com/) (通过 `langchain-ollama`)
 -   **配置管理**:[ダイナコンフ](https://www.dynaconf.com/)
 -   **コードの品質**:[ラフ](https://github.com/astral-sh/ruff)(ブラックとアイソートを置き換えます)、`pre-commit`、厳密な型ヒンティング
 -   **テストと適用範囲**:`pytest`,`coverage`
@@ -103,12 +103,12 @@ uv run python src/main.py
 
 | 変数                         | 説明する                      | デフォルト値                             |
 | -------------------------- | ------------------------- | ---------------------------------- |
-| `TOMORROW_OLLAMA_BASE_URL` | Ollama サービスのベース アドレス      | `http://localhost:11434`           |
-| `TOMORROW_DEFAULT_MODEL`   | デフォルトで使用される LLM モデル       | `qwen3.5:9b`                       |
 | `TOMORROW_APP`             | アプリケーション名 (環境変数の接頭辞として使用) | `tomorrow`                         |
-| `TOMORROW_SETTINGS_MODULE` | モジュールパスを設定する              | `tomorrow.settings`                |
+| `TOMORROW_SETTINGS_MODULE` | モジュールパスの設定                | `tomorrow.settings`                |
+| `TOMORROW_MODEL`           | モデル構成、動的読み込みをサポート         | `{"type": ModelType.OLLAMA, ...}`  |
 | `TOMORROW_CHECKPOINT`      | チェックポイントの構成               | `{"type": CheckpointType.MEMORY}`  |
 | `TOMORROW_BACKEND`         | バックエンド構成、サポート`FILESYSTEM` | `{"type": BackendType.FILESYSTEM}` |
+| `TOMORROW_STORE`           | ストレージ構成、複数のストレージをサポート     | `{"type": StoreType.MEMORY}`       |
 
 #### Rainy 配置 (API)
 
@@ -117,7 +117,7 @@ uv run python src/main.py
 | `RAINY_HOST`            | APIサービスリスニングアドレス          | `localhost`      |
 | `RAINY_PORT`            | APIサービスポート                | `8000`           |
 | `RAINY_APP`             | アプリケーション名 (環境変数の接頭辞として使用) | `rainy`          |
-| `RAINY_SETTINGS_MODULE` | モジュールパスを設定する              | `rainy.settings` |
+| `RAINY_SETTINGS_MODULE` | モジュールパスの設定                | `rainy.settings` |
 | `RAINY_MIDDLEWARE`      | 有効なミドルウェアのリスト             | (settings.pyを参照) |
 
 ## 📜 脚本
@@ -140,8 +140,11 @@ uv run python src/main.py
 -   `src/main.py`: アプリケーションのメイン エントリ ポイント。環境をセットアップし、Uvicorn サーバーを起動します。
 -   `src/tomorrow/`: コア エージェント パッケージ ディレクトリ。
     -   `core/agent.py`: ディープ エージェントとその命令を定義します。`AgentManager`ライフサイクル管理を実行し、ファイルシステム バックエンドをサポートします。
+    -   `core/backends/`: バックエンドの読み込みロジックを統合します。
     -   `core/checkpoints/`: チェックポイントの実装 (メモリ、SQLite など)。
-    -   `models/constants/backend.py`: バックエンドタイプの定数を定義します。
+    -   `core/models/`: モデル読み込みの実装。
+    -   `core/store/`: マルチストレージ実装 (メモリ、SQLite など)。
+    -   `models/constants/`: さまざまな種類の定数 (バックエンド、チェックポイント、モデル、ストア) を定義します。
     -   `settings.py`: デフォルトの設定値。
     -   `utils/functional.py`：機能ユーティリティ。
 -   `src/rainy/`: API サービス パッケージのディレクトリ。
