@@ -18,7 +18,7 @@
 
 项目内部包含两个主要模块：
 - **`tomorrow`**: 核心智能体模块。代号取自游戏《死亡搁浅 2：冥滩之上》（Death Stranding 2: On the Beach）中的角色 **Tomorrow**（由艾丽·范宁饰演）。在剧情中，她是主角山姆·布里吉斯（Sam Bridges）的女儿，也被揭示为前作中的 **Lou** (BB-28)。
-- **`rainy`**: 基于 FastAPI 的 API 服务模块。代号同样取自《死亡搁浅 2》中的角色 **Rainy**（由忽那汐里饰演）。在游戏中，她拥有引发“时间雨”（Timefall）和具有治愈能力的“核心雨”（Corefall）的神奇力量，被描述为既能伤害也能治愈的“药（Pharmakon）”。该模块集成了统一响应格式、处理时间中间件等功能。
+- **`rainy`**: 基于 FastAPI 的 API 服务模块。代号同样取自《死亡搁浅 2》中的角色 **Rainy**（由忽那汐里饰演）。在游戏中，她拥有引发“时间雨”（Timefall）和具有治愈能力的“核心雨”（Corefall）的神奇力量，被描述为既能伤害也能治愈的“药（Pharmakon）”。
 
 该项目提供了一个通用的智能助理智能体，利用 `deepagents` 框架分析用户输入，并通过 `rainy` 模块对外提供同步（`/api/chat`）及**流式（`/api/chat/stream`）** API 接口。
 
@@ -104,12 +104,12 @@ uv run python src/main.py
 #### Tomorrow 配置 (核心)
 | 变量 | 描述 | 默认值 |
 |----------|-------------|---------|
-| `TOMORROW_OLLAMA_BASE_URL` | Ollama 服务的基地址 | `http://localhost:11434` |
-| `TOMORROW_DEFAULT_MODEL` | 默认使用的 LLM 模型 | `qwen3.5:9b` |
 | `TOMORROW_APP` | 应用名称（用作环境变量前缀） | `tomorrow` |
 | `TOMORROW_SETTINGS_MODULE` | 设置模块的路径 | `tomorrow.settings` |
+| `TOMORROW_MODEL` | 模型配置，支持动态加载 | `{"type": ModelType.OLLAMA, ...}` |
 | `TOMORROW_CHECKPOINT` | 检查点配置 | `{"type": CheckpointType.MEMORY}` |
 | `TOMORROW_BACKEND` | 后端配置，支持 `FILESYSTEM` | `{"type": BackendType.FILESYSTEM}` |
+| `TOMORROW_STORE` | 存储配置，支持多存储 | `{"type": StoreType.MEMORY}` |
 
 #### Rainy 配置 (API)
 
@@ -141,8 +141,11 @@ uv run python src/main.py
 - `src/main.py`: 应用的主入口点。设置环境并启动 Uvicorn 服务器。
 - `src/tomorrow/`: 核心智能体包目录。
   - `core/agent.py`: 定义深度智能体及其指令，提供 `AgentManager` 进行生命周期管理，支持 Filesystem 后端。
+  - `core/backends/`: 统一后端加载逻辑。
   - `core/checkpoints/`: 检查点实现（Memory, SQLite 等）。
-  - `models/constants/backend.py`: 定义后端类型常量。
+  - `core/models/`: 模型加载实现。
+  - `core/store/`: 多存储实现（Memory, SQLite 等）。
+  - `models/constants/`: 定义各类常量（Backend, Checkpoint, Model, Store）。
   - `settings.py`: 默认配置值。
   - `utils/functional.py`: 功能实用程序。
 - `src/rainy/`: API 服务包目录。
