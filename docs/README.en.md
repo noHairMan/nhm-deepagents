@@ -13,7 +13,7 @@ A Python project to build and run Deep Agents using a modern LLM framework.
 The project contains two main modules:
 
 -   **`tomorrow`**: Core agent module. The codename is taken from a character in the game "Death Stranding 2: On the Beach"**Tomorrow**(played by Elle Fanning). In the plot, she is the daughter of protagonist Sam Bridges, who was also revealed to be a character in the previous game.**Lou**(BB-28)。
--   **`rainy`**: API service module based on FastAPI. The codename is also taken from a character in Death Stranding 2**Rainy**(played by Shiori Kutsuna). In the game, she has the magical power to cause "Timefall" and the healing "Corefall", and is described as a "Pharmakon" that can both hurt and heal. This module integrates functions such as unified response format and processing time middleware.
+-   **`rainy`**: API service module based on FastAPI. The codename is also taken from a character in Death Stranding 2**Rainy**(played by Shiori Kutsuna). In the game, she has the magical power to cause "Timefall" and the healing "Corefall", and is described as a "Pharmakon" that can both hurt and heal.
 
 This project provides a general smart assistant agent that utilizes`deepagents`The framework analyzes user input and passes`rainy`The module provides external synchronization (`/api/chat`)and**streaming (`/api/chat/stream`）**API interface.
 
@@ -29,7 +29,7 @@ This project provides a general smart assistant agent that utilizes`deepagents`T
 The project integrates GitHub Actions workflows, including:
 
 -   **Testing and Coverage**: Automatically run tests and check code coverage.
--   **Document translation**: automatically`README.zh.md`Translated into multiple languages ​​(English, Japanese, Traditional Chinese).
+-   **文档翻译**: automatically`README.zh.md`Translated into multiple languages ​​(English, Japanese, Traditional Chinese).
 -   **Code specifications**: Automatic execution`ruff`Check and format to ensure consistent code style and high quality.
 -   **CI process optimization**: Enhanced workflow trigger path rules, triggering builds only when relevant code or configuration changes, improving efficiency.
 
@@ -103,12 +103,12 @@ Environment variables are prefixed by default`TOMORROW_`(core module) or`RAINY_`
 
 | variable                   | describe                                               | default value                      |
 | -------------------------- | ------------------------------------------------------ | ---------------------------------- |
-| `TOMORROW_OLLAMA_BASE_URL` | The base address of the Ollama service                 | `http://localhost:11434`           |
-| `TOMORROW_DEFAULT_MODEL`   | LLM model used by default                              | `qwen3.5:9b`                       |
 | `TOMORROW_APP`             | Application name (used as environment variable prefix) | `tomorrow`                         |
 | `TOMORROW_SETTINGS_MODULE` | Set module path                                        | `tomorrow.settings`                |
+| `TOMORROW_MODEL`           | Model configuration, supports dynamic loading          | `{"type": ModelType.OLLAMA, ...}`  |
 | `TOMORROW_CHECKPOINT`      | Checkpoint configuration                               | `{"type": CheckpointType.MEMORY}`  |
 | `TOMORROW_BACKEND`         | Backend configuration, support`FILESYSTEM`             | `{"type": BackendType.FILESYSTEM}` |
+| `TOMORROW_STORE`           | Storage configuration, supports multiple storage       | `{"type": StoreType.MEMORY}`       |
 
 #### Rainy configuration (API)
 
@@ -140,8 +140,11 @@ Commonly used development scripts:
 -   `src/main.py`: The main entry point of the application. Set up the environment and start the Uvicorn server.
 -   `src/tomorrow/`: Core agent package directory.
     -   `core/agent.py`: Define deep agents and their instructions, providing`AgentManager`Perform life cycle management and support Filesystem backend.
+    -   `core/backends/`: Unify the backend loading logic.
     -   `core/checkpoints/`: Checkpoint implementation (Memory, SQLite, etc.).
-    -   `models/constants/backend.py`: Define backend type constants.
+    -   `core/models/`: Model loading implementation.
+    -   `core/store/`: Multi-storage implementation (Memory, SQLite, etc.).
+    -   `models/constants/`: Define various types of constants (Backend, Checkpoint, Model, Store).
     -   `settings.py`: Default configuration value.
     -   `utils/functional.py`: Function utility.
 -   `src/rainy/`: API service package directory.
