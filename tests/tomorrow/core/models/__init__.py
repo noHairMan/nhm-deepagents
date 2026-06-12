@@ -1,6 +1,9 @@
 from unittest.mock import patch
 
+import pytest
+
 from tomorrow.core.models import get_model
+from tomorrow.models.constants import ModelType
 
 
 class TestModels:
@@ -8,20 +11,17 @@ class TestModels:
         with patch("tomorrow.core.models.ChatOllama") as mock_ollama:
             from tomorrow.conf import settings
 
-            get_model("test-model")
-            mock_ollama.assert_called_once_with(
-                model="test-model",
-                base_url=settings.OLLAMA_BASE_URL,
-                temperature=0,
-            )
-
-    def test_get_model_default(self):
-        with patch("tomorrow.core.models.ChatOllama") as mock_ollama:
-            from tomorrow.conf import settings
-
             get_model()
+            model_config = settings.MODEL.get(ModelType.OLLAMA)
             mock_ollama.assert_called_once_with(
-                model="qwen3.5:9b",
-                base_url=settings.OLLAMA_BASE_URL,
-                temperature=0,
+                model=model_config.get("model"),
+                base_url=model_config.get("base_url"),
+                temperature=model_config.get("temperature"),
             )
+
+    def test_get_model_unsupported_type(self):
+        from tomorrow.conf import settings
+
+        with patch.dict(settings.MODEL, {"type": "unsupported"}):
+            with pytest.raises(ValueError, match="Unsupported model type: unsupported"):
+                get_model()

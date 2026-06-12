@@ -1,26 +1,32 @@
 from pathlib import Path
 from typing import Final
 
-from tomorrow.models.constants import BackendType, CheckpointType, StoreType
+from tomorrow.models.constants import BackendType, CheckpointType, ModelType, StoreType
 
 APP: Final = "tomorrow"
 BASE_DIR: Final = Path(__file__).resolve().parent.parent
 
-OLLAMA_BASE_URL = "http://localhost:11434"
-DEFAULT_MODEL = "qwen3.5:9b"
+MODEL = {
+    "type": ModelType.OLLAMA,
+    ModelType.OLLAMA: {
+        "model": "qwen3.5:9b",
+        "base_url": "http://localhost:11434",
+        "temperature": 0,
+    },
+}
 CHECKPOINT = {
     "type": CheckpointType.MEMORY,
 }
 BACKEND = {
     "type": BackendType.FILESYSTEM,
-    BackendType.FILESYSTEM.value: {
+    BackendType.FILESYSTEM: {
         "root_dir": BASE_DIR.parent / ".workspace",
     },
 }
 
 STORE = {
     "type": StoreType.MEMORY,
-    StoreType.SQLITE.value: {
+    StoreType.SQLITE: {
         "path": "tomorrow.db",
     },
 }
