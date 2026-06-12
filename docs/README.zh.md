@@ -109,6 +109,7 @@ uv run python src/main.py
 | `TOMORROW_APP` | 应用名称（用作环境变量前缀） | `tomorrow` |
 | `TOMORROW_SETTINGS_MODULE` | 设置模块的路径 | `tomorrow.settings` |
 | `TOMORROW_CHECKPOINT` | 检查点配置 | `{"type": CheckpointType.MEMORY}` |
+| `TOMORROW_BACKEND` | 后端配置，支持 `FILESYSTEM` 和 `DAYTONA` | `{"type": BackendType.FILESYSTEM}` |
 
 #### Rainy 配置 (API)
 
@@ -139,8 +140,9 @@ uv run python src/main.py
 
 - `src/main.py`: 应用的主入口点。设置环境并启动 Uvicorn 服务器。
 - `src/tomorrow/`: 核心智能体包目录。
-  - `core/agent.py`: 定义深度智能体及其指令，提供 `AgentManager` 进行生命周期管理。
+  - `core/agent.py`: 定义深度智能体及其指令，提供 `AgentManager` 进行生命周期管理，支持 Filesystem 和 Daytona 沙箱后端（仅支持本地模式）。
   - `core/checkpoints/`: 检查点实现（Memory, SQLite 等）。
+  - `models/constants/backend.py`: 定义后端类型常量。
   - `settings.py`: 默认配置值。
   - `utils/functional.py`: 功能实用程序。
 - `src/rainy/`: API 服务包目录。

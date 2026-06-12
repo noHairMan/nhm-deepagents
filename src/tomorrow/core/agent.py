@@ -1,14 +1,33 @@
 import contextlib
 from typing import Any, Optional
 
+from daytona import Daytona
 from deepagents import create_deep_agent
 from deepagents.backends import FilesystemBackend
 from langchain_core.language_models import BaseChatModel
 from langchain_core.messages import SystemMessage
+from langchain_daytona import DaytonaSandbox
 from langchain_ollama import ChatOllama
 
 from tomorrow.conf import settings
 from tomorrow.core.checkpoints import get_checkpointer_context
+from tomorrow.models.constants.backend import BackendType
+
+
+def get_backend() -> Any:
+    backend_type = settings.BACKEND.get("type")
+    backend_config = settings.BACKEND.get(backend_type, {})
+    if backend_type == BackendType.FILESYSTEM:
+        root_dir = backend_config.get("root_dir")
+        if not root_dir:
+            raise ValueError("root_dir is required for Filesystem backend")
+        return FilesystemBackend(root_dir=root_dir, virtual_mode=True)
+    elif backend_type == BackendType.DAYTONA:
+        daytona_client = Daytona()
+        sandbox = daytona_client.create()
+        return DaytonaSandbox(sandbox=sandbox)
+    else:
+        raise ValueError(f"Unsupported backend type: {backend_type}")
 
 
 def get_model(model: Optional[str] = None) -> BaseChatModel:
@@ -48,7 +67,7 @@ class AgentManager:
             skills=[],
             system_prompt=SystemMessage(content="""你是一名智能助理，运用你的知识尽可能的回答用户问题。"""),
             checkpointer=checkpointer,
-            backend=FilesystemBackend(root_dir=settings.BASE_DIR.parent / "workspace", virtual_mode=True),
+            backend=get_backend(),
         )
 
     @staticmethod

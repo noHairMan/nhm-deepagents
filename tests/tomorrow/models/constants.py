@@ -1,3 +1,4 @@
+from tomorrow.models.constants.backend import BackendType
 from tomorrow.models.constants.checkpoint import CheckpointType
 
 
@@ -18,3 +19,11 @@ class TestConstants:
         assert "postgres" in CheckpointType
         assert "redis" in CheckpointType
         assert "mongodb" in CheckpointType
+
+    def test_backend_type(self):
+        assert BackendType.FILESYSTEM == "filesystem"
+        assert BackendType.FILESYSTEM.label == "Filesystem"
+        assert BackendType.DAYTONA == "daytona"
+        assert BackendType.DAYTONA.label == "Daytona"
+        assert "filesystem" in BackendType
+        assert "daytona" in BackendType
