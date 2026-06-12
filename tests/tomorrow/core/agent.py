@@ -3,37 +3,12 @@ from unittest.mock import MagicMock, patch
 import pytest
 from langchain_core.messages import SystemMessage
 
-from tomorrow.core.agent import AgentManager, get_backend, get_model, get_store
-from tomorrow.models.constants import BackendType, StoreType
+from tomorrow.core.agent import AgentManager
+from tomorrow.core.store import get_store
+from tomorrow.models.constants import StoreType
 
 
 class TestAgent:
-    def test_get_backend_filesystem(self):
-        from deepagents.backends import FilesystemBackend
-
-        from tomorrow.conf import settings
-
-        with patch.object(
-            settings, "BACKEND", {"type": BackendType.FILESYSTEM, BackendType.FILESYSTEM.value: {"root_dir": "/tmp"}}
-        ):
-            backend = get_backend()
-            assert isinstance(backend, FilesystemBackend)
-            assert backend.virtual_mode is True
-
-    def test_get_backend_filesystem_no_root_dir(self):
-        from tomorrow.conf import settings
-
-        with patch.object(settings, "BACKEND", {"type": BackendType.FILESYSTEM, BackendType.FILESYSTEM.value: {}}):
-            with pytest.raises(ValueError, match="root_dir is required for Filesystem backend"):
-                get_backend()
-
-    def test_get_backend_invalid(self):
-        from tomorrow.conf import settings
-
-        with patch.object(settings, "BACKEND", {"type": "invalid"}):
-            with pytest.raises(ValueError, match="Unsupported backend type: invalid"):
-                get_backend()
-
     def test_get_store_memory(self):
         from langgraph.store.memory import InMemoryStore
 
@@ -79,28 +54,6 @@ class TestAgent:
         mock_settings = MagicMock(spec=[])
         with patch("tomorrow.core.store.settings", mock_settings):
             assert get_store() is None
-
-    def test_get_model(self):
-        with patch("tomorrow.core.agent.ChatOllama") as mock_ollama:
-            from tomorrow.conf import settings
-
-            get_model("test-model")
-            mock_ollama.assert_called_once_with(
-                model="test-model",
-                base_url=settings.OLLAMA_BASE_URL,
-                temperature=0,
-            )
-
-    def test_get_model_default(self):
-        with patch("tomorrow.core.agent.ChatOllama") as mock_ollama:
-            from tomorrow.conf import settings
-
-            get_model()
-            mock_ollama.assert_called_once_with(
-                model="qwen3.5:9b",
-                base_url=settings.OLLAMA_BASE_URL,
-                temperature=0,
-            )
 
     @pytest.mark.asyncio
     async def test_get_agent_context(self):
