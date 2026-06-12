@@ -101,13 +101,14 @@ uv run python src/main.py
 
 #### Tomorrow 配置 (核心)
 
-| 變數                         | 描述             | 預設值                               |
-| -------------------------- | -------------- | --------------------------------- |
-| `TOMORROW_OLLAMA_BASE_URL` | Ollama 服務的基底地址 | `http://localhost:11434`          |
-| `TOMORROW_DEFAULT_MODEL`   | 預設使用的 LLM 模型   | `qwen3.5:9b`                      |
-| `TOMORROW_APP`             | 應用名稱（用作環境變數前綴） | `tomorrow`                        |
-| `TOMORROW_SETTINGS_MODULE` | 設定模組的路徑        | `tomorrow.settings`               |
-| `TOMORROW_CHECKPOINT`      | 檢查點配置          | `{"type": CheckpointType.MEMORY}` |
+| 變數                         | 描述                            | 預設值                                |
+| -------------------------- | ----------------------------- | ---------------------------------- |
+| `TOMORROW_OLLAMA_BASE_URL` | Ollama 服務的基底地址                | `http://localhost:11434`           |
+| `TOMORROW_DEFAULT_MODEL`   | 預設使用的 LLM 模型                  | `qwen3.5:9b`                       |
+| `TOMORROW_APP`             | 應用名稱（用作環境變數前綴）                | `tomorrow`                         |
+| `TOMORROW_SETTINGS_MODULE` | 設定模組的路徑                       | `tomorrow.settings`                |
+| `TOMORROW_CHECKPOINT`      | 檢查點配置                         | `{"type": CheckpointType.MEMORY}`  |
+| `TOMORROW_BACKEND`         | 後端配置，支援`FILESYSTEM`和`DAYTONA` | `{"type": BackendType.FILESYSTEM}` |
 
 #### Rainy 設定 (API)
 
@@ -138,10 +139,11 @@ uv run python src/main.py
 
 -   `src/main.py`: 應用的主入口點。設定環境並啟動 Uvicorn 伺服器。
 -   `src/tomorrow/`: 核心智能體包目錄。
-    -   `core/agent.py`: 定義深度智能體及其指令，提供`AgentManager`進行生命週期管理。
+    -   `core/agent.py`: 定義深度智能體及其指令，提供`AgentManager`進行生命週期管理，支援 Filesystem 和 Daytona 沙箱後端（僅支援本地模式）。
     -   `core/checkpoints/`: 檢查點實作（Memory, SQLite 等）。
+    -   `models/constants/backend.py`: 定義後端類型常數。
     -   `settings.py`: 預設配置值。
-    -   `utils/functional.py`: 功能實用程式。
+    -   `utils/functional.py`: 功能实用程序。
 -   `src/rainy/`: API 服務包目錄。
     -   `app.py`: FastAPI 應用程式定義，整合生命週期管理與路由。
     -   `lifespan.py`: 處理應用的啟動與關閉邏輯，管理智能體實例生命週期。
