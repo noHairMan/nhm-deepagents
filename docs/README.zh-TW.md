@@ -13,7 +13,7 @@
 專案內部包含兩個主要模組：
 
 -   **`tomorrow`**: 核心智能體模組。代號取自遊戲《死亡擱淺 2：冥灘之上》（Death Stranding 2: On the Beach）中的角色**明天**（艾莉·範甯飾演）。在劇情中，她是主角山姆布里吉斯（Sam Bridges）的女兒，也被揭露為前作中的**大樓**(BB-28)。
--   **`rainy`**: 基於 FastAPI 的 API 服務模組。代號同樣取自《死亡擱淺 2》中的角色**下雨天**（由忽那汐裡飾演）。在遊戲中，她擁有引發「時間雨」（Timefall）和具有治癒能力的「核心雨」（Corefall）的神奇力量，被描述為既能傷害也能治癒的「藥（Pharmakon）」。本模組整合了統一回應格式、處理時間中間件等功能。
+-   **`rainy`**: 基於 FastAPI 的 API 服務模組。代號同樣取自《死亡擱淺 2》中的角色**下雨天**（由忽那汐裡飾演）。在游戏中，她拥有引发“时间雨”（Timefall）和具有治愈能力的“核心雨”（Corefall）的神奇力量，被描述为既能伤害也能治愈的“药（Pharmakon）”。
 
 該專案提供了一個通用的智慧助理智能體，利用`deepagents`框架分析使用者輸入，並透過`rainy`模組對外提供同步（`/api/chat`）及**流式（`/api/chat/stream`）**API 介面。
 
@@ -42,7 +42,7 @@
 -   **智能體框架**:[深度代理](https://github.com/zongxuheng/deepagents)(基於 LangGraph/LangChain)
 -   **LLM 提供者**:[成為](https://ollama.com/)(透過`langchain-ollama`)
 -   **配置管理**:[動態會議](https://www.dynaconf.com/)
--   **代碼品質**:[拉夫](https://github.com/astral-sh/ruff)(替代 Black 和 Isort)、`pre-commit`、强制类型提示 (Strict Type Hinting)
+-   **代碼品質**:[拉夫](https://github.com/astral-sh/ruff)(替代 Black 和 Isort)、`pre-commit`、強制型別提示 (Strict Type Hinting)
 -   **測試與覆蓋率**:`pytest`,`coverage`
 
 ## 📋 環境要求
@@ -103,12 +103,12 @@ uv run python src/main.py
 
 | 變數                         | 描述                  | 預設值                                |
 | -------------------------- | ------------------- | ---------------------------------- |
-| `TOMORROW_OLLAMA_BASE_URL` | Ollama 服務的基底地址      | `http://localhost:11434`           |
-| `TOMORROW_DEFAULT_MODEL`   | 預設使用的 LLM 模型        | `qwen3.5:9b`                       |
 | `TOMORROW_APP`             | 應用名稱（用作環境變數前綴）      | `tomorrow`                         |
 | `TOMORROW_SETTINGS_MODULE` | 設定模組的路徑             | `tomorrow.settings`                |
+| `TOMORROW_MODEL`           | 模型配置，支援動態加載         | `{"type": ModelType.OLLAMA, ...}`  |
 | `TOMORROW_CHECKPOINT`      | 檢查點配置               | `{"type": CheckpointType.MEMORY}`  |
 | `TOMORROW_BACKEND`         | 後端配置，支援`FILESYSTEM` | `{"type": BackendType.FILESYSTEM}` |
+| `TOMORROW_STORE`           | 儲存配置，支援多儲存          | `{"type": StoreType.MEMORY}`       |
 
 #### Rainy 設定 (API)
 
@@ -140,8 +140,11 @@ uv run python src/main.py
 -   `src/main.py`: 應用的主入口點。設定環境並啟動 Uvicorn 伺服器。
 -   `src/tomorrow/`: 核心智能體包目錄。
     -   `core/agent.py`: 定義深度智能體及其指令，提供`AgentManager`進行生命週期管理，支援 Filesystem 後端。
+    -   `core/backends/`: 統一後端載入邏輯。
     -   `core/checkpoints/`: 檢查點實作（Memory, SQLite 等）。
-    -   `models/constants/backend.py`: 定義後端類型常數。
+    -   `core/models/`: 模型載入實作。
+    -   `core/store/`: 多重儲存實作（Memory, SQLite 等）。
+    -   `models/constants/`: 定義各類常數（Backend, Checkpoint, Model, Store）。
     -   `settings.py`: 預設配置值。
     -   `utils/functional.py`: 功能實用程式。
 -   `src/rainy/`: API 服務包目錄。
@@ -188,4 +191,4 @@ uv run coverage run --rcfile=pyproject.toml -m pytest && uv run coverage report 
 
 ## 📄 許可證
 
-本項目採用**阿帕契許可證 2.0** 许可证。详情请参阅 [執照](LICENSE)文件。
+本項目採用**阿帕契許可證 2.0**許可證。詳情請參閱[執照](LICENSE)文件。
