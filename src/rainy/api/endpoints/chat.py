@@ -1,3 +1,4 @@
+import json
 from typing import Any
 from uuid import UUID, uuid4
 
@@ -32,12 +33,18 @@ async def chat_stream(
 ) -> EventSourceResponse:
 
     async def event_generator():
-        async for event in agent.astream(
+        async for event in agent.astream_events(
             {"messages": [("user", request.message)]},
             config={"configurable": {"thread_id": request.thread_id}},
             version="v2",
         ):
-            yield f"data: {event}\n\n"
+            if not isinstance(event, dict):
+                continue
+            if event.get("event") == "on_chat_model_stream":
+                content = event.get("data", {}).get("chunk", {}).content
+                if content:
+                    payload = json.dumps({"content": content}, ensure_ascii=False)
+                    yield f"data: {payload}\n\n"
 
     return EventSourceResponse(event_generator())
 
@@ -54,6 +61,11 @@ async def chat_stream_event(
             config={"configurable": {"thread_id": request.thread_id}},
             version="v2",
         ):
-            yield f"data: {event}\n\n"
+            try:
+                payload = json.dumps(event, ensure_ascii=False)
+            except TypeError, ValueError:
+                # 如果 event 中包含不可序列化的对象（如 AIMessageChunk），则转换为字符串
+                payload = json.dumps(str(event), ensure_ascii=False)
+            yield f"data: {payload}\n\n"
 
     return EventSourceResponse(event_generator())

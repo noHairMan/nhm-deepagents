@@ -89,22 +89,11 @@ class TestChat:
             AgentManager.clear_agent()
 
     def test_chat_stream(self):
-        """验证流式聊天接口直接输出原始事件流。"""
-        # 模拟各种类型的对象以测试序列化器
-        from pydantic import BaseModel
-
-        class MockPydantic(BaseModel):
-            content: str = "你好"
-
-        class MockOldDict(BaseModel):
-            key: str = "value"
-
+        """验证流式聊天接口输出文本增量。"""
         events = [
-            {"event": "on_chain_start", "name": "thought_node", "data": {}},
-            {"event": "on_chat_model_start", "data": {"p": MockPydantic()}},
-            {"event": "on_chat_model_stream", "data": {"d": MockOldDict()}},
-            {"event": "on_tool_start", "name": "search_tool", "data": {"other": "unknown"}},
-            _make_event("，世界"),
+            {"event": "on_chat_model_start", "data": {}},
+            {"event": "on_chat_model_stream", "data": {"chunk": AIMessageChunk(content="你好")}},
+            {"event": "on_chat_model_stream", "data": {"chunk": AIMessageChunk(content="世界")}},
             {"event": "on_chat_model_end", "data": {}},
         ]
         fake_agent = FakeAgent(events=events)
@@ -114,41 +103,47 @@ class TestChat:
                 "POST", "/api/chat/stream", json={"message": "hi", "thread_id": "00000000-0000-0000-0000-000000000002"}
             ) as response:
                 assert response.status_code == 200
-                # Starlette's EventSourceResponse might set different content-types depending on version/config
-                # In this environment it seems to be application/jsonl
-                assert (
-                    "text/event-stream" in response.headers["content-type"]
-                    or "application/jsonl" in response.headers["content-type"]
-                )
                 body = "".join(response.iter_text())
 
-            # 验证返回的内容中包含原始事件的关键信息
-            assert "on_chain_start" in body
-            assert "thought_node" in body
-            assert "on_chat_model_stream" in body
-            # 处理中文编码：可能是原始字符或 \u 序列
-            assert "你好" in body or "\\u4f60\\u597d" in body
-            assert "on_tool_start" in body
-            assert "search_tool" in body
-            assert "，世界" in body or "\\uff0c\\u4e16\\u754c" in body
-            assert "on_chat_model_end" in body
-
-            # 每个 event 都会产生一行数据
-            assert body.count("data: {") == 6
+            assert 'data: {"content": "你好"}' in body
+            assert 'data: {"content": "世界"}' in body
+            assert body.count("data: ") == 2
             assert str(fake_agent.invoked_config["configurable"]["thread_id"]) == "00000000-0000-0000-0000-000000000002"
         finally:
             AgentManager.clear_agent()
 
     def test_chat_stream_event(self):
         """验证 chat_stream_event 接口。"""
-        events = [_make_event("event test")]
+        # 使用简单的字典以确保可以被 json.dumps 成功序列化
+        events = [{"event": "on_chat_model_stream", "data": {"content": "test"}}]
         fake_agent = FakeAgent(events=events)
         AgentManager.set_agent(fake_agent)
         try:
             with self.client.stream("POST", "/api/chat/stream/event", json={"message": "hi"}) as response:
                 assert response.status_code == 200
                 body = "".join(response.iter_text())
-                assert "event test" in body
+                assert 'data: {"event": "on_chat_model_stream"' in body
+        finally:
+            AgentManager.clear_agent()
+
+    def test_chat_stream_event_serialization_error(self):
+        """验证 chat_stream_event 接口序列化失败时的处理。"""
+
+        # 无法序列化的对象
+        class Unserializable:
+            def __repr__(self):
+                return "<unserializable>"
+
+        events = [{"event": "error", "data": Unserializable()}]
+        fake_agent = FakeAgent(events=events)
+        AgentManager.set_agent(fake_agent)
+        try:
+            with self.client.stream("POST", "/api/chat/stream/event", json={"message": "hi"}) as response:
+                assert response.status_code == 200
+                body = "".join(response.iter_text())
+                # 当 json.dumps 失败时，会回退到 json.dumps(str(event))
+                assert "unserializable" in body
+                assert body.startswith('data: "')  # 应该是 JSON 字符串
         finally:
             AgentManager.clear_agent()
 
@@ -162,6 +157,53 @@ class TestChat:
                 assert response.status_code == 200
                 "".join(response.iter_text())
             assert fake_agent.invoked_config["configurable"]["thread_id"] is not None
+        finally:
+            AgentManager.clear_agent()
+
+    def test_chat_stream_event_json_serialization(self):
+        """测试 chat_stream_event 接口中 json.dumps 是否按预期工作。"""
+        # 测试正常可序列化对象
+        events = [{"event": "on_chat_model_stream", "data": {"chunk": {"content": "hello"}}}]
+        fake_agent = FakeAgent(events=events)
+        AgentManager.set_agent(fake_agent)
+        try:
+            with self.client.stream("POST", "/api/chat/stream/event", json={"message": "hi"}) as response:
+                assert response.status_code == 200
+                body = "".join(response.iter_text())
+                assert 'data: {"event": "on_chat_model_stream"' in body
+                assert '"content": "hello"' in body
+        finally:
+            AgentManager.clear_agent()
+
+    def test_chat_stream_non_dict_event(self):
+        """测试 astream 返回非字典事件。"""
+        events = ["some string event"]
+        fake_agent = FakeAgent(events=events)
+        AgentManager.set_agent(fake_agent)
+        try:
+            with self.client.stream("POST", "/api/chat/stream", json={"message": "hi"}) as response:
+                assert response.status_code == 200
+                body = "".join(response.iter_text())
+                assert body == ""
+        finally:
+            AgentManager.clear_agent()
+
+    def test_chat_stream_empty_content(self):
+        """测试 astream_events 返回 content 为空的事件。"""
+        events = [
+            {"event": "on_chat_model_stream", "data": {"chunk": AIMessageChunk(content="你好")}},
+            {"event": "on_chat_model_stream", "data": {"chunk": AIMessageChunk(content=" ")}},  # 只有空格
+            {"event": "on_chat_model_stream", "data": {"chunk": AIMessageChunk(content="")}},  # 为空
+        ]
+        fake_agent = FakeAgent(events=events)
+        AgentManager.set_agent(fake_agent)
+        try:
+            with self.client.stream("POST", "/api/chat/stream", json={"message": "hi"}) as response:
+                assert response.status_code == 200
+                body = "".join(response.iter_text())
+                assert 'data: {"content": "你好"}' in body
+                assert 'data: {"content": " "}' in body
+                assert body.count("data: ") == 2
         finally:
             AgentManager.clear_agent()
 
