@@ -23,4 +23,7 @@ class TestConstants:
     def test_backend_type(self):
         assert BackendType.FILESYSTEM == "filesystem"
         assert BackendType.FILESYSTEM.label == "Filesystem"
+        assert BackendType.LOCAL_SHELL == "local_shell"
+        assert BackendType.LOCAL_SHELL.label == "LocalShell"
         assert "filesystem" in BackendType
+        assert "local_shell" in BackendType

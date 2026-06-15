@@ -53,7 +53,8 @@ class TestAgent:
         # Use a mock that doesn't have STORE attribute
         mock_settings = MagicMock(spec=[])
         with patch("tomorrow.core.store.settings", mock_settings):
-            assert get_store() is None
+            with pytest.raises(AttributeError):
+                get_store()
 
     @pytest.mark.asyncio
     async def test_get_agent_context(self):

@@ -1,14 +1,10 @@
-from typing import Optional
-
 from langgraph.store.base import BaseStore
 
 from tomorrow.conf import settings
 from tomorrow.models.constants import StoreType
 
 
-def get_store() -> Optional[BaseStore]:
-    if not hasattr(settings, "STORE"):
-        return None
+def get_store() -> BaseStore:
     store_type = settings.STORE.get("type")
     match store_type:
         case StoreType.SQLITE:

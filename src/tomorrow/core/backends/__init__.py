@@ -1,17 +1,19 @@
-from deepagents.backends import FilesystemBackend
+from deepagents.backends import BackendProtocol
 
 from tomorrow.conf import settings
 from tomorrow.models.constants import BackendType
 
 
-def get_backend() -> FilesystemBackend:
+def get_backend() -> BackendProtocol:
     backend_type = settings.BACKEND.get("type")
-    backend_config = settings.BACKEND.get(backend_type, {})
     match backend_type:
         case BackendType.FILESYSTEM:
-            root_dir = backend_config.get("root_dir")
-            if not root_dir:
-                raise ValueError("root_dir is required for Filesystem backend")
-            return FilesystemBackend(root_dir=root_dir, virtual_mode=True)
+            from .filesystem import get_backend as get_filesystem_backend
+
+            return get_filesystem_backend()
+        case BackendType.LOCAL_SHELL:
+            from .local_shell import get_backend as get_local_shell_backend
+
+            return get_local_shell_backend()
         case _:
             raise ValueError(f"Unsupported backend type: {backend_type}")

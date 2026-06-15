@@ -26,6 +26,24 @@ class TestBackends:
             with pytest.raises(ValueError, match="root_dir is required for Filesystem backend"):
                 get_backend()
 
+    def test_get_backend_local_shell(self):
+        from deepagents.backends import LocalShellBackend
+
+        from tomorrow.conf import settings
+
+        with patch.object(
+            settings, "BACKEND", {"type": BackendType.LOCAL_SHELL, BackendType.LOCAL_SHELL.value: {"root_dir": "/tmp"}}
+        ):
+            backend = get_backend()
+            assert isinstance(backend, LocalShellBackend)
+
+    def test_get_backend_local_shell_no_root_dir(self):
+        from tomorrow.conf import settings
+
+        with patch.object(settings, "BACKEND", {"type": BackendType.LOCAL_SHELL, BackendType.LOCAL_SHELL.value: {}}):
+            with pytest.raises(ValueError, match="root_dir is required for LocalShell backend"):
+                get_backend()
+
     def test_get_backend_invalid(self):
         from tomorrow.conf import settings
 

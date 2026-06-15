@@ -22,6 +22,9 @@ BACKEND = {
     BackendType.FILESYSTEM: {
         "root_dir": BASE_DIR.parent / ".workspace",
     },
+    BackendType.LOCAL_SHELL: {
+        "root_dir": BASE_DIR.parent / ".workspace",
+    },
 }
 
 STORE = {
