@@ -1,10 +1,12 @@
-from typing import Any
+from typing import Optional
+
+from langgraph.store.base import BaseStore
 
 from tomorrow.conf import settings
 from tomorrow.models.constants import StoreType
 
 
-def get_store() -> Any:
+def get_store() -> Optional[BaseStore]:
     if not hasattr(settings, "STORE"):
         return None
     store_type = settings.STORE.get("type")

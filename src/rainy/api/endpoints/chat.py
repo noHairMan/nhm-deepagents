@@ -1,9 +1,9 @@
 import json
-from typing import Any
 from uuid import UUID, uuid4
 
 from fastapi import APIRouter, Depends
 from fastapi.sse import EventSourceResponse
+from langgraph.graph.state import CompiledStateGraph
 from pydantic import BaseModel, Field
 
 from rainy.dependencies import get_agent
@@ -17,7 +17,7 @@ class ChatRequest(BaseModel):
 
 
 @router.post("/chat")
-async def chat(request: ChatRequest, agent: Any = Depends(get_agent)) -> str:
+async def chat(request: ChatRequest, agent: CompiledStateGraph = Depends(get_agent)) -> str:
     response = await agent.ainvoke(
         {"messages": [("user", request.message)]},
         config={"configurable": {"thread_id": request.thread_id}},
@@ -29,7 +29,7 @@ async def chat(request: ChatRequest, agent: Any = Depends(get_agent)) -> str:
 @router.post("/chat/stream")
 async def chat_stream(
     request: ChatRequest,
-    agent: Any = Depends(get_agent),
+    agent: CompiledStateGraph = Depends(get_agent),
 ) -> EventSourceResponse:
 
     async def event_generator():
@@ -52,7 +52,7 @@ async def chat_stream(
 @router.post("/chat/stream/event")
 async def chat_stream_event(
     request: ChatRequest,
-    agent: Any = Depends(get_agent),
+    agent: CompiledStateGraph = Depends(get_agent),
 ) -> EventSourceResponse:
 
     async def event_generator():

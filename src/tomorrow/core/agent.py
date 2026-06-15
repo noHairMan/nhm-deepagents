@@ -1,8 +1,10 @@
 import contextlib
-from typing import Any, Optional
+from typing import Optional
 
 from deepagents import create_deep_agent
 from langchain_core.messages import SystemMessage
+from langgraph.checkpoint.base import BaseCheckpointSaver
+from langgraph.graph.state import CompiledStateGraph
 
 from tomorrow.core.backends import get_backend
 from tomorrow.core.checkpoints import get_checkpointer_context
@@ -13,14 +15,14 @@ from tomorrow.core.store import get_store
 class AgentManager:
     """Agent 管理器，用于在生命周期内持有 Agent 实例并提供创建方法。"""
 
-    _agent: Optional[Any] = None
+    _agent: Optional[CompiledStateGraph] = None
 
     @classmethod
-    def set_agent(cls, agent: Any) -> None:
+    def set_agent(cls, agent: CompiledStateGraph) -> None:
         cls._agent = agent
 
     @classmethod
-    def get_agent(cls) -> Any:
+    def get_agent(cls) -> CompiledStateGraph:
         if cls._agent is None:
             raise RuntimeError("Agent has not been initialized. Ensure lifespan is running.")
         return cls._agent
@@ -30,7 +32,7 @@ class AgentManager:
         cls._agent = None
 
     @staticmethod
-    def create_agent(checkpointer: Optional[Any] = None):
+    def create_agent(checkpointer: Optional[BaseCheckpointSaver] = None) -> CompiledStateGraph:
         return create_deep_agent(
             model=get_model(),
             memory=[],

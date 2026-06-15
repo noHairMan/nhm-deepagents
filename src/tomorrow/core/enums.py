@@ -1,19 +1,19 @@
 from enum import Enum, EnumMeta
-from typing import Any, Optional
+from typing import Optional, Union
 
 
 class ChoicesMeta(EnumMeta):
-    def __contains__(cls, member: Any) -> bool:
+    def __contains__(cls, member: object) -> bool:
         if isinstance(member, Enum):
             return super().__contains__(member)
         return member in cls.values
 
     @property
-    def choices(cls) -> list[tuple[Any, str]]:
+    def choices(cls) -> list[tuple[Union[str, int], str]]:
         return [(item.value, item.label) for item in cls]
 
     @property
-    def values(cls) -> list[Any]:
+    def values(cls) -> list[Union[str, int]]:
         return [item.value for item in cls]
 
     @property
@@ -22,7 +22,7 @@ class ChoicesMeta(EnumMeta):
 
 
 class Choices(Enum, metaclass=ChoicesMeta):
-    def __new__(cls, value: Any, label: Optional[str] = None) -> Choices:
+    def __new__(cls, value: Union[str, int], label: Optional[str] = None) -> Choices:
         if issubclass(cls, int):
             obj = int.__new__(cls, value)
         elif issubclass(cls, str):

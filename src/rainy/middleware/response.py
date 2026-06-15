@@ -1,6 +1,5 @@
 import json
-from collections.abc import Callable
-from typing import Any
+from collections.abc import Awaitable, Callable
 
 from fastapi import Request
 from fastapi.responses import JSONResponse, Response
@@ -9,7 +8,7 @@ from rainy.conf import settings
 from rainy.models.response import BaseResponse
 
 
-async def unify_response_format(request: Request, call_next: Callable[[Request], Any]) -> Response:
+async def unify_response_format(request: Request, call_next: Callable[[Request], Awaitable[Response]]) -> Response:
     """
     统一响应格式中间件
     """

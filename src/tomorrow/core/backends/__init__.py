@@ -1,12 +1,10 @@
-from typing import Any
-
 from deepagents.backends import FilesystemBackend
 
 from tomorrow.conf import settings
 from tomorrow.models.constants import BackendType
 
 
-def get_backend() -> Any:
+def get_backend() -> FilesystemBackend:
     backend_type = settings.BACKEND.get("type")
     backend_config = settings.BACKEND.get(backend_type, {})
     match backend_type:
