@@ -2,13 +2,13 @@ from unittest.mock import patch
 
 import pytest
 
-from tomorrow.core.models import get_model
+from tomorrow.core.model import get_model
 from tomorrow.models.constants import ModelType
 
 
 class TestModels:
     def test_get_model(self):
-        with patch("tomorrow.core.models.ChatOllama") as mock_ollama:
+        with patch("tomorrow.core.model.ChatOllama") as mock_ollama:
             from tomorrow.conf import settings
 
             get_model()

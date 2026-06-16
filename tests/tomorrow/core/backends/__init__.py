@@ -2,7 +2,7 @@ from unittest.mock import patch
 
 import pytest
 
-from tomorrow.core.backends import get_backend
+from tomorrow.core.backend import get_backend
 from tomorrow.models.constants import BackendType
 
 

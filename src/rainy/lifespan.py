@@ -3,7 +3,7 @@ from collections.abc import AsyncGenerator
 from fastapi import FastAPI
 
 from tomorrow.core.agent import AgentManager
-from tomorrow.core.checkpoints import get_checkpointer_context
+from tomorrow.core.checkpoint import get_checkpointer_context
 
 
 async def lifespan(app: FastAPI) -> AsyncGenerator[None]:
