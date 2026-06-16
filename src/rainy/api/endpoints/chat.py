@@ -6,7 +6,7 @@ from fastapi.sse import EventSourceResponse
 from langgraph.graph.state import CompiledStateGraph
 from pydantic import BaseModel, Field
 
-from rainy.dependencies import get_agent
+from tomorrow.core.agent import AgentManager
 
 router = APIRouter()
 
@@ -17,10 +17,11 @@ class ChatRequest(BaseModel):
 
 
 @router.post("/chat")
-async def chat(request: ChatRequest, agent: CompiledStateGraph = Depends(get_agent)) -> str:
+async def chat(request: ChatRequest, agent: CompiledStateGraph = Depends(AgentManager.get_agent)) -> str:
     response = await agent.ainvoke(
         {"messages": [("user", request.message)]},
         config={"configurable": {"thread_id": request.thread_id}},
+        stream_mode="values",
         version="v2",
     )
     return response.value["messages"][-1].content
@@ -29,7 +30,7 @@ async def chat(request: ChatRequest, agent: CompiledStateGraph = Depends(get_age
 @router.post("/chat/stream")
 async def chat_stream(
     request: ChatRequest,
-    agent: CompiledStateGraph = Depends(get_agent),
+    agent: CompiledStateGraph = Depends(AgentManager.get_agent),
 ) -> EventSourceResponse:
 
     async def event_generator():
@@ -52,7 +53,7 @@ async def chat_stream(
 @router.post("/chat/stream/event")
 async def chat_stream_event(
     request: ChatRequest,
-    agent: CompiledStateGraph = Depends(get_agent),
+    agent: CompiledStateGraph = Depends(AgentManager.get_agent),
 ) -> EventSourceResponse:
 
     async def event_generator():
