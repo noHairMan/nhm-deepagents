@@ -32,7 +32,7 @@
 | src/tomorrow/core/backend/local\_shell.py     |        9 |        0 |        2 |        0 |     100% |           |
 | src/tomorrow/core/checkpoint/\_\_init\_\_.py  |       19 |        0 |        4 |        0 |     100% |           |
 | src/tomorrow/core/checkpoint/memory.py        |        3 |        0 |        0 |        0 |     100% |           |
-| src/tomorrow/core/checkpoint/sqlite.py        |        5 |        0 |        0 |        0 |     100% |           |
+| src/tomorrow/core/checkpoint/sqlite.py        |        9 |        0 |        2 |        0 |     100% |           |
 | src/tomorrow/core/enums.py                    |       33 |        0 |        6 |        0 |     100% |           |
 | src/tomorrow/core/model/\_\_init\_\_.py       |       12 |        0 |        2 |        0 |     100% |           |
 | src/tomorrow/core/store/\_\_init\_\_.py       |       14 |        0 |        4 |        0 |     100% |           |
@@ -48,7 +48,7 @@
 | src/tomorrow/utils/\_\_init\_\_.py            |        0 |        0 |        0 |        0 |     100% |           |
 | src/tomorrow/utils/functional.py              |      224 |        0 |       58 |        0 |     100% |           |
 | src/tomorrow/utils/log.py                     |        6 |        0 |        0 |        0 |     100% |           |
-| **TOTAL**                                     |  **574** |    **0** |  **102** |    **0** | **100%** |           |
+| **TOTAL**                                     |  **578** |    **0** |  **104** |    **0** | **100%** |           |
 
 
 ## Setup coverage badge
