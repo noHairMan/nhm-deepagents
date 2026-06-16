@@ -5,9 +5,11 @@ from langchain_core.messages import SystemMessage
 from langgraph.checkpoint.base import BaseCheckpointSaver
 from langgraph.graph.state import CompiledStateGraph
 
+from tomorrow.conf import settings
 from tomorrow.core.backend import get_backend
 from tomorrow.core.model import get_model
 from tomorrow.core.store import get_store
+from tomorrow.utils.log import logger
 
 
 class AgentManager:
@@ -31,6 +33,21 @@ class AgentManager:
 
     @staticmethod
     def create_agent(checkpointer: Optional[BaseCheckpointSaver] = None) -> CompiledStateGraph:
+        logger.info(f"Initializing Agent for {settings.APP}...")
+
+        # 打印当前使用的配置
+        model_type = settings.MODEL.get("type")
+        logger.info(f"MODEL: {model_type} -> {settings.MODEL.get(model_type)}")
+
+        backend_type = settings.BACKEND.get("type")
+        logger.info(f"BACKEND: {backend_type} -> {settings.BACKEND.get(backend_type)}")
+
+        store_type = settings.STORE.get("type")
+        logger.info(f"STORE: {store_type} -> {settings.STORE.get(store_type)}")
+
+        checkpoint_type = settings.CHECKPOINT.get("type")
+        logger.info(f"CHECKPOINT: {checkpoint_type} -> {settings.CHECKPOINT.get(checkpoint_type)}")
+
         return create_deep_agent(
             model=get_model(),
             memory=[],

@@ -62,6 +62,7 @@ class TestAgent:
         with (
             patch("tomorrow.core.agent.create_deep_agent", return_value=mock_agent) as mock_create,
             patch("tomorrow.core.agent.get_backend", return_value=mock_backend) as mock_get_backend,
+            patch("tomorrow.core.agent.logger") as mock_logger,
         ):
             agent = AgentManager.create_agent(mock_checkpointer)
             assert agent == mock_agent
@@ -70,6 +71,14 @@ class TestAgent:
             args, kwargs = mock_create.call_args
             assert kwargs["checkpointer"] == mock_checkpointer
             assert kwargs["backend"] == mock_backend
+
+            # 验证日志是否被调用
+            # Initializing Agent for ... (1)
+            # MODEL: ... (1)
+            # BACKEND: ... (1)
+            # STORE: ... (1)
+            # CHECKPOINT: ... (1)
+            assert mock_logger.info.call_count == 5
 
     def test_agent_manager_methods(self):
         mock_agent = MagicMock()
