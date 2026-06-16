@@ -26,7 +26,7 @@
 | src/tomorrow/conf/\_\_init\_\_.py             |        1 |        0 |        0 |        0 |     100% |           |
 | src/tomorrow/conf/config.py                   |       11 |        0 |        0 |        0 |     100% |           |
 | src/tomorrow/core/\_\_init\_\_.py             |        0 |        0 |        0 |        0 |     100% |           |
-| src/tomorrow/core/agent.py                    |       31 |        0 |        2 |        0 |     100% |           |
+| src/tomorrow/core/agent.py                    |       24 |        0 |        2 |        0 |     100% |           |
 | src/tomorrow/core/backend/\_\_init\_\_.py     |       14 |        0 |        4 |        0 |     100% |           |
 | src/tomorrow/core/backend/filesystem.py       |        9 |        0 |        2 |        0 |     100% |           |
 | src/tomorrow/core/backend/local\_shell.py     |        9 |        0 |        2 |        0 |     100% |           |
@@ -48,7 +48,7 @@
 | src/tomorrow/utils/\_\_init\_\_.py            |        0 |        0 |        0 |        0 |     100% |           |
 | src/tomorrow/utils/functional.py              |      224 |        0 |       58 |        0 |     100% |           |
 | src/tomorrow/utils/log.py                     |        6 |        0 |        0 |        0 |     100% |           |
-| **TOTAL**                                     |  **581** |    **0** |  **102** |    **0** | **100%** |           |
+| **TOTAL**                                     |  **574** |    **0** |  **102** |    **0** | **100%** |           |
 
 
 ## Setup coverage badge
