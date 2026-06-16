@@ -1,7 +1,6 @@
 from unittest.mock import MagicMock, patch
 
 import pytest
-from langchain_core.messages import SystemMessage
 
 from tomorrow.core.agent import AgentManager
 from tomorrow.core.store import get_store
@@ -56,25 +55,6 @@ class TestAgent:
             with pytest.raises(AttributeError):
                 get_store()
 
-    @pytest.mark.asyncio
-    async def test_get_agent_context(self):
-        mock_checkpointer = MagicMock()
-        mock_agent = MagicMock()
-
-        # 模拟 get_checkpointer_context
-        with patch("tomorrow.core.agent.get_checkpointer_context") as mock_context:
-            # 模拟异步上下文管理器
-            mock_context.return_value.__aenter__.return_value = mock_checkpointer
-            mock_context.return_value.__aexit__.return_value = None
-
-            with patch("tomorrow.core.agent.create_deep_agent", return_value=mock_agent) as mock_create:
-                async with AgentManager.get_agent_context() as agent:
-                    assert agent == mock_agent
-                    mock_create.assert_called_once()
-                    args, kwargs = mock_create.call_args
-                    assert kwargs["checkpointer"] == mock_checkpointer
-                    assert isinstance(kwargs["system_prompt"], SystemMessage)
-
     def test_create_agent(self):
         mock_checkpointer = MagicMock()
         mock_agent = MagicMock()
@@ -98,42 +78,3 @@ class TestAgent:
         AgentManager.clear_agent()
         with pytest.raises(RuntimeError, match="Agent has not been initialized"):
             AgentManager.get_agent()
-
-    @pytest.mark.asyncio
-    async def test_get_agent_context_with_store(self):
-        mock_checkpointer = MagicMock()
-        mock_agent = MagicMock()
-        mock_store = MagicMock()
-
-        with (
-            patch("tomorrow.core.agent.get_checkpointer_context") as mock_cp_ctx,
-            patch("tomorrow.core.agent.get_store", return_value=mock_store),
-            patch("tomorrow.core.agent.create_deep_agent", return_value=mock_agent) as mock_create,
-        ):
-            mock_cp_ctx.return_value.__aenter__.return_value = mock_checkpointer
-            mock_cp_ctx.return_value.__aexit__.return_value = None
-
-            async with AgentManager.get_agent_context() as agent:
-                assert agent == mock_agent
-                mock_create.assert_called_once()
-                args, kwargs = mock_create.call_args
-                assert kwargs["store"] == mock_store
-
-    @pytest.mark.asyncio
-    async def test_get_agent_context_no_store(self):
-        mock_checkpointer = MagicMock()
-        mock_agent = MagicMock()
-
-        with (
-            patch("tomorrow.core.agent.get_checkpointer_context") as mock_cp_ctx,
-            patch("tomorrow.core.agent.get_store", return_value=None),
-            patch("tomorrow.core.agent.create_deep_agent", return_value=mock_agent) as mock_create,
-        ):
-            mock_cp_ctx.return_value.__aenter__.return_value = mock_checkpointer
-            mock_cp_ctx.return_value.__aexit__.return_value = None
-
-            async with AgentManager.get_agent_context() as agent:
-                assert agent == mock_agent
-                mock_create.assert_called_once()
-                args, kwargs = mock_create.call_args
-                assert "store" not in kwargs or kwargs["store"] is None

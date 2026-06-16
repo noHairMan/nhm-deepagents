@@ -1,4 +1,3 @@
-import contextlib
 from typing import Optional
 
 from deepagents import create_deep_agent
@@ -7,7 +6,6 @@ from langgraph.checkpoint.base import BaseCheckpointSaver
 from langgraph.graph.state import CompiledStateGraph
 
 from tomorrow.core.backend import get_backend
-from tomorrow.core.checkpoint import get_checkpointer_context
 from tomorrow.core.model import get_model
 from tomorrow.core.store import get_store
 
@@ -43,9 +41,3 @@ class AgentManager:
             backend=get_backend(),
             store=get_store(),
         )
-
-    @staticmethod
-    @contextlib.asynccontextmanager
-    async def get_agent_context():
-        async with get_checkpointer_context() as checkpointer:
-            yield AgentManager.create_agent(checkpointer)
