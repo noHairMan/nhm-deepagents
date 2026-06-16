@@ -16,6 +16,10 @@ MODEL = {
 }
 CHECKPOINT = {
     "type": CheckpointType.MEMORY,
+    CheckpointType.MEMORY: {},
+    CheckpointType.SQLITE: {
+        "path": BASE_DIR.parent / "tomorrow.db",
+    },
 }
 BACKEND = {
     "type": BackendType.FILESYSTEM,
@@ -29,7 +33,8 @@ BACKEND = {
 
 STORE = {
     "type": StoreType.MEMORY,
+    StoreType.MEMORY: {},
     StoreType.SQLITE: {
-        "path": "tomorrow.db",
+        "path": BASE_DIR.parent / "tomorrow.db",
     },
 }

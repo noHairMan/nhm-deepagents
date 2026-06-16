@@ -40,9 +40,17 @@ class TestCheckpoints:
 class TestSqliteCheckpoint:
     @pytest.mark.asyncio
     async def test_get_checkpoint_saver_sqlite(self):
-        with patch("tomorrow.conf.settings.CHECKPOINT", {"options": {"path": "test.db"}}):
+        with patch("tomorrow.conf.settings.CHECKPOINT", {CheckpointType.SQLITE: {"path": "test.db"}}):
             with patch("langgraph.checkpoint.sqlite.aio.AsyncSqliteSaver.from_conn_string") as mock_from_conn:
                 from tomorrow.core.checkpoint.sqlite import get_checkpoint_saver
 
                 await get_checkpoint_saver()
                 mock_from_conn.assert_called_once_with("test.db")
+
+    @pytest.mark.asyncio
+    async def test_get_checkpoint_saver_sqlite_no_path(self):
+        with patch("tomorrow.conf.settings.CHECKPOINT", {CheckpointType.SQLITE: {}}):
+            from tomorrow.core.checkpoint.sqlite import get_checkpoint_saver
+
+            with pytest.raises(ValueError, match="path is required for SQLite checkpoint"):
+                await get_checkpoint_saver()
