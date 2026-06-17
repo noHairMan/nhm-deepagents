@@ -13,6 +13,12 @@ MODEL = {
         "base_url": "http://localhost:11434",
         "temperature": 0,
     },
+    ModelType.HUGGINGFACE: {
+        "model": "mistralai/Mistral-7B-Instruct-v0.2",
+        "url": None,
+        "api_key": None,
+        "temperature": 0.1,
+    },
 }
 CHECKPOINT = {
     "type": CheckpointType.MEMORY,

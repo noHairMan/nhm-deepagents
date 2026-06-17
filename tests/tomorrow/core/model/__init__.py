@@ -7,17 +7,21 @@ from tomorrow.models.constants import ModelType
 
 
 class TestModels:
-    def test_get_model(self):
-        with patch("tomorrow.core.model.ChatOllama") as mock_ollama:
+    def test_get_model_ollama(self):
+        with patch("tomorrow.core.model.ollama.get_model") as mock_get_model:
             from tomorrow.conf import settings
 
-            get_model()
-            model_config = settings.MODEL.get(ModelType.OLLAMA)
-            mock_ollama.assert_called_once_with(
-                model=model_config.get("model"),
-                base_url=model_config.get("base_url"),
-                temperature=model_config.get("temperature"),
-            )
+            with patch.dict(settings.MODEL, {"type": ModelType.OLLAMA}):
+                get_model()
+                mock_get_model.assert_called_once()
+
+    def test_get_model_huggingface(self):
+        with patch("tomorrow.core.model.huggingface.get_model") as mock_get_model:
+            from tomorrow.conf import settings
+
+            with patch.dict(settings.MODEL, {"type": ModelType.HUGGINGFACE}):
+                get_model()
+                mock_get_model.assert_called_once()
 
     def test_get_model_unsupported_type(self):
         from tomorrow.conf import settings
