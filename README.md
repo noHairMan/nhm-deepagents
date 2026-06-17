@@ -13,6 +13,7 @@
 | src/rainy/app.py                              |       10 |        0 |        2 |        0 |     100% |           |
 | src/rainy/conf/\_\_init\_\_.py                |        1 |        0 |        0 |        0 |     100% |           |
 | src/rainy/conf/config.py                      |       11 |        0 |        0 |        0 |     100% |           |
+| src/rainy/exceptions.py                       |        2 |        0 |        0 |        0 |     100% |           |
 | src/rainy/lifespan.py                         |       10 |        0 |        0 |        0 |     100% |           |
 | src/rainy/middleware/\_\_init\_\_.py          |        2 |        0 |        0 |        0 |     100% |           |
 | src/rainy/middleware/process\_time.py         |       10 |        0 |        0 |        0 |     100% |           |
@@ -26,20 +27,21 @@
 | src/tomorrow/conf/\_\_init\_\_.py             |        1 |        0 |        0 |        0 |     100% |           |
 | src/tomorrow/conf/config.py                   |       11 |        0 |        0 |        0 |     100% |           |
 | src/tomorrow/core/\_\_init\_\_.py             |        0 |        0 |        0 |        0 |     100% |           |
-| src/tomorrow/core/agent.py                    |       35 |        0 |        2 |        0 |     100% |           |
-| src/tomorrow/core/backend/\_\_init\_\_.py     |       14 |        0 |        4 |        0 |     100% |           |
-| src/tomorrow/core/backend/filesystem.py       |        9 |        0 |        2 |        0 |     100% |           |
-| src/tomorrow/core/backend/local\_shell.py     |        9 |        0 |        2 |        0 |     100% |           |
+| src/tomorrow/core/agent.py                    |       36 |        0 |        2 |        0 |     100% |           |
+| src/tomorrow/core/backend/\_\_init\_\_.py     |       15 |        0 |        4 |        0 |     100% |           |
+| src/tomorrow/core/backend/filesystem.py       |       10 |        0 |        2 |        0 |     100% |           |
+| src/tomorrow/core/backend/local\_shell.py     |       10 |        0 |        2 |        0 |     100% |           |
 | src/tomorrow/core/checkpoint/\_\_init\_\_.py  |       19 |        0 |        4 |        0 |     100% |           |
 | src/tomorrow/core/checkpoint/memory.py        |        3 |        0 |        0 |        0 |     100% |           |
-| src/tomorrow/core/checkpoint/sqlite.py        |        9 |        0 |        2 |        0 |     100% |           |
+| src/tomorrow/core/checkpoint/sqlite.py        |       10 |        0 |        2 |        0 |     100% |           |
 | src/tomorrow/core/enums.py                    |       33 |        0 |        6 |        0 |     100% |           |
-| src/tomorrow/core/model/\_\_init\_\_.py       |       14 |        0 |        4 |        0 |     100% |           |
+| src/tomorrow/core/model/\_\_init\_\_.py       |       15 |        0 |        4 |        0 |     100% |           |
 | src/tomorrow/core/model/huggingface.py        |        7 |        0 |        0 |        0 |     100% |           |
 | src/tomorrow/core/model/ollama.py             |        6 |        0 |        0 |        0 |     100% |           |
-| src/tomorrow/core/store/\_\_init\_\_.py       |       14 |        0 |        4 |        0 |     100% |           |
+| src/tomorrow/core/store/\_\_init\_\_.py       |       15 |        0 |        4 |        0 |     100% |           |
 | src/tomorrow/core/store/memory.py             |        3 |        0 |        0 |        0 |     100% |           |
-| src/tomorrow/core/store/sqlite.py             |        9 |        0 |        2 |        0 |     100% |           |
+| src/tomorrow/core/store/sqlite.py             |       10 |        0 |        2 |        0 |     100% |           |
+| src/tomorrow/exceptions.py                    |       12 |        0 |        0 |        0 |     100% |           |
 | src/tomorrow/models/\_\_init\_\_.py           |        0 |        0 |        0 |        0 |     100% |           |
 | src/tomorrow/models/constants/\_\_init\_\_.py |        4 |        0 |        0 |        0 |     100% |           |
 | src/tomorrow/models/constants/backend.py      |        4 |        0 |        0 |        0 |     100% |           |
@@ -50,7 +52,7 @@
 | src/tomorrow/utils/\_\_init\_\_.py            |        0 |        0 |        0 |        0 |     100% |           |
 | src/tomorrow/utils/functional.py              |      224 |        0 |       58 |        0 |     100% |           |
 | src/tomorrow/utils/log.py                     |        6 |        0 |        0 |        0 |     100% |           |
-| **TOTAL**                                     |  **605** |    **0** |  **106** |    **0** | **100%** |           |
+| **TOTAL**                                     |  **627** |    **0** |  **106** |    **0** | **100%** |           |
 
 
 ## Setup coverage badge
