@@ -43,8 +43,9 @@
 - **API 框架**: [FastAPI](https://fastapi.tiangolo.com/)
 - **Web 服务器**: [Uvicorn](https://www.uvicorn.org/)
 - **智能体框架**: [deepagents](https://github.com/zongxuheng/deepagents) (基于 LangGraph/LangChain)
-- **LLM 提供商**: [Ollama](https://ollama.com/) (通过 `langchain-ollama`)
+- **LLM 提供商**: [Ollama](https://ollama.com/) 和 [HuggingFace](https://huggingface.co/)
 - **配置管理**: [Dynaconf](https://www.dynaconf.com/)
+- **异常处理**: 自定义异常体系 (`TomorrowError` 及其子类)，涵盖模型、后端、存储和检查点错误。
 - **代码质量**: [Ruff](https://github.com/astral-sh/ruff) (替代 Black 和 Isort)、`pre-commit`、强制类型提示 (Strict Type Hinting)
 - **测试与覆盖率**: `pytest`, `coverage`
 
@@ -106,10 +107,10 @@ uv run python src/main.py
 |----------|-------------|---------|
 | `TOMORROW_APP` | 应用名称（用作环境变量前缀） | `tomorrow` |
 | `TOMORROW_SETTINGS_MODULE` | 设置模块的路径 | `tomorrow.settings` |
-| `TOMORROW_MODEL` | 模型配置，支持动态加载 | `{"type": ModelType.OLLAMA, ...}` |
-| `TOMORROW_CHECKPOINT` | 检查点配置 | `{"type": CheckpointType.MEMORY}` |
-| `TOMORROW_BACKEND` | 后端配置，支持 `FILESYSTEM` | `{"type": BackendType.FILESYSTEM}` |
-| `TOMORROW_STORE` | 存储配置，支持多存储 | `{"type": StoreType.MEMORY}` |
+| `TOMORROW_MODEL` | 模型配置，支持 OLLAMA 和 HUGGINGFACE | `{"type": ModelType.OLLAMA, ...}` |
+| `TOMORROW_CHECKPOINT` | 检查点配置，支持 MEMORY 和 SQLITE | `{"type": CheckpointType.MEMORY}` |
+| `TOMORROW_BACKEND` | 后端配置，支持 FILESYSTEM 和 LOCAL_SHELL | `{"type": BackendType.FILESYSTEM}` |
+| `TOMORROW_STORE` | 存储配置，支持 MEMORY 和 SQLITE | `{"type": StoreType.MEMORY}` |
 
 #### Rainy 配置 (API)
 
@@ -140,11 +141,12 @@ uv run python src/main.py
 
 - `src/main.py`: 应用的主入口点。设置环境并启动 Uvicorn 服务器。
 - `src/tomorrow/`: 核心智能体包目录。
-  - `core/agent.py`: 定义深度智能体及其指令，提供 `AgentManager` 进行生命周期管理，支持 Filesystem 后端。
-  - `core/backends/`: 统一后端加载逻辑。
-  - `core/checkpoints/`: 检查点实现（Memory, SQLite 等）。
-  - `core/models/`: 模型加载实现。
-  - `core/store/`: 多存储实现（Memory, SQLite 等）。
+  - `core/agent.py`: 定义深度智能体及其指令，提供 `AgentManager` 进行生命周期管理。
+  - `core/backend/`: 统一后端加载逻辑，支持 `FILESYSTEM` 和 `LOCAL_SHELL`。
+  - `core/checkpoint/`: 检查点实现，支持 `MEMORY` 和 `SQLITE`。
+  - `core/model/`: 模型加载实现，支持 `OLLAMA` 和 `HUGGINGFACE`。
+  - `core/store/`: 存储实现，支持 `MEMORY` 和 `SQLITE`。
+  - `exceptions.py`: 定义应用特定的异常类体系。
   - `models/constants/`: 定义各类常量（Backend, Checkpoint, Model, Store）。
   - `settings.py`: 默认配置值。
   - `utils/functional.py`: 功能实用程序。
