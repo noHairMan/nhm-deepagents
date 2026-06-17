@@ -1,6 +1,7 @@
 from deepagents.backends import BackendProtocol
 
 from tomorrow.conf import settings
+from tomorrow.exceptions import TomorrowBackendError
 from tomorrow.models.constants import BackendType
 
 
@@ -16,4 +17,4 @@ def get_backend() -> BackendProtocol:
 
             return get_local_shell_backend()
         case _:
-            raise ValueError(f"Unsupported backend type: {backend_type}")
+            raise TomorrowBackendError(f"Unsupported backend type: {backend_type}")

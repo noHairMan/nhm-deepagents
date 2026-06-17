@@ -1,6 +1,7 @@
 from langgraph.store.base import BaseStore
 
 from tomorrow.conf import settings
+from tomorrow.exceptions import TomorrowStoreError
 from tomorrow.models.constants import StoreType
 
 
@@ -16,4 +17,4 @@ def get_store() -> BaseStore:
 
             return get_memory_store()
         case _:
-            raise ValueError(f"Unsupported store type: {store_type}")
+            raise TomorrowStoreError(f"Unsupported store type: {store_type}")

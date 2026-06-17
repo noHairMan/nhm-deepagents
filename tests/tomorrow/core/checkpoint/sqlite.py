@@ -3,6 +3,7 @@ from unittest.mock import AsyncMock, patch
 import pytest
 
 from tomorrow.core.checkpoint import get_checkpointer_context
+from tomorrow.exceptions import TomorrowCheckpointError
 from tomorrow.models.constants import CheckpointType
 
 
@@ -52,5 +53,5 @@ class TestSqliteCheckpoint:
         with patch("tomorrow.conf.settings.CHECKPOINT", {CheckpointType.SQLITE: {}}):
             from tomorrow.core.checkpoint.sqlite import get_checkpoint_saver
 
-            with pytest.raises(ValueError, match="path is required for SQLite checkpoint"):
+            with pytest.raises(TomorrowCheckpointError, match="path is required for SQLite checkpoint"):
                 await get_checkpoint_saver()

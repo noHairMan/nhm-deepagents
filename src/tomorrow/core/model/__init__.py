@@ -1,6 +1,7 @@
 from langchain_core.language_models import BaseChatModel
 
 from tomorrow.conf import settings
+from tomorrow.exceptions import TomorrowModelError
 from tomorrow.models.constants import ModelType
 
 
@@ -16,4 +17,4 @@ def get_model() -> BaseChatModel:
 
             return get_huggingface_model()
         case _:
-            raise ValueError(f"Unsupported model type: {model_type}")
+            raise TomorrowModelError(f"Unsupported model type: {model_type}")

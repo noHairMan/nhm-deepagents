@@ -9,6 +9,7 @@ from tomorrow.conf import settings
 from tomorrow.core.backend import get_backend
 from tomorrow.core.model import get_model
 from tomorrow.core.store import get_store
+from tomorrow.exceptions import TomorrowRuntimeError
 from tomorrow.utils.log import logger
 
 
@@ -24,7 +25,7 @@ class AgentManager:
     @classmethod
     def get_agent(cls) -> CompiledStateGraph:
         if cls._agent is None:
-            raise RuntimeError("Agent has not been initialized. Ensure lifespan is running.")
+            raise TomorrowRuntimeError("Agent has not been initialized. Ensure lifespan is running.")
         return cls._agent
 
     @classmethod

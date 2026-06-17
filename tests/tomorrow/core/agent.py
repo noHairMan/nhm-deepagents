@@ -4,6 +4,7 @@ import pytest
 
 from tomorrow.core.agent import AgentManager
 from tomorrow.core.store import get_store
+from tomorrow.exceptions import TomorrowRuntimeError, TomorrowStoreError
 from tomorrow.models.constants import StoreType
 
 
@@ -29,14 +30,14 @@ class TestAgent:
         from tomorrow.conf import settings
 
         with patch.object(settings, "STORE", {"type": StoreType.SQLITE, StoreType.SQLITE.value: {}}):
-            with pytest.raises(ValueError, match="path is required for SQLite store"):
+            with pytest.raises(TomorrowStoreError, match="path is required for SQLite store"):
                 get_store()
 
     def test_get_store_invalid(self):
         from tomorrow.conf import settings
 
         with patch.object(settings, "STORE", {"type": "invalid"}):
-            with pytest.raises(ValueError, match="Unsupported store type: invalid"):
+            with pytest.raises(TomorrowStoreError, match="Unsupported store type: invalid"):
                 get_store()
 
     def test_get_store_no_attr(self):
@@ -85,5 +86,5 @@ class TestAgent:
         AgentManager.set_agent(mock_agent)
         assert AgentManager.get_agent() == mock_agent
         AgentManager.clear_agent()
-        with pytest.raises(RuntimeError, match="Agent has not been initialized"):
+        with pytest.raises(TomorrowRuntimeError, match="Agent has not been initialized"):
             AgentManager.get_agent()

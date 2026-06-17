@@ -3,6 +3,7 @@ from unittest.mock import patch
 import pytest
 
 from tomorrow.core.backend import get_backend
+from tomorrow.exceptions import TomorrowBackendError
 from tomorrow.models.constants import BackendType
 
 
@@ -23,7 +24,7 @@ class TestBackends:
         from tomorrow.conf import settings
 
         with patch.object(settings, "BACKEND", {"type": BackendType.FILESYSTEM, BackendType.FILESYSTEM.value: {}}):
-            with pytest.raises(ValueError, match="root_dir is required for Filesystem backend"):
+            with pytest.raises(TomorrowBackendError, match="root_dir is required for Filesystem backend"):
                 get_backend()
 
     def test_get_backend_local_shell(self):
@@ -41,12 +42,12 @@ class TestBackends:
         from tomorrow.conf import settings
 
         with patch.object(settings, "BACKEND", {"type": BackendType.LOCAL_SHELL, BackendType.LOCAL_SHELL.value: {}}):
-            with pytest.raises(ValueError, match="root_dir is required for LocalShell backend"):
+            with pytest.raises(TomorrowBackendError, match="root_dir is required for LocalShell backend"):
                 get_backend()
 
     def test_get_backend_invalid(self):
         from tomorrow.conf import settings
 
         with patch.object(settings, "BACKEND", {"type": "invalid"}):
-            with pytest.raises(ValueError, match="Unsupported backend type: invalid"):
+            with pytest.raises(TomorrowBackendError, match="Unsupported backend type: invalid"):
                 get_backend()

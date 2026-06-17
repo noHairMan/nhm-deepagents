@@ -3,6 +3,7 @@ from unittest.mock import patch
 import pytest
 
 from tomorrow.core.model import get_model
+from tomorrow.exceptions import TomorrowModelError
 from tomorrow.models.constants import ModelType
 
 
@@ -27,5 +28,5 @@ class TestModels:
         from tomorrow.conf import settings
 
         with patch.dict(settings.MODEL, {"type": "unsupported"}):
-            with pytest.raises(ValueError, match="Unsupported model type: unsupported"):
+            with pytest.raises(TomorrowModelError, match="Unsupported model type: unsupported"):
                 get_model()
