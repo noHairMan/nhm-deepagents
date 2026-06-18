@@ -12,8 +12,8 @@
 
 プロジェクトには 2 つの主要モジュールが含まれています。
 
--   **`tomorrow`**: コアエージェントモジュール。コードネームはゲーム『デス・ストランディング2: オン・ザ・ビーチ』の登場人物から取られている。**明日**（エル・ファニングが演じる）。プロットでは、彼女は主人公サム・ブリッジズの娘であり、前作のキャラクターでもあることが明らかになりました。**ルー**(BB-28)。
--   **`rainy`**: FastAPIをベースとしたAPIサービスモジュール。コードネームもデス・ストランディング2のキャラクターから取られています**雨が降る**（忽那汐里が演じる）。ゲーム内では「タイムフォール」と回復の「コアフォール」を引き起こす魔法の力を持ち、傷つけることも治すこともできる「ファルマコン」として描かれている。
+-   **`tomorrow`**: コアエージェントモジュール。コードネームはゲーム『デス・ストランディング2: オン・ザ・ビーチ』の登場人物から取られている。**明日**（エル・ファニングが演じる）。プロットでは、彼女は主人公サム・ブリッジスの娘であり、前作のキャラクターでもあることが明らかになりました。**ルー**(BB-28)。
+-   **`rainy`**: FastAPIをベースとしたAPIサービスモジュール。コードネームもデス・ストランディング2のキャラクターから取られています**雨が降る**（忽那汐里が演じる）。ゲーム内では「タイムフォール」と治癒の「コアフォール」を引き起こす魔法の力を持ち、傷つけることも治すこともできる「ファルマコン」として描かれている。
 
 このプロジェクトは、`deepagents`フレームワークはユーザー入力を分析して渡します`rainy`このモジュールは外部同期を提供します (`/api/chat`）そして**ストリーミング (`/api/chat/stream`）**APIインターフェース。
 
@@ -37,11 +37,11 @@
 
 -   **言語**:[パイソン](https://www.python.org/)>= 3.14
 -   **包管理器**:[紫外線](https://github.com/astral-sh/uv)
--   **APIフレームワーク**:[早い](https://fastapi.tiangolo.com/)
+-   **APIフレームワーク**:[速い](https://fastapi.tiangolo.com/)
 -   **ウェブサーバー**:[ユビコーン](https://www.uvicorn.org/)
 -   **エージェントフレームワーク**:[ディープエージェント](https://github.com/zongxuheng/deepagents)(LangGraph/LangChainに基づく)
 -   **LLMプロバイダー**:[であること](https://ollama.com/)そして[ハグ顔](https://huggingface.co/)
--   **配置管理**:[ダイナコンフ](https://www.dynaconf.com/)
+-   **配置管理**:[ピダンティックな設定](https://docs.pydantic.dev/latest/usage/settings/)
 -   **例外処理**: カスタム例外システム (`TomorrowError`とそのサブクラス)、モデル、バックエンド、ストレージ、チェックポイントのエラーをカバーします。
 -   **コードの品質**:[ラフ](https://github.com/astral-sh/ruff)(ブラックとアイソートを置き換えます)、`pre-commit`、厳密な型ヒンティング
 -   **テストと適用範囲**:`pytest`,`coverage`
@@ -94,7 +94,7 @@ uv run python src/main.py
 
 ## ⚙️ 配置
 
-このプロジェクトでは、**ダイナコンフ**構成管理を実行します。設定はそれぞれ次のように定義されています。`src/tomorrow/settings.py`(明日)和`src/rainy/settings.py`(雨)、環境変数を使用することも、`.env`ファイルが上書きされます。
+このプロジェクトでは、**ピダンティックな設定**構成管理を実行します。設定はそれぞれ次のように定義されています。`src/tomorrow/conf/settings_model.py`(明日)和`src/rainy/conf/settings_model.py`(雨)、環境変数を使用することも、`.env`ファイルが上書きされます。
 
 ### 環境変数
 
@@ -102,24 +102,22 @@ uv run python src/main.py
 
 #### Tomorrow 配置 (核心)
 
-| 変数                         | 説明する                                      | デフォルト値                             |
-| -------------------------- | ----------------------------------------- | ---------------------------------- |
-| `TOMORROW_APP`             | アプリケーション名 (環境変数の接頭辞として使用)                 | `tomorrow`                         |
-| `TOMORROW_SETTINGS_MODULE` | モジュールパスを設定する                              | `tomorrow.settings`                |
-| `TOMORROW_MODEL`           | モデル構成、OLLAMA および HUGGINGFACE をサポート        | `{"type": ModelType.OLLAMA, ...}`  |
-| `TOMORROW_CHECKPOINT`      | チェックポイント構成、MEMORY および SQLITE をサポート        | `{"type": CheckpointType.MEMORY}`  |
-| `TOMORROW_BACKEND`         | バックエンド構成、FILESYSTEM および LOCAL_SHELL をサポート | `{"type": BackendType.FILESYSTEM}` |
-| `TOMORROW_STORE`           | ストレージ構成、MEMORY および SQLITE をサポート           | `{"type": StoreType.MEMORY}`       |
+| 変数                    | 説明する                                      | デフォルト値                             |
+| --------------------- | ----------------------------------------- | ---------------------------------- |
+| `TOMORROW_APP`        | アプリケーション名 (環境変数の接頭辞として使用)                 | `tomorrow`                         |
+| `TOMORROW_MODEL`      | モデル構成、OLLAMA および HUGGINGFACE をサポート        | `{"type": ModelType.OLLAMA, ...}`  |
+| `TOMORROW_CHECKPOINT` | チェックポイント構成、MEMORY および SQLITE をサポート        | `{"type": CheckpointType.MEMORY}`  |
+| `TOMORROW_BACKEND`    | バックエンド構成、FILESYSTEM および LOCAL_SHELL をサポート | `{"type": BackendType.FILESYSTEM}` |
+| `TOMORROW_STORE`      | ストレージ構成、MEMORY および SQLITE をサポート           | `{"type": StoreType.MEMORY}`       |
 
 #### Rainy 配置 (API)
 
-| 変数                      | 説明する                      | デフォルト値           |
-| ----------------------- | ------------------------- | ---------------- |
-| `RAINY_HOST`            | APIサービスリスニングアドレス          | `localhost`      |
-| `RAINY_PORT`            | APIサービスポート                | `8000`           |
-| `RAINY_APP`             | アプリケーション名 (環境変数の接頭辞として使用) | `rainy`          |
-| `RAINY_SETTINGS_MODULE` | モジュールパスを設定する              | `rainy.settings` |
-| `RAINY_MIDDLEWARE`      | 有効なミドルウェアのリスト             | (settings.pyを参照) |
+| 変数                 | 説明する                      | デフォルト値           |
+| ------------------ | ------------------------- | ---------------- |
+| `RAINY_HOST`       | APIサービスリスニングアドレス          | `localhost`      |
+| `RAINY_PORT`       | APIサービスポート                | `8000`           |
+| `RAINY_APP`        | アプリケーション名 (環境変数の接頭辞として使用) | `rainy`          |
+| `RAINY_MIDDLEWARE` | 有効なミドルウェアのリスト             | (settings.pyを参照) |
 
 ## 📜 脚本
 
@@ -146,7 +144,7 @@ uv run python src/main.py
     -   `core/model/`：モデルローディングの実装、サポート`OLLAMA`そして`HUGGINGFACE`。
     -   `core/store/`: ストレージ実装、サポート`MEMORY`そして`SQLITE`。
     -   `exceptions.py`: アプリケーション固有の例外クラス システムを定義します。
-    -   `models/constants/`: さまざまな種類の定数 (バックエンド、チェックポイント、モデル、ストア) を定義します。
+    -   `models/constants/`: さまざまなタイプの定数 (バックエンド、チェックポイント、モデル、ストア) を定義します。
     -   `settings.py`: デフォルトの設定値。
     -   `utils/functional.py`：機能ユーティリティ。
 -   `src/rainy/`: API サービス パッケージのディレクトリ。
@@ -172,12 +170,12 @@ uv run python src/main.py
 
 -   **明日のテストを実行する**:
     ```bash
-    PYTHONPATH=src TOMORROW_APP=tomorrow TOMORROW_SETTINGS_MODULE=tomorrow.settings uv run pytest tests/tomorrow
+    PYTHONPATH=src TOMORROW_APP=tomorrow uv run pytest tests/tomorrow
     ```
 
 -   **Rainy テストを実行する**:
     ```bash
-    PYTHONPATH=src RAINY_APP=rainy RAINY_SETTINGS_MODULE=rainy.settings uv run pytest tests/rainy
+    PYTHONPATH=src RAINY_APP=rainy uv run pytest tests/rainy
     ```
 
 ### カバレッジテストを実行する
@@ -186,8 +184,8 @@ uv run python src/main.py
 
 ```bash
 PYTHONPATH=src \
-TOMORROW_APP=tomorrow TOMORROW_SETTINGS_MODULE=tomorrow.settings \
-RAINY_APP=rainy RAINY_SETTINGS_MODULE=rainy.settings \
+TOMORROW_APP=tomorrow \
+RAINY_APP=rainy \
 uv run coverage run --rcfile=pyproject.toml -m pytest && uv run coverage report --rcfile=pyproject.toml
 ```
 
