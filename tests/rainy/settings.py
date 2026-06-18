@@ -3,7 +3,11 @@ from rainy.settings import RainySettings
 
 class TestRainySettings:
     def test_rainy_settings(self):
-        settings = RainySettings()
+        import os
+        from unittest.mock import patch
+
+        with patch.dict(os.environ, {"RAINY_HOST": "0.0.0.0", "RAINY_ENV_FILE": "/non/existent/path"}):
+            settings = RainySettings()
         assert settings.APP == "rainy"
         assert settings.HOST == "0.0.0.0"
         assert settings.PORT == 8000
