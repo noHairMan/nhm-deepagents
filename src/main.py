@@ -16,7 +16,7 @@ def run_server():
             str(Path(__file__).resolve().parent / "rainy"),
             str(Path(__file__).resolve().parent / "tomorrow"),
         ],
-        log_config=settings.LOGGING.model_dump(by_alias=True, exclude_none=True),
+        log_config=settings.LOGGING,
     )
 
 

@@ -1,5 +1,6 @@
 import os
 from pathlib import Path
+from typing import ClassVar
 
 from pydantic import BaseModel, Field
 from pydantic_settings import BaseSettings, SettingsConfigDict
@@ -78,7 +79,7 @@ class StoreConfig(BaseConfigModel):
 
 class TomorrowSettings(BaseSettings):
     APP: str = "tomorrow"
-    BASE_DIR: Path = Path(__file__).resolve().parent.parent
+    BASE_DIR: ClassVar[Path] = Path(__file__).resolve().parent.parent
 
     MODEL: ModelConfig = Field(default_factory=ModelConfig)
     CHECKPOINT: CheckpointConfig = Field(default_factory=CheckpointConfig)

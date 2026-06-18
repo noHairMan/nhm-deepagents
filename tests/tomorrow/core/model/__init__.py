@@ -35,13 +35,11 @@ class TestModels:
                 mock_get_model.assert_called_once()
 
     def test_get_model_unsupported_type(self):
-        from tomorrow.conf import settings
-        from tomorrow.settings import ModelConfig
+        from unittest.mock import MagicMock
 
-        new_model_data = settings.MODEL.model_dump()
-        new_model_data.pop("type")
-        new_model = ModelConfig.model_construct(type="unsupported", **new_model_data)
+        mock_model = MagicMock()
+        mock_model.get.return_value = "unsupported"
 
-        with patch("tomorrow.conf.settings.MODEL", new_model):
+        with patch("tomorrow.conf.settings.MODEL", mock_model):
             with pytest.raises(TomorrowModelError, match="Unsupported model type: unsupported"):
                 get_model()
