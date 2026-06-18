@@ -41,7 +41,7 @@ The project integrates GitHub Actions workflows, including:
 -   **Web server**:[Uvicorn](https://www.uvicorn.org/)
 -   **agent framework**:[deepagents](https://github.com/zongxuheng/deepagents)(Based on LangGraph/LangChain)
 -   **LLM provider**:[To be](https://ollama.com/)and[HuggingFace](https://huggingface.co/)
--   **Configuration management**:[Dynaconf](https://www.dynaconf.com/)
+-   **Configuration management**:[Pydantic Settings](https://docs.pydantic.dev/latest/usage/settings/)
 -   **Exception handling**: Custom exception system (`TomorrowError`and its subclasses), covering model, backend, storage, and checkpoint errors.
 -   **Code quality**:[Ruff](https://github.com/astral-sh/ruff)(replaces Black and Isort),`pre-commit`, Strict Type Hinting
 -   **Testing and Coverage**:`pytest`,`coverage`
@@ -94,7 +94,7 @@ uv run python src/main.py
 
 ## ⚙️ Configuration
 
-This project uses**Dynaconf**Perform configuration management. The settings are respectively defined in`src/tomorrow/settings.py`(Tomorrow) 和`src/rainy/settings.py`(Rainy), you can use environment variables or`.env`file is overwritten.
+This project uses**Pydantic Settings**Perform configuration management. The settings are respectively defined in`src/tomorrow/conf/settings_model.py`(Tomorrow) 和`src/rainy/conf/settings_model.py`(Rainy), you can use environment variables or`.env`file is overwritten.
 
 ### environment variables
 
@@ -102,24 +102,22 @@ Environment variables are prefixed by default`TOMORROW_`(core module) or`RAINY_`
 
 #### Tomorrow configuration (core)
 
-| variable                   | describe                                                   | default value                      |
-| -------------------------- | ---------------------------------------------------------- | ---------------------------------- |
-| `TOMORROW_APP`             | Application name (used as environment variable prefix)     | `tomorrow`                         |
-| `TOMORROW_SETTINGS_MODULE` | Set module path                                            | `tomorrow.settings`                |
-| `TOMORROW_MODEL`           | Model configuration, supports OLLAMA and HUGGINGFACE       | `{"type": ModelType.OLLAMA, ...}`  |
-| `TOMORROW_CHECKPOINT`      | Checkpoint configuration, supports MEMORY and SQLITE       | `{"type": CheckpointType.MEMORY}`  |
-| `TOMORROW_BACKEND`         | Backend configuration, supports FILESYSTEM and LOCAL_SHELL | `{"type": BackendType.FILESYSTEM}` |
-| `TOMORROW_STORE`           | Storage configuration, supports MEMORY and SQLITE          | `{"type": StoreType.MEMORY}`       |
+| variable              | describe                                                   | default value                      |
+| --------------------- | ---------------------------------------------------------- | ---------------------------------- |
+| `TOMORROW_APP`        | Application name (used as environment variable prefix)     | `tomorrow`                         |
+| `TOMORROW_MODEL`      | Model configuration, supports OLLAMA and HUGGINGFACE       | `{"type": ModelType.OLLAMA, ...}`  |
+| `TOMORROW_CHECKPOINT` | Checkpoint configuration, supports MEMORY and SQLITE       | `{"type": CheckpointType.MEMORY}`  |
+| `TOMORROW_BACKEND`    | Backend configuration, supports FILESYSTEM and LOCAL_SHELL | `{"type": BackendType.FILESYSTEM}` |
+| `TOMORROW_STORE`      | Storage configuration, supports MEMORY and SQLITE          | `{"type": StoreType.MEMORY}`       |
 
 #### Rainy configuration (API)
 
-| variable                | describe                                               | default value     |
-| ----------------------- | ------------------------------------------------------ | ----------------- |
-| `RAINY_HOST`            | API service listening address                          | `localhost`       |
-| `RAINY_PORT`            | API service port                                       | `8000`            |
-| `RAINY_APP`             | Application name (used as environment variable prefix) | `rainy`           |
-| `RAINY_SETTINGS_MODULE` | Set module path                                        | `rainy.settings`  |
-| `RAINY_MIDDLEWARE`      | List of enabled middlewares                            | (see settings.py) |
+| variable           | describe                                               | default value     |
+| ------------------ | ------------------------------------------------------ | ----------------- |
+| `RAINY_HOST`       | API service listening address                          | `localhost`       |
+| `RAINY_PORT`       | API service port                                       | `8000`            |
+| `RAINY_APP`        | Application name (used as environment variable prefix) | `rainy`           |
+| `RAINY_MIDDLEWARE` | List of enabled middlewares                            | (see settings.py) |
 
 ## 📜 Screenplay
 
@@ -172,12 +170,12 @@ Project use`pytest`run a test and ask**100%**test coverage.
 
 -   **Run the Tomorrow test**:
     ```bash
-    PYTHONPATH=src TOMORROW_APP=tomorrow TOMORROW_SETTINGS_MODULE=tomorrow.settings uv run pytest tests/tomorrow
+    PYTHONPATH=src TOMORROW_APP=tomorrow uv run pytest tests/tomorrow
     ```
 
 -   **Run Rainy tests**:
     ```bash
-    PYTHONPATH=src RAINY_APP=rainy RAINY_SETTINGS_MODULE=rainy.settings uv run pytest tests/rainy
+    PYTHONPATH=src RAINY_APP=rainy uv run pytest tests/rainy
     ```
 
 ### Run coverage tests
@@ -186,8 +184,8 @@ It is required that test coverage must reach**100%**。
 
 ```bash
 PYTHONPATH=src \
-TOMORROW_APP=tomorrow TOMORROW_SETTINGS_MODULE=tomorrow.settings \
-RAINY_APP=rainy RAINY_SETTINGS_MODULE=rainy.settings \
+TOMORROW_APP=tomorrow \
+RAINY_APP=rainy \
 uv run coverage run --rcfile=pyproject.toml -m pytest && uv run coverage report --rcfile=pyproject.toml
 ```
 
