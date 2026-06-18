@@ -13,7 +13,7 @@
 專案內部包含兩個主要模組：
 
 -   **`tomorrow`**: 核心智能體模組。代號取自遊戲《死亡擱淺 2：冥灘之上》（Death Stranding 2: On the Beach）中的角色**明天**（艾莉·範甯飾演）。在劇情中，她是主角山姆布里吉斯（Sam Bridges）的女兒，也被揭露為前作中的**大樓**(BB-28)。
--   **`rainy`**: 基於 FastAPI 的 API 服務模組。代號同樣取自《死亡擱淺 2》中的角色**下雨天**（由忽那汐裡飾演）。在遊戲中，她擁有引發「時間雨」（Timefall）和具有治癒能力的「核心雨」（Corefall）的神奇力量，被描述為既能傷害也能治癒的「藥（Pharmakon）」。
+-   **`rainy`**: 基於 FastAPI 的 API 服務模組。代号同样取自《死亡搁浅 2》中的角色**下雨天**（由忽那汐裡飾演）。在遊戲中，她擁有引發「時間雨」（Timefall）和具有治癒能力的「核心雨」（Corefall）的神奇力量，被描述為既能傷害也能治癒的「藥（Pharmakon）」。
 
 該專案提供了一個通用的智慧助理智能體，利用`deepagents`框架分析使用者輸入，並透過`rainy`模組對外提供同步（`/api/chat`）及**流式（`/api/chat/stream`）**API 介面。
 
@@ -41,7 +41,7 @@
 -   **Web 伺服器**:[獨角獸](https://www.uvicorn.org/)
 -   **智能體框架**:[深度代理](https://github.com/zongxuheng/deepagents)(基於 LangGraph/LangChain)
 -   **LLM 提供者**:[成為](https://ollama.com/)和[抱臉](https://huggingface.co/)
--   **配置管理**:[動態會議](https://www.dynaconf.com/)
+-   **配置管理**:[懸垂設定](https://docs.pydantic.dev/latest/usage/settings/)
 -   **例外處理**: 自訂異常體系 (`TomorrowError`及其子類)，涵蓋模型、後端、儲存和檢查點錯誤。
 -   **代碼品質**:[拉夫](https://github.com/astral-sh/ruff)(替代 Black 和 Isort)、`pre-commit`、強制型別提示 (Strict Type Hinting)
 -   **測試與覆蓋率**:`pytest`,`coverage`
@@ -94,7 +94,7 @@ uv run python src/main.py
 
 ## ⚙️ 配置
 
-該項目使用**動態會議**進行配置管理。設定分別定義在`src/tomorrow/settings.py`（明天）和`src/rainy/settings.py`(Rainy) 中，可以透過環境變數或`.env`文件進行覆蓋。
+該項目使用**懸垂設定**進行配置管理。設定分別定義在`src/tomorrow/conf/settings_model.py`（明天）和`src/rainy/conf/settings_model.py`(Rainy) 中，可以透過環境變數或`.env`文件進行覆蓋。
 
 ### 環境變數
 
@@ -102,24 +102,22 @@ uv run python src/main.py
 
 #### Tomorrow 配置 (核心)
 
-| 變數                         | 描述                               | 預設值                                |
-| -------------------------- | -------------------------------- | ---------------------------------- |
-| `TOMORROW_APP`             | 應用名稱（用作環境變數前綴）                   | `tomorrow`                         |
-| `TOMORROW_SETTINGS_MODULE` | 設定模組的路徑                          | `tomorrow.settings`                |
-| `TOMORROW_MODEL`           | 模型配置，支援 OLLAMA 和 HUGGINGFACE     | `{"type": ModelType.OLLAMA, ...}`  |
-| `TOMORROW_CHECKPOINT`      | 檢查點配置，支援 MEMORY 和 SQLITE         | `{"type": CheckpointType.MEMORY}`  |
-| `TOMORROW_BACKEND`         | 後端配置，支援 FILESYSTEM 和 LOCAL_SHELL | `{"type": BackendType.FILESYSTEM}` |
-| `TOMORROW_STORE`           | 儲存配置，支援 MEMORY 和 SQLITE          | `{"type": StoreType.MEMORY}`       |
+| 變數                    | 描述                               | 預設值                                |
+| --------------------- | -------------------------------- | ---------------------------------- |
+| `TOMORROW_APP`        | 應用名稱（用作環境變數前綴）                   | `tomorrow`                         |
+| `TOMORROW_MODEL`      | 模型配置，支援 OLLAMA 和 HUGGINGFACE     | `{"type": ModelType.OLLAMA, ...}`  |
+| `TOMORROW_CHECKPOINT` | 檢查點配置，支援 MEMORY 和 SQLITE         | `{"type": CheckpointType.MEMORY}`  |
+| `TOMORROW_BACKEND`    | 後端配置，支援 FILESYSTEM 和 LOCAL_SHELL | `{"type": BackendType.FILESYSTEM}` |
+| `TOMORROW_STORE`      | 儲存配置，支援 MEMORY 和 SQLITE          | `{"type": StoreType.MEMORY}`       |
 
 #### Rainy 設定 (API)
 
-| 變數                      | 描述             | 預設值              |
-| ----------------------- | -------------- | ---------------- |
-| `RAINY_HOST`            | API 服務監聽位址     | `localhost`      |
-| `RAINY_PORT`            | API 服務連接埠      | `8000`           |
-| `RAINY_APP`             | 應用名稱（用作環境變數前綴） | `rainy`          |
-| `RAINY_SETTINGS_MODULE` | 設定模組的路徑        | `rainy.settings` |
-| `RAINY_MIDDLEWARE`      | 啟用的中間件列表       | (見 settings.py)  |
+| 變數                 | 描述             | 預設值             |
+| ------------------ | -------------- | --------------- |
+| `RAINY_HOST`       | API 服務監聽位址     | `localhost`     |
+| `RAINY_PORT`       | API 服務連接埠      | `8000`          |
+| `RAINY_APP`        | 應用名稱（用作環境變數前綴） | `rainy`         |
+| `RAINY_MIDDLEWARE` | 啟用的中間件列表       | (見 settings.py) |
 
 ## 📜 腳本
 
@@ -172,12 +170,12 @@ uv run python src/main.py
 
 -   **運行 Tomorrow 測試**:
     ```bash
-    PYTHONPATH=src TOMORROW_APP=tomorrow TOMORROW_SETTINGS_MODULE=tomorrow.settings uv run pytest tests/tomorrow
+    PYTHONPATH=src TOMORROW_APP=tomorrow uv run pytest tests/tomorrow
     ```
 
 -   **運行 Rainy 測試**:
     ```bash
-    PYTHONPATH=src RAINY_APP=rainy RAINY_SETTINGS_MODULE=rainy.settings uv run pytest tests/rainy
+    PYTHONPATH=src RAINY_APP=rainy uv run pytest tests/rainy
     ```
 
 ### 運行覆蓋率測試
@@ -186,8 +184,8 @@ uv run python src/main.py
 
 ```bash
 PYTHONPATH=src \
-TOMORROW_APP=tomorrow TOMORROW_SETTINGS_MODULE=tomorrow.settings \
-RAINY_APP=rainy RAINY_SETTINGS_MODULE=rainy.settings \
+TOMORROW_APP=tomorrow \
+RAINY_APP=rainy \
 uv run coverage run --rcfile=pyproject.toml -m pytest && uv run coverage report --rcfile=pyproject.toml
 ```
 
