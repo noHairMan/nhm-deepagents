@@ -2,9 +2,8 @@
 
 ## 1. 环境与配置
 - **包管理**: 使用 `uv`。执行 `uv sync` 安装依赖。
-- **配置管理**: 基于 `Dynaconf`。
+- **配置管理**: 基于 `Pydantic Settings`。
   - `TOMORROW_APP` / `RAINY_APP`: 应用名/环境变量前缀。
-  - `TOMORROW_SETTINGS_MODULE` / `RAINY_SETTINGS_MODULE`: 设置模块路径。
 - **运行时依赖**: 必须运行 Ollama，默认模型 `qwen3.5:9b`。
 - **路径与环境加载**:
   - 如果智能体无法找到某个命令，必须通过当前 Shell 的 **Login Shell** 模式执行，以强制加载完整的用户环境配置（比如说zsh -i -c "uv version"）。
@@ -17,17 +16,17 @@
 - **运行测试**:
   - `tomorrow`:
     ```bash
-    PYTHONPATH=src TOMORROW_APP=tomorrow TOMORROW_SETTINGS_MODULE=tomorrow.settings uv run pytest tests/tomorrow
+    PYTHONPATH=src TOMORROW_APP=tomorrow uv run pytest tests/tomorrow
     ```
   - `rainy`:
     ```bash
-    PYTHONPATH=src RAINY_APP=rainy RAINY_SETTINGS_MODULE=rainy.settings uv run pytest tests/rainy
+    PYTHONPATH=src RAINY_APP=rainy uv run pytest tests/rainy
     ```
 - **运行覆盖率测试**:
   ```bash
   PYTHONPATH=src \
-  TOMORROW_APP=tomorrow TOMORROW_SETTINGS_MODULE=tomorrow.settings \
-  RAINY_APP=rainy RAINY_SETTINGS_MODULE=rainy.settings \
+  TOMORROW_APP=tomorrow \
+  RAINY_APP=rainy \
   uv run coverage run --rcfile=pyproject.toml -m pytest && uv run coverage report --rcfile=pyproject.toml
   ```
 

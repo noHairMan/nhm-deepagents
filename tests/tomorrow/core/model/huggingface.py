@@ -11,8 +11,13 @@ class TestHuggingface:
             patch("tomorrow.core.model.huggingface.ChatHuggingFace") as mock_chat,
         ):
             from tomorrow.conf import settings
+            from tomorrow.settings import ModelConfig
 
-            with patch.dict(settings.MODEL, {"type": ModelType.HUGGINGFACE}):
+            new_model_data = settings.MODEL.model_dump()
+            new_model_data.pop("type")
+            new_model = ModelConfig(type=ModelType.HUGGINGFACE, **new_model_data)
+
+            with patch("tomorrow.conf.settings.MODEL", new_model):
                 get_model()
                 model_config = settings.MODEL.get(ModelType.HUGGINGFACE)
                 mock_endpoint.assert_called_once_with(

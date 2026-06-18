@@ -44,7 +44,7 @@
 - **Web 服务器**: [Uvicorn](https://www.uvicorn.org/)
 - **智能体框架**: [deepagents](https://github.com/zongxuheng/deepagents) (基于 LangGraph/LangChain)
 - **LLM 提供商**: [Ollama](https://ollama.com/) 和 [HuggingFace](https://huggingface.co/)
-- **配置管理**: [Dynaconf](https://www.dynaconf.com/)
+- **配置管理**: [Pydantic Settings](https://docs.pydantic.dev/latest/usage/settings/)
 - **异常处理**: 自定义异常体系 (`TomorrowError` 及其子类)，涵盖模型、后端、存储和检查点错误。
 - **代码质量**: [Ruff](https://github.com/astral-sh/ruff) (替代 Black 和 Isort)、`pre-commit`、强制类型提示 (Strict Type Hinting)
 - **测试与覆盖率**: `pytest`, `coverage`
@@ -96,7 +96,7 @@ uv run python src/main.py
 
 ## ⚙️ 配置
 
-该项目使用 **Dynaconf** 进行配置管理。设置分别定义在 `src/tomorrow/settings.py` (Tomorrow) 和 `src/rainy/settings.py` (Rainy) 中，可以通过环境变量或 `.env` 文件进行覆盖。
+该项目使用 **Pydantic Settings** 进行配置管理。设置分别定义在 `src/tomorrow/conf/settings_model.py` (Tomorrow) 和 `src/rainy/conf/settings_model.py` (Rainy) 中，可以通过环境变量或 `.env` 文件进行覆盖。
 
 ### 环境变量
 
@@ -106,7 +106,6 @@ uv run python src/main.py
 | 变量 | 描述 | 默认值 |
 |----------|-------------|---------|
 | `TOMORROW_APP` | 应用名称（用作环境变量前缀） | `tomorrow` |
-| `TOMORROW_SETTINGS_MODULE` | 设置模块的路径 | `tomorrow.settings` |
 | `TOMORROW_MODEL` | 模型配置，支持 OLLAMA 和 HUGGINGFACE | `{"type": ModelType.OLLAMA, ...}` |
 | `TOMORROW_CHECKPOINT` | 检查点配置，支持 MEMORY 和 SQLITE | `{"type": CheckpointType.MEMORY}` |
 | `TOMORROW_BACKEND` | 后端配置，支持 FILESYSTEM 和 LOCAL_SHELL | `{"type": BackendType.FILESYSTEM}` |
@@ -119,7 +118,6 @@ uv run python src/main.py
 | `RAINY_HOST` | API 服务监听地址 | `localhost` |
 | `RAINY_PORT` | API 服务端口 | `8000` |
 | `RAINY_APP` | 应用名称（用作环境变量前缀） | `rainy` |
-| `RAINY_SETTINGS_MODULE` | 设置模块的路径 | `rainy.settings` |
 | `RAINY_MIDDLEWARE` | 启用的中间件列表 | (见 settings.py) |
 
 ## 📜 脚本
@@ -173,12 +171,12 @@ uv run python src/main.py
 
 - **运行 Tomorrow 测试**:
   ```bash
-  PYTHONPATH=src TOMORROW_APP=tomorrow TOMORROW_SETTINGS_MODULE=tomorrow.settings uv run pytest tests/tomorrow
+  PYTHONPATH=src TOMORROW_APP=tomorrow uv run pytest tests/tomorrow
   ```
 
 - **运行 Rainy 测试**:
   ```bash
-  PYTHONPATH=src RAINY_APP=rainy RAINY_SETTINGS_MODULE=rainy.settings uv run pytest tests/rainy
+  PYTHONPATH=src RAINY_APP=rainy uv run pytest tests/rainy
   ```
 
 ### 运行覆盖率测试
@@ -187,8 +185,8 @@ uv run python src/main.py
 
 ```bash
 PYTHONPATH=src \
-TOMORROW_APP=tomorrow TOMORROW_SETTINGS_MODULE=tomorrow.settings \
-RAINY_APP=rainy RAINY_SETTINGS_MODULE=rainy.settings \
+TOMORROW_APP=tomorrow \
+RAINY_APP=rainy \
 uv run coverage run --rcfile=pyproject.toml -m pytest && uv run coverage report --rcfile=pyproject.toml
 ```
 

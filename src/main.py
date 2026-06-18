@@ -16,15 +16,17 @@ def run_server():
             str(Path(__file__).resolve().parent / "rainy"),
             str(Path(__file__).resolve().parent / "tomorrow"),
         ],
-        log_config=settings.LOGGING.to_dict(),
+        log_config=settings.LOGGING.model_dump(by_alias=True, exclude_none=True),
     )
 
 
 def main():
     os.environ.setdefault("TOMORROW_APP", "tomorrow")
     os.environ.setdefault("TOMORROW_SETTINGS_MODULE", "tomorrow.settings")
+    os.environ.setdefault("TOMORROW_ENV_FILE", ".env")
     os.environ.setdefault("RAINY_APP", "rainy")
     os.environ.setdefault("RAINY_SETTINGS_MODULE", "rainy.settings")
+    os.environ.setdefault("RAINY_ENV_FILE", ".env")
 
     run_server()
 
