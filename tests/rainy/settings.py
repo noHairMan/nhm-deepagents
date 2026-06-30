@@ -6,8 +6,8 @@ class TestRainySettings:
         import os
         from unittest.mock import patch
 
-        with patch.dict(os.environ, {"RAINY_HOST": "0.0.0.0", "RAINY_ENV_FILE": "/non/existent/path"}):
-            settings = RainySettings()
+        with patch.dict(os.environ, {"RAINY_HOST": "0.0.0.0"}):
+            settings = RainySettings(_env_file="/non/existent/path")
         assert settings.APP == "rainy"
         assert settings.HOST == "0.0.0.0"
         assert settings.PORT == 8000
