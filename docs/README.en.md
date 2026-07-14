@@ -20,6 +20,7 @@ This project provides a general smart assistant agent that utilizes`deepagents`T
 ### Core functions
 
 -   **deep agent**: Integrated`deepagents`Framework to support complex task processing and status management.
+-   **Skill module**: support through`TOMORROW_SKILLS`Configure the skills directory to load scalable domain capabilities for the agent.
 -   **life cycle management**: introduction`AgentManager`Unified management of the creation and destruction of agent instances ensures graceful initialization of resources.
 -   **High performance API**: Built on FastAPI, supports synchronous responses and Server-Sent Events (SSE) streaming output.
 -   **Reliability guaranteed**: Forced type hints, Ruff static checking, 100% test coverage requirement.
@@ -94,7 +95,7 @@ uv run python src/main.py
 
 ## ⚙️ Configuration
 
-This project uses**Pydantic Settings**Perform configuration management. The settings are respectively defined in`src/tomorrow/conf/settings_model.py`(Tomorrow) 和`src/rainy/conf/settings_model.py`(Rainy), you can use environment variables or`.env`file is overwritten.
+This project uses**Pydantic Settings**Perform configuration management. The settings are respectively defined in`src/tomorrow/settings.py`(Tomorrow) 和`src/rainy/settings.py`(Rainy), you can use environment variables or`.env`file is overwritten. Environment variables have the highest priority and are used by Tomorrow`TOMORROW_`Prefix, used by Rainy`RAINY_`prefix.
 
 ### environment variables
 
@@ -109,6 +110,7 @@ Environment variables are prefixed by default`TOMORROW_`(core module) or`RAINY_`
 | `TOMORROW_CHECKPOINT` | Checkpoint configuration, supports MEMORY and SQLITE       | `{"type": CheckpointType.MEMORY}`  |
 | `TOMORROW_BACKEND`    | Backend configuration, supports FILESYSTEM and LOCAL_SHELL | `{"type": BackendType.FILESYSTEM}` |
 | `TOMORROW_STORE`      | Storage configuration, supports MEMORY and SQLITE          | `{"type": StoreType.MEMORY}`       |
+| `TOMORROW_SKILLS`     | Skill Catalog List                                         | `["skills/"]`                      |
 
 #### Rainy configuration (API)
 
@@ -152,6 +154,9 @@ Commonly used development scripts:
     -   `lifespan.py`: Handle the startup and shutdown logic of the application and manage the life cycle of the agent instance.
     -   `api/endpoints/`: API route definition.
         -   `chat.py`: Synchronous and streaming chat interface (using OpenAI-like response format), integrated with deep agent module.
+            -   `POST /api/chat`: Synchronize chat responses.
+            -   `POST /api/chat/stream`: SSE streaming response.
+            -   `POST /api/chat/stream/event`: Event stream response.
         -   `health.py`: Health check interface.
         -   `urls.py`: Unified routing mounting.
     -   `middleware/`: Custom middleware (processing time, unified response format).
