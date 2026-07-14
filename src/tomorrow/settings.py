@@ -85,6 +85,7 @@ class TomorrowSettings(BaseSettings):
     CHECKPOINT: CheckpointConfig = Field(default_factory=CheckpointConfig)
     BACKEND: BackendConfig = Field(default_factory=BackendConfig)
     STORE: StoreConfig = Field(default_factory=StoreConfig)
+    SKILLS: list[str] = Field(default_factory=lambda: ["skills/"])
 
     model_config = SettingsConfigDict(
         env_prefix="TOMORROW_",

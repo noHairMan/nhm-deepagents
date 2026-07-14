@@ -57,6 +57,8 @@ class TestAgent:
                 get_store()
 
     def test_create_agent(self):
+        from tomorrow.conf import settings
+
         mock_checkpointer = MagicMock()
         mock_agent = MagicMock()
         mock_backend = MagicMock()
@@ -79,7 +81,9 @@ class TestAgent:
             # BACKEND: ... (1)
             # STORE: ... (1)
             # CHECKPOINT: ... (1)
-            assert mock_logger.info.call_count == 5
+            # SKILLS: ... (1)
+            assert mock_logger.info.call_count == 6
+            assert kwargs["skills"] == settings.SKILLS
 
     def test_agent_manager_methods(self):
         mock_agent = MagicMock()

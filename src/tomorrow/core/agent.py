@@ -49,11 +49,14 @@ class AgentManager:
         checkpoint_type = settings.CHECKPOINT.get("type")
         logger.info(f"CHECKPOINT: {checkpoint_type} -> {settings.CHECKPOINT.get(checkpoint_type)}")
 
+        skills = settings.SKILLS
+        logger.info(f"SKILLS: {skills}")
+
         return create_deep_agent(
             model=get_model(),
             memory=[],
             tools=[],
-            skills=[],
+            skills=skills,
             system_prompt=SystemMessage(content="""你是一名智能助理，运用你的知识尽可能的回答用户问题。"""),
             checkpointer=checkpointer,
             backend=get_backend(),
