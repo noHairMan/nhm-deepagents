@@ -27,7 +27,7 @@
 | src/tomorrow/conf/\_\_init\_\_.py             |        1 |        0 |        0 |        0 |     100% |           |
 | src/tomorrow/conf/config.py                   |        5 |        0 |        0 |        0 |     100% |           |
 | src/tomorrow/core/\_\_init\_\_.py             |        0 |        0 |        0 |        0 |     100% |           |
-| src/tomorrow/core/agent.py                    |       36 |        0 |        2 |        0 |     100% |           |
+| src/tomorrow/core/agent.py                    |       38 |        0 |        2 |        0 |     100% |           |
 | src/tomorrow/core/backend/\_\_init\_\_.py     |       15 |        0 |        4 |        0 |     100% |           |
 | src/tomorrow/core/backend/filesystem.py       |       10 |        0 |        2 |        0 |     100% |           |
 | src/tomorrow/core/backend/local\_shell.py     |       10 |        0 |        2 |        0 |     100% |           |
@@ -48,11 +48,11 @@
 | src/tomorrow/models/constants/checkpoint.py   |        7 |        0 |        0 |        0 |     100% |           |
 | src/tomorrow/models/constants/model.py        |        4 |        0 |        0 |        0 |     100% |           |
 | src/tomorrow/models/constants/store.py        |        4 |        0 |        0 |        0 |     100% |           |
-| src/tomorrow/settings.py                      |       56 |        0 |        0 |        0 |     100% |           |
+| src/tomorrow/settings.py                      |       57 |        0 |        0 |        0 |     100% |           |
 | src/tomorrow/utils/\_\_init\_\_.py            |        0 |        0 |        0 |        0 |     100% |           |
 | src/tomorrow/utils/functional.py              |      224 |        0 |       58 |        0 |     100% |           |
 | src/tomorrow/utils/log.py                     |        6 |        0 |        0 |        0 |     100% |           |
-| **TOTAL**                                     |  **673** |    **0** |  **106** |    **0** | **100%** |           |
+| **TOTAL**                                     |  **676** |    **0** |  **106** |    **0** | **100%** |           |
 
 
 ## Setup coverage badge
