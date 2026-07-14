@@ -24,6 +24,7 @@
 
 ### 核心功能
 - **深度智能体**: 集成 `deepagents` 框架，支持复杂任务处理与状态管理。
+- **技能模块**: 支持通过 `TOMORROW_SKILLS` 配置技能目录，为智能体加载可扩展的领域能力。
 - **生命周期管理**: 引入 `AgentManager` 统一管理智能体实例的创建与销毁，确保资源的优雅初始化。
 - **高性能 API**: 基于 FastAPI 构建，支持同步响应与 Server-Sent Events (SSE) 流式输出。
 - **可靠性保障**: 强制类型提示、Ruff 静态检查、100% 测试覆盖率要求。
@@ -96,7 +97,7 @@ uv run python src/main.py
 
 ## ⚙️ 配置
 
-该项目使用 **Pydantic Settings** 进行配置管理。设置分别定义在 `src/tomorrow/conf/settings_model.py` (Tomorrow) 和 `src/rainy/conf/settings_model.py` (Rainy) 中，可以通过环境变量或 `.env` 文件进行覆盖。
+该项目使用 **Pydantic Settings** 进行配置管理。设置分别定义在 `src/tomorrow/settings.py` (Tomorrow) 和 `src/rainy/settings.py` (Rainy) 中，可以通过环境变量或 `.env` 文件进行覆盖。环境变量优先级最高，Tomorrow 使用 `TOMORROW_` 前缀，Rainy 使用 `RAINY_` 前缀。
 
 ### 环境变量
 
@@ -110,6 +111,7 @@ uv run python src/main.py
 | `TOMORROW_CHECKPOINT` | 检查点配置，支持 MEMORY 和 SQLITE | `{"type": CheckpointType.MEMORY}` |
 | `TOMORROW_BACKEND` | 后端配置，支持 FILESYSTEM 和 LOCAL_SHELL | `{"type": BackendType.FILESYSTEM}` |
 | `TOMORROW_STORE` | 存储配置，支持 MEMORY 和 SQLITE | `{"type": StoreType.MEMORY}` |
+| `TOMORROW_SKILLS` | 技能目录列表 | `["skills/"]` |
 
 #### Rainy 配置 (API)
 
@@ -153,6 +155,9 @@ uv run python src/main.py
   - `lifespan.py`: 处理应用的启动与关闭逻辑，管理智能体实例生命周期。
   - `api/endpoints/`: API 路由定义。
     - `chat.py`: 同步及流式聊天接口（采用类 OpenAI 响应格式），集成了深度智能体模块。
+      - `POST /api/chat`: 同步聊天响应。
+      - `POST /api/chat/stream`: SSE 流式响应。
+      - `POST /api/chat/stream/event`: 事件流响应。
     - `health.py`: 健康检查接口。
     - `urls.py`: 统一路由挂载。
   - `middleware/`: 自定义中间件（处理时间、统一响应格式）。
