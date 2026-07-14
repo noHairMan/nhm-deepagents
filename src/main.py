@@ -2,7 +2,7 @@ import os
 from pathlib import Path
 
 
-def run_server():
+def run_server(reload: bool = False):
     import uvicorn
 
     from rainy.conf import settings
@@ -11,7 +11,7 @@ def run_server():
         "rainy.app:app",
         host=settings.HOST,
         port=settings.PORT,
-        reload=True,
+        reload=reload,
         reload_dirs=[
             str(Path(__file__).resolve().parent / "rainy"),
             str(Path(__file__).resolve().parent / "tomorrow"),
