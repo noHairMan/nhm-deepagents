@@ -13,13 +13,14 @@
 專案內部包含兩個主要模組：
 
 -   **`tomorrow`**: 核心智能體模組。代號取自遊戲《死亡擱淺 2：冥灘之上》（Death Stranding 2: On the Beach）中的角色**明天**（艾莉·範甯飾演）。在劇情中，她是主角山姆布里吉斯（Sam Bridges）的女兒，也被揭露為前作中的**大樓**(BB-28)。
--   **`rainy`**: 基於 FastAPI 的 API 服務模組。代号同样取自《死亡搁浅 2》中的角色**下雨天**（由忽那汐裡飾演）。在遊戲中，她擁有引發「時間雨」（Timefall）和具有治癒能力的「核心雨」（Corefall）的神奇力量，被描述為既能傷害也能治癒的「藥（Pharmakon）」。
+-   **`rainy`**: 基於 FastAPI 的 API 服務模組。代號同樣取自《死亡擱淺 2》中的角色**下雨天**（由忽那汐裡飾演）。在遊戲中，她擁有引發「時間雨」（Timefall）和具有治癒能力的「核心雨」（Corefall）的神奇力量，被描述為既能傷害也能治癒的「藥（Pharmakon）」。
 
 該專案提供了一個通用的智慧助理智能體，利用`deepagents`框架分析使用者輸入，並透過`rainy`模組對外提供同步（`/api/chat`）及**流式（`/api/chat/stream`）**API 介面。
 
 ### 核心功能
 
 -   **深度智能體**: 集成`deepagents`框架，支援複雜任務處理與狀態管理。
+-   **技能模組**: 支持透過`TOMORROW_SKILLS`配置技能目錄，為智能體載入可擴充的領域能力。
 -   **生命週期管理**: 引入`AgentManager`統一管理智能體實例的創建與銷毀，確保資源的優雅初始化。
 -   **高效能 API**: 基於 FastAPI 構建，支援同步回應與 Server-Sent Events (SSE) 串流輸出。
 -   **可靠性保障**: 強制類型提示、Ruff 靜態檢查、100% 測試覆蓋率要求。
@@ -31,7 +32,7 @@
 -   **測試與覆蓋率**: 自動執行測試並檢查程式碼覆蓋率。
 -   **文件翻譯**: 自動將`README.zh.md`翻译为多种语言（English, 日本語, 繁体中文）。
 -   **程式碼規範**: 自動執行`ruff`檢查與格式化，確保程式碼風格統一且高品質。
--   **CI 流程優化**: 增強了工作流程觸發路徑規則，僅在相關程式碼或配置變動時觸發構建，提升效率。
+-   **CI 流程优化**: 增強了工作流程觸發路徑規則，僅在相關程式碼或配置變動時觸發構建，提升效率。
 
 ## 🛠️ 技術棧
 
@@ -43,7 +44,7 @@
 -   **LLM 提供者**:[成為](https://ollama.com/)和[抱臉](https://huggingface.co/)
 -   **配置管理**:[懸垂設定](https://docs.pydantic.dev/latest/usage/settings/)
 -   **例外處理**: 自訂異常體系 (`TomorrowError`及其子類)，涵蓋模型、後端、儲存和檢查點錯誤。
--   **代碼品質**:[拉夫](https://github.com/astral-sh/ruff)(替代 Black 和 Isort)、`pre-commit`、強制型別提示 (Strict Type Hinting)
+-   **代码质量**:[拉夫](https://github.com/astral-sh/ruff)(替代 Black 和 Isort)、`pre-commit`、強制型別提示 (Strict Type Hinting)
 -   **測試與覆蓋率**:`pytest`,`coverage`
 
 ## 📋 環境要求
@@ -94,7 +95,7 @@ uv run python src/main.py
 
 ## ⚙️ 配置
 
-該項目使用**懸垂設定**進行配置管理。設定分別定義在`src/tomorrow/conf/settings_model.py`（明天）和`src/rainy/conf/settings_model.py`(Rainy) 中，可以透過環境變數或`.env`文件進行覆蓋。
+該項目使用**懸垂設定**進行配置管理。設定分別定義在`src/tomorrow/settings.py`（明天）和`src/rainy/settings.py`(Rainy) 中，可以透過環境變數或`.env`文件進行覆蓋。環境變數優先權最高，Tomorrow 使用`TOMORROW_`前綴，Rainy 使用`RAINY_`前綴。
 
 ### 環境變數
 
@@ -109,6 +110,7 @@ uv run python src/main.py
 | `TOMORROW_CHECKPOINT` | 檢查點配置，支援 MEMORY 和 SQLITE         | `{"type": CheckpointType.MEMORY}`  |
 | `TOMORROW_BACKEND`    | 後端配置，支援 FILESYSTEM 和 LOCAL_SHELL | `{"type": BackendType.FILESYSTEM}` |
 | `TOMORROW_STORE`      | 儲存配置，支援 MEMORY 和 SQLITE          | `{"type": StoreType.MEMORY}`       |
+| `TOMORROW_SKILLS`     | 技能目錄列表                           | `["skills/"]`                      |
 
 #### Rainy 設定 (API)
 
@@ -129,7 +131,7 @@ uv run python src/main.py
     uv run ruff format .
     ```
 
--   **手動運行 pre-commit 鉤子**:
+-   **手动运行 pre-commit 钩子**:
     ```bash
     uv run pre-commit run --all-files
     ```
@@ -152,6 +154,9 @@ uv run python src/main.py
     -   `lifespan.py`: 處理應用的啟動與關閉邏輯，管理智能體實例生命週期。
     -   `api/endpoints/`: API 路由定義。
         -   `chat.py`: 同步及串流聊天介面（採用類別 OpenAI 回應格式），整合了深度智慧體模組。
+            -   `POST /api/chat`: 同步聊天回應。
+            -   `POST /api/chat/stream`: SSE 串流響應。
+            -   `POST /api/chat/stream/event`: 事件流響應。
         -   `health.py`: 健康檢查介面。
         -   `urls.py`: 統一路由掛載。
     -   `middleware/`: 自訂中間件（處理時間、統一回應格式）。
