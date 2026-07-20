@@ -42,6 +42,7 @@
 | src/tomorrow/core/store/memory.py             |        3 |        0 |        0 |        0 |     100% |           |
 | src/tomorrow/core/store/sqlite.py             |       10 |        0 |        2 |        0 |     100% |           |
 | src/tomorrow/exceptions.py                    |       12 |        0 |        0 |        0 |     100% |           |
+| src/tomorrow/graph.py                         |        2 |        0 |        0 |        0 |     100% |           |
 | src/tomorrow/models/\_\_init\_\_.py           |        0 |        0 |        0 |        0 |     100% |           |
 | src/tomorrow/models/constants/\_\_init\_\_.py |        4 |        0 |        0 |        0 |     100% |           |
 | src/tomorrow/models/constants/backend.py      |        4 |        0 |        0 |        0 |     100% |           |
@@ -52,7 +53,7 @@
 | src/tomorrow/utils/\_\_init\_\_.py            |        0 |        0 |        0 |        0 |     100% |           |
 | src/tomorrow/utils/functional.py              |      224 |        0 |       58 |        0 |     100% |           |
 | src/tomorrow/utils/log.py                     |        6 |        0 |        0 |        0 |     100% |           |
-| **TOTAL**                                     |  **676** |    **0** |  **106** |    **0** | **100%** |           |
+| **TOTAL**                                     |  **678** |    **0** |  **106** |    **0** | **100%** |           |
 
 
 ## Setup coverage badge
