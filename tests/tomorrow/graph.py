@@ -10,4 +10,4 @@ class TestGraph:
             module = importlib.import_module("tomorrow.graph")
             assert module.graph is mock_graph
             AgentManager = module.AgentManager
-            AgentManager.create_agent.assert_called_once_with(use_store=False)
+            AgentManager.create_agent.assert_called_once_with()
