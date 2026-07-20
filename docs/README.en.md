@@ -93,6 +93,14 @@ Run the main entry point:
 uv run python src/main.py
 ```
 
+use`langgraph-cli`Start the agent API service:
+
+```bash
+uv run langgraph dev
+```
+
+The CLI will read the root directory`langgraph.json`, and expose the name`tomorrow`graph.
+
 ## ⚙️ Configuration
 
 This project uses**Pydantic Settings**Perform configuration management. The settings are respectively defined in`src/tomorrow/settings.py`(Tomorrow) 和`src/rainy/settings.py`(Rainy), you can use environment variables or`.env`file is overwritten. Environment variables have the highest priority and are used by Tomorrow`TOMORROW_`Prefix, used by Rainy`RAINY_`prefix.
@@ -140,6 +148,7 @@ Commonly used development scripts:
 
 -   `src/main.py`: The main entry point of the application. Set up the environment and start the Uvicorn server.
 -   `src/tomorrow/`: Core agent package directory.
+    -   `graph.py`:`langgraph-cli`The graph entry to use.
     -   `core/agent.py`: Define deep agents and their instructions, providing`AgentManager`Perform life cycle management.
     -   `core/backend/`: Unify backend loading logic, support`FILESYSTEM`and`LOCAL_SHELL`。
     -   `core/checkpoint/`: Checkpoint implementation, support`MEMORY`and`SQLITE`。
@@ -162,8 +171,9 @@ Commonly used development scripts:
     -   `middleware/`: Custom middleware (processing time, unified response format).
     -   `settings.py`: API module default configuration.
 -   `tests/`: Test directory, structure and`src`Be consistent.
--   `docs/`: Multilingual documentation.
+-   `docs/`: 多语言文档。
 -   `pyproject.toml`: Project metadata, dependencies, and tool configuration.
+-   `langgraph.json`:`langgraph-cli`graph and environment configuration.
 -   `uv.lock`: Lock dependency versions.
 -   `LICENSE`: Apache License 2.0。
 
