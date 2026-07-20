@@ -32,7 +32,7 @@
 -   **測試與覆蓋率**: 自動執行測試並檢查程式碼覆蓋率。
 -   **文件翻譯**: 自動將`README.zh.md`翻译为多种语言（English, 日本語, 繁体中文）。
 -   **程式碼規範**: 自動執行`ruff`檢查與格式化，確保程式碼風格統一且高品質。
--   **CI 流程优化**: 增強了工作流程觸發路徑規則，僅在相關程式碼或配置變動時觸發構建，提升效率。
+-   **CI 流程優化**: 增強了工作流程觸發路徑規則，僅在相關程式碼或配置變動時觸發構建，提升效率。
 
 ## 🛠️ 技術棧
 
@@ -44,7 +44,7 @@
 -   **LLM 提供者**:[成為](https://ollama.com/)和[抱臉](https://huggingface.co/)
 -   **配置管理**:[懸垂設定](https://docs.pydantic.dev/latest/usage/settings/)
 -   **例外處理**: 自訂異常體系 (`TomorrowError`及其子類)，涵蓋模型、後端、儲存和檢查點錯誤。
--   **代码质量**:[拉夫](https://github.com/astral-sh/ruff)(替代 Black 和 Isort)、`pre-commit`、強制型別提示 (Strict Type Hinting)
+-   **代碼品質**:[拉夫](https://github.com/astral-sh/ruff)(替代 Black 和 Isort)、`pre-commit`、強制型別提示 (Strict Type Hinting)
 -   **測試與覆蓋率**:`pytest`,`coverage`
 
 ## 📋 環境要求
@@ -52,7 +52,7 @@
 -   **Python 3.14+**
 -   **紫外線**: 一個快速的 Python 套件安裝和解析器。
 -   **成為**: 必須正在運行且可存取。
--   **LLM 模型**: 預設使用的模型是`qwen3.5:9b`。您可以使用以下命令取得：
+-   **LLM 模型**: 默认使用的模型是 `qwen3.5:9b`。您可以使用以下命令取得：
     ```bash
     ollama pull qwen3.5:9b
     ```
@@ -93,6 +93,14 @@
 uv run python src/main.py
 ```
 
+使用`langgraph-cli`啟動智能體 API 服務：
+
+```bash
+uv run langgraph dev
+```
+
+CLI 會讀取根目錄的`langgraph.json`，並暴露名為`tomorrow`的 graph。
+
 ## ⚙️ 配置
 
 該項目使用**懸垂設定**進行配置管理。設定分別定義在`src/tomorrow/settings.py`（明天）和`src/rainy/settings.py`(Rainy) 中，可以透過環境變數或`.env`文件進行覆蓋。環境變數優先權最高，Tomorrow 使用`TOMORROW_`前綴，Rainy 使用`RAINY_`前綴。
@@ -131,7 +139,7 @@ uv run python src/main.py
     uv run ruff format .
     ```
 
--   **手动运行 pre-commit 钩子**:
+-   **手動運行 pre-commit 鉤子**:
     ```bash
     uv run pre-commit run --all-files
     ```
@@ -140,6 +148,7 @@ uv run python src/main.py
 
 -   `src/main.py`: 應用的主入口點。設定環境並啟動 Uvicorn 伺服器。
 -   `src/tomorrow/`: 核心智能體包目錄。
+    -   `graph.py`:`langgraph-cli`使用的 graph 入口。
     -   `core/agent.py`: 定義深度智能體及其指令，提供`AgentManager`進行生命週期管理。
     -   `core/backend/`: 統一後端載入邏輯，支持`FILESYSTEM`和`LOCAL_SHELL`。
     -   `core/checkpoint/`: 檢查點實現，支持`MEMORY`和`SQLITE`。
@@ -164,6 +173,7 @@ uv run python src/main.py
 -   `tests/`: 測試目錄，結構與`src`保持一致。
 -   `docs/`: 多國語言文件。
 -   `pyproject.toml`: 專案元資料、依賴項和工具配置。
+-   `langgraph.json`:`langgraph-cli`的 graph 與環境配置。
 -   `uv.lock`: 鎖定依賴版本。
 -   `LICENSE`：Apache許可證2.0。
 
