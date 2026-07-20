@@ -224,3 +224,4 @@ logs/
 coverage/
 .run/
 .workspace/
+.langgraph_api/

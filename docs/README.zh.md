@@ -95,6 +95,13 @@
 uv run python src/main.py
 ```
 
+使用 `langgraph-cli` 启动智能体 API 服务：
+```bash
+uv run langgraph dev
+```
+
+CLI 会读取根目录的 `langgraph.json`，并暴露名为 `tomorrow` 的 graph。
+
 ## ⚙️ 配置
 
 该项目使用 **Pydantic Settings** 进行配置管理。设置分别定义在 `src/tomorrow/settings.py` (Tomorrow) 和 `src/rainy/settings.py` (Rainy) 中，可以通过环境变量或 `.env` 文件进行覆盖。环境变量优先级最高，Tomorrow 使用 `TOMORROW_` 前缀，Rainy 使用 `RAINY_` 前缀。
@@ -141,6 +148,7 @@ uv run python src/main.py
 
 - `src/main.py`: 应用的主入口点。设置环境并启动 Uvicorn 服务器。
 - `src/tomorrow/`: 核心智能体包目录。
+  - `graph.py`: `langgraph-cli` 使用的 graph 入口。
   - `core/agent.py`: 定义深度智能体及其指令，提供 `AgentManager` 进行生命周期管理。
   - `core/backend/`: 统一后端加载逻辑，支持 `FILESYSTEM` 和 `LOCAL_SHELL`。
   - `core/checkpoint/`: 检查点实现，支持 `MEMORY` 和 `SQLITE`。
@@ -165,6 +173,7 @@ uv run python src/main.py
 - `tests/`: 测试目录，结构与 `src` 保持一致。
 - `docs/`: 多语言文档。
 - `pyproject.toml`: 项目元数据、依赖项和工具配置。
+- `langgraph.json`: `langgraph-cli` 的 graph 与环境配置。
 - `uv.lock`: 锁定依赖版本。
 - `LICENSE`: Apache License 2.0。
 
