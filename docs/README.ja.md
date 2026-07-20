@@ -12,7 +12,7 @@
 
 プロジェクトには 2 つの主要モジュールが含まれています。
 
--   **`tomorrow`**: コアエージェントモジュール。コードネームはゲーム『デス・ストランディング2: オン・ザ・ビーチ』の登場人物から取られている。**明日**（エル・ファニングが演じる）。プロットでは、彼女は主人公サム・ブリッジスの娘であり、前作のキャラクターでもあることが明らかになりました。**ルー**(BB-28)。
+-   **`tomorrow`**: コアエージェントモジュール。コードネームはゲーム『デス・ストランディング2: オン・ザ・ビーチ』の登場人物から取られている。**明日**（エル・ファニングが演じる）。プロットでは、彼女は主人公サム・ブリッジズの娘であり、前作のキャラクターでもあることが明らかになりました。**ルー**(BB-28)。
 -   **`rainy`**: FastAPIをベースとしたAPIサービスモジュール。コードネームもデス・ストランディング2のキャラクターから取られています**雨が降る**（忽那汐里が演じる）。ゲーム内では「タイムフォール」と回復の「コアフォール」を引き起こす魔法の力を持ち、傷つけることも治すこともできる「ファルマコン」として描かれている。
 
 このプロジェクトは、`deepagents`フレームワークはユーザー入力を分析して渡します`rainy`このモジュールは外部同期を提供します (`/api/chat`）そして**ストリーミング (`/api/chat/stream`）**APIインターフェース。
@@ -38,7 +38,7 @@
 
 -   **言語**:[パイソン](https://www.python.org/)>= 3.14
 -   **包管理器**:[紫外線](https://github.com/astral-sh/uv)
--   **APIフレームワーク**:[速い](https://fastapi.tiangolo.com/)
+-   **APIフレームワーク**:[早い](https://fastapi.tiangolo.com/)
 -   **ウェブサーバー**:[ユビコーン](https://www.uvicorn.org/)
 -   **エージェントフレームワーク**:[ディープエージェント](https://github.com/zongxuheng/deepagents)(LangGraph/LangChainに基づく)
 -   **LLMプロバイダー**:[であること](https://ollama.com/)そして[ハグ顔](https://huggingface.co/)
@@ -93,6 +93,14 @@
 uv run python src/main.py
 ```
 
+使用`langgraph-cli`エージェント API サービスを開始します。
+
+```bash
+uv run langgraph dev
+```
+
+CLI はルート ディレクトリを読み取ります。`langgraph.json`、名前を公開します`tomorrow`グラフ。
+
 ## ⚙️ 配置
 
 このプロジェクトでは、**ピダンティックな設定**構成管理を実行します。設定はそれぞれ次のように定義されています。`src/tomorrow/settings.py`(明日)和`src/rainy/settings.py`(雨)、環境変数を使用することも、`.env`ファイルが上書きされます。環境変数は最も高い優先度を持ち、Tomorrow によって使用されます。`TOMORROW_`Rainy によって使用されるプレフィックス`RAINY_`接頭語。
@@ -140,6 +148,7 @@ uv run python src/main.py
 
 -   `src/main.py`: アプリケーションのメイン エントリ ポイント。環境をセットアップし、Uvicorn サーバーを起動します。
 -   `src/tomorrow/`: コア エージェント パッケージ ディレクトリ。
+    -   `graph.py`:`langgraph-cli`使用するグラフエントリ。
     -   `core/agent.py`: ディープ エージェントとその命令を定義します。`AgentManager`ライフサイクル管理を実行します。
     -   `core/backend/`: バックエンド読み込みロジックの統合、サポート`FILESYSTEM`そして`LOCAL_SHELL`。
     -   `core/checkpoint/`: チェックポイントの実装、サポート`MEMORY`そして`SQLITE`。
@@ -164,6 +173,7 @@ uv run python src/main.py
 -   `tests/`: テストディレクトリ、構造、および`src`保持一致。
 -   `docs/`: 多言語ドキュメント。
 -   `pyproject.toml`: プロジェクトのメタデータ、依存関係、およびツール構成。
+-   `langgraph.json`:`langgraph-cli`グラフと環境構成。
 -   `uv.lock`: 依存関係のバージョンをロックします。
 -   `LICENSE`: Apache ライセンス 2.0。
 
