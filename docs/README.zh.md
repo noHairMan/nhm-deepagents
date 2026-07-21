@@ -44,7 +44,7 @@
 - **API 框架**: [FastAPI](https://fastapi.tiangolo.com/)
 - **Web 服务器**: [Uvicorn](https://www.uvicorn.org/)
 - **智能体框架**: [deepagents](https://github.com/zongxuheng/deepagents) (基于 LangGraph/LangChain)
-- **LLM 提供商**: [Ollama](https://ollama.com/) 和 [HuggingFace](https://huggingface.co/)
+- **LLM 提供商**: [Ollama](https://ollama.com/)、[HuggingFace](https://huggingface.co/) 和 [Anthropic](https://www.anthropic.com/)
 - **配置管理**: [Pydantic Settings](https://docs.pydantic.dev/latest/usage/settings/)
 - **异常处理**: 自定义异常体系 (`TomorrowError` 及其子类)，涵盖模型、后端、存储和检查点错误。
 - **代码质量**: [Ruff](https://github.com/astral-sh/ruff) (替代 Black 和 Isort)、`pre-commit`、强制类型提示 (Strict Type Hinting)
@@ -55,7 +55,7 @@
 - **Python 3.14+**
 - **uv**: 一个快速的 Python 包安装和解析器。
 - **Ollama**: 必须正在运行且可访问。
-- **LLM 模型**: 默认使用的模型是 `qwen3.5:9b`。您可以使用以下命令获取：
+- **LLM 模型**: 默认使用 Ollama 的 `qwen3.5:9b`。您可以使用以下命令获取：
   ```bash
   ollama pull qwen3.5:9b
   ```
@@ -114,11 +114,19 @@ CLI 会读取根目录的 `langgraph.json`，并暴露名为 `tomorrow` 的 grap
 | 变量 | 描述 | 默认值 |
 |----------|-------------|---------|
 | `TOMORROW_APP` | 应用名称（用作环境变量前缀） | `tomorrow` |
-| `TOMORROW_MODEL` | 模型配置，支持 OLLAMA 和 HUGGINGFACE | `{"type": ModelType.OLLAMA, ...}` |
+| `TOMORROW_MODEL` | 模型配置，支持 OLLAMA、HUGGINGFACE 和 ANTHROPIC | `{"type": ModelType.OLLAMA, ...}` |
 | `TOMORROW_CHECKPOINT` | 检查点配置，支持 MEMORY 和 SQLITE | `{"type": CheckpointType.MEMORY}` |
 | `TOMORROW_BACKEND` | 后端配置，支持 FILESYSTEM 和 LOCAL_SHELL | `{"type": BackendType.FILESYSTEM}` |
 | `TOMORROW_STORE` | 存储配置，支持 MEMORY 和 SQLITE | `{"type": StoreType.MEMORY}` |
 | `TOMORROW_SKILLS` | 技能目录列表 | `["skills/"]` |
+
+模型配置通过 `TOMORROW_MODEL` 传入。使用 Anthropic 时，将模型类型设置为 `anthropic`，并提供模型名称和 API 密钥，例如：
+
+```bash
+export TOMORROW_MODEL='{"type":"anthropic","anthropic":{"model":"claude-sonnet-5","api_key":"your-anthropic-api-key"}}'
+```
+
+使用 Ollama 或 HuggingFace 时，可分别配置 `ollama` 或 `huggingface` 对象；具体字段和默认值请参阅 `src/tomorrow/settings.py`。
 
 #### Rainy 配置 (API)
 
@@ -152,7 +160,7 @@ CLI 会读取根目录的 `langgraph.json`，并暴露名为 `tomorrow` 的 grap
   - `core/agent.py`: 定义深度智能体及其指令，提供 `AgentManager` 进行生命周期管理。
   - `core/backend/`: 统一后端加载逻辑，支持 `FILESYSTEM` 和 `LOCAL_SHELL`。
   - `core/checkpoint/`: 检查点实现，支持 `MEMORY` 和 `SQLITE`。
-  - `core/model/`: 模型加载实现，支持 `OLLAMA` 和 `HUGGINGFACE`。
+  - `core/model/`: 模型加载实现，支持 `OLLAMA`、`HUGGINGFACE` 和 `ANTHROPIC`。
   - `core/store/`: 存储实现，支持 `MEMORY` 和 `SQLITE`。
   - `exceptions.py`: 定义应用特定的异常类体系。
   - `models/constants/`: 定义各类常量（Backend, Checkpoint, Model, Store）。
