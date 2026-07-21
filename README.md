@@ -35,7 +35,8 @@
 | src/tomorrow/core/checkpoint/memory.py        |        3 |        0 |        0 |        0 |     100% |           |
 | src/tomorrow/core/checkpoint/sqlite.py        |       10 |        0 |        2 |        0 |     100% |           |
 | src/tomorrow/core/enums.py                    |       33 |        0 |        6 |        0 |     100% |           |
-| src/tomorrow/core/model/\_\_init\_\_.py       |       15 |        0 |        4 |        0 |     100% |           |
+| src/tomorrow/core/model/\_\_init\_\_.py       |       18 |        0 |        6 |        0 |     100% |           |
+| src/tomorrow/core/model/anthropic.py          |        6 |        0 |        0 |        0 |     100% |           |
 | src/tomorrow/core/model/huggingface.py        |        7 |        0 |        0 |        0 |     100% |           |
 | src/tomorrow/core/model/ollama.py             |        6 |        0 |        0 |        0 |     100% |           |
 | src/tomorrow/core/store/\_\_init\_\_.py       |       15 |        0 |        4 |        0 |     100% |           |
@@ -47,13 +48,13 @@
 | src/tomorrow/models/constants/\_\_init\_\_.py |        4 |        0 |        0 |        0 |     100% |           |
 | src/tomorrow/models/constants/backend.py      |        4 |        0 |        0 |        0 |     100% |           |
 | src/tomorrow/models/constants/checkpoint.py   |        7 |        0 |        0 |        0 |     100% |           |
-| src/tomorrow/models/constants/model.py        |        4 |        0 |        0 |        0 |     100% |           |
+| src/tomorrow/models/constants/model.py        |        5 |        0 |        0 |        0 |     100% |           |
 | src/tomorrow/models/constants/store.py        |        4 |        0 |        0 |        0 |     100% |           |
-| src/tomorrow/settings.py                      |       57 |        0 |        0 |        0 |     100% |           |
+| src/tomorrow/settings.py                      |       63 |        0 |        0 |        0 |     100% |           |
 | src/tomorrow/utils/\_\_init\_\_.py            |        0 |        0 |        0 |        0 |     100% |           |
 | src/tomorrow/utils/functional.py              |      224 |        0 |       58 |        0 |     100% |           |
 | src/tomorrow/utils/log.py                     |        6 |        0 |        0 |        0 |     100% |           |
-| **TOTAL**                                     |  **678** |    **0** |  **106** |    **0** | **100%** |           |
+| **TOTAL**                                     |  **694** |    **0** |  **108** |    **0** | **100%** |           |
 
 
 ## Setup coverage badge
