@@ -43,10 +43,18 @@ class HuggingFaceConfig(BaseConfigModel):
     temperature: float = 0.1
 
 
+class AnthropicConfig(BaseConfigModel):
+    model: str = "claude-sonnet-5"
+    api_key: str | None = None
+    base_url: str | None = None
+    temperature: float = 0
+
+
 class ModelConfig(BaseConfigModel):
     type: ModelType = ModelType.OLLAMA
     ollama: OllamaConfig = Field(default_factory=OllamaConfig, alias=ModelType.OLLAMA)
     huggingface: HuggingFaceConfig = Field(default_factory=HuggingFaceConfig, alias=ModelType.HUGGINGFACE)
+    anthropic: AnthropicConfig = Field(default_factory=AnthropicConfig, alias=ModelType.ANTHROPIC)
 
 
 class FilesystemBackendConfig(BaseConfigModel):
