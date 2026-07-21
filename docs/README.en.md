@@ -2,7 +2,7 @@
 
 [![Build Status](https://github.com/noHairMan/nhm-deepagents/actions/workflows/build.yml/badge.svg)](https://github.com/noHairMan/nhm-deepagents/actions/workflows/build.yml)[![Coverage badge](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/noHairMan/nhm-deepagents/python-coverage-comment-action-data/endpoint.json)](https://htmlpreview.github.io/?https://github.com/noHairMan/nhm-deepagents/blob/python-coverage-comment-action-data/htmlcov/index.html)[![Lint: Ruff](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/astral-sh/ruff/main/assets/badge/v2.json)](https://github.com/astral-sh/ruff)[![Python Version](https://img.shields.io/badge/python-3.14+-blue.svg)](https://www.python.org/downloads/release/python-3140/)[![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)[![Repo Size](https://img.shields.io/github/repo-size/noHairMan/nhm-deepagents)](https://github.com/noHairMan/nhm-deepagents)[![Last Commit](https://img.shields.io/github/last-commit/noHairMan/nhm-deepagents)](https://github.com/noHairMan/nhm-deepagents)
 
-[Simplified Chinese](/docs/README.zh.md)\|[English](/docs/README.en.md)\|[Japanese](/docs/README.ja.md)\|[Traditional Chinese](/docs/README.zh-TW.md)
+[Simplified Chinese](/docs/README.zh.md)\|[English](/docs/README.en.md)\|[日本語](/docs/README.ja.md)\|[Traditional Chinese](/docs/README.zh-TW.md)
 
 A Python project to build and run Deep Agents using a modern LLM framework.
 
@@ -41,7 +41,7 @@ The project integrates GitHub Actions workflows, including:
 -   **API framework**:[speedy](https://fastapi.tiangolo.com/)
 -   **Web server**:[Uvicorn](https://www.uvicorn.org/)
 -   **agent framework**:[deepagents](https://github.com/zongxuheng/deepagents)(Based on LangGraph/LangChain)
--   **LLM provider**:[To be](https://ollama.com/)and[HuggingFace](https://huggingface.co/)
+-   **LLM provider**:[To be](https://ollama.com/)、[HuggingFace](https://huggingface.co/)and[Anthropic](https://www.anthropic.com/)
 -   **Configuration management**:[Pydantic Settings](https://docs.pydantic.dev/latest/usage/settings/)
 -   **Exception handling**: Custom exception system (`TomorrowError`and its subclasses), covering model, backend, storage, and checkpoint errors.
 -   **Code quality**:[Ruff](https://github.com/astral-sh/ruff)(replaces Black and Isort),`pre-commit`, Strict Type Hinting
@@ -52,7 +52,7 @@ The project integrates GitHub Actions workflows, including:
 -   **Python 3.14+**
 -   **uv**: A fast Python package installer and parser.
 -   **To be**: must be running and accessible.
--   **LLM model**: The model used by default is`qwen3.5:9b`. You can get it using the following command:
+-   **LLM model**: Use Ollama by default`qwen3.5:9b`. You can get it using the following command:
     ```bash
     ollama pull qwen3.5:9b
     ```
@@ -111,14 +111,22 @@ Environment variables are prefixed by default`TOMORROW_`(core module) or`RAINY_`
 
 #### Tomorrow configuration (core)
 
-| variable              | describe                                                   | default value                      |
-| --------------------- | ---------------------------------------------------------- | ---------------------------------- |
-| `TOMORROW_APP`        | Application name (used as environment variable prefix)     | `tomorrow`                         |
-| `TOMORROW_MODEL`      | Model configuration, supports OLLAMA and HUGGINGFACE       | `{"type": ModelType.OLLAMA, ...}`  |
-| `TOMORROW_CHECKPOINT` | Checkpoint configuration, supports MEMORY and SQLITE       | `{"type": CheckpointType.MEMORY}`  |
-| `TOMORROW_BACKEND`    | Backend configuration, supports FILESYSTEM and LOCAL_SHELL | `{"type": BackendType.FILESYSTEM}` |
-| `TOMORROW_STORE`      | Storage configuration, supports MEMORY and SQLITE          | `{"type": StoreType.MEMORY}`       |
-| `TOMORROW_SKILLS`     | Skill Catalog List                                         | `["skills/"]`                      |
+| variable              | describe                                                        | default value                      |
+| --------------------- | --------------------------------------------------------------- | ---------------------------------- |
+| `TOMORROW_APP`        | Application name (used as environment variable prefix)          | `tomorrow`                         |
+| `TOMORROW_MODEL`      | Model configuration, supports OLLAMA, HUGGINGFACE and ANTHROPIC | `{"type": ModelType.OLLAMA, ...}`  |
+| `TOMORROW_CHECKPOINT` | Checkpoint configuration, supports MEMORY and SQLITE            | `{"type": CheckpointType.MEMORY}`  |
+| `TOMORROW_BACKEND`    | Backend configuration, supports FILESYSTEM and LOCAL_SHELL      | `{"type": BackendType.FILESYSTEM}` |
+| `TOMORROW_STORE`      | Storage configuration, supports MEMORY and SQLITE               | `{"type": StoreType.MEMORY}`       |
+| `TOMORROW_SKILLS`     | Skill Catalog List                                              | `["skills/"]`                      |
+
+Model configuration passed`TOMORROW_MODEL`incoming. When using Anthropic, set the model type to`anthropic`, and provide the model name and API key, for example:
+
+```bash
+export TOMORROW_MODEL='{"type":"anthropic","anthropic":{"model":"claude-sonnet-5","api_key":"your-anthropic-api-key"}}'
+```
+
+When using Ollama or HuggingFace, you can configure them separately`ollama`or`huggingface`Object; for specific fields and default values, see`src/tomorrow/settings.py`。
 
 #### Rainy configuration (API)
 
@@ -152,7 +160,7 @@ Commonly used development scripts:
     -   `core/agent.py`: Define deep agents and their instructions, providing`AgentManager`Perform life cycle management.
     -   `core/backend/`: Unify backend loading logic, support`FILESYSTEM`and`LOCAL_SHELL`。
     -   `core/checkpoint/`: Checkpoint implementation, support`MEMORY`and`SQLITE`。
-    -   `core/model/`: Model loading implementation, support`OLLAMA`and`HUGGINGFACE`。
+    -   `core/model/`: Model loading implementation, support`OLLAMA`、`HUGGINGFACE`and`ANTHROPIC`。
     -   `core/store/`: Storage implementation, support`MEMORY`and`SQLITE`。
     -   `exceptions.py`: Define application-specific exception class system.
     -   `models/constants/`: Define various types of constants (Backend, Checkpoint, Model, Store).
@@ -171,7 +179,7 @@ Commonly used development scripts:
     -   `middleware/`: Custom middleware (processing time, unified response format).
     -   `settings.py`: API module default configuration.
 -   `tests/`: Test directory, structure and`src`Be consistent.
--   `docs/`: 多语言文档。
+-   `docs/`: Multilingual documentation.
 -   `pyproject.toml`: Project metadata, dependencies, and tool configuration.
 -   `langgraph.json`:`langgraph-cli`graph and environment configuration.
 -   `uv.lock`: Lock dependency versions.
