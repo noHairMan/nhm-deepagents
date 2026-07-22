@@ -16,7 +16,7 @@ class TestConfig:
         assert settings.MODEL["type"] == "ollama"
         assert settings.MODEL["ollama"]["model"] == "qwen3.5:9b"
         assert settings.MODEL["ollama"]["base_url"].startswith("http")
-        assert settings.RECURSION_LIMIT == 25
+        assert settings.RECURSION_LIMIT == 100
 
     def test_settings_override_with_env(self):
         # 模拟环境变量覆盖
