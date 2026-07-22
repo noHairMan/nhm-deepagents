@@ -14,7 +14,7 @@ The project contains three main modules:
 
 -   **`tomorrow`**: Core agent module. The codename is taken from a character in the game "Death Stranding 2: On the Beach"**Tomorrow**(played by Elle Fanning). In the plot, she is the daughter of protagonist Sam Bridges, who was also revealed to be a character in the previous game.**Lou**(BB-28)。
 -   **`rainy`**: API service module based on FastAPI. The codename is also taken from a character in Death Stranding 2**Rainy**(played by Shiori Kutsuna). In the game, she has the magical power to cause "Timefall" and the healing "Corefall", and is described as a "Pharmakon" that can both hurt and heal.
--   **`fragile`**: A Typer-based command line client for asking questions directly to the Tomorrow agent or starting interactive sessions. Its name is taken from a character in the same work**Fragile**。
+-   **`fragile`**: A Typer-based command line client for asking questions directly to the Tomorrow agent or starting interactive sessions. Its name is taken from a character in the same work**Fragile**. Fragile is the founder and courier of Fragile Express. He has aged rapidly due to exposure to the rain of time, but he has always delivered important supplies to others in dangerous environments. This image of a "fragile" appearance that still insists on the mission of connection and delivery is the background of the name of this client.
 
 This project provides a general smart assistant agent that utilizes`deepagents`The framework analyzes user input and passes`rainy`The module provides external synchronization (`/api/chat`)and**streaming (`/api/chat/stream`）**API interface.
 
@@ -61,7 +61,7 @@ The project integrates GitHub Actions workflows, including:
 
 ## 🚀 Quick Start
 
-### 安装
+### Install
 
 1.  **Install`uv`**:
     Please follow[uv official warehouse](https://github.com/astral-sh/uv)Follow the instructions in .
@@ -150,7 +150,7 @@ export TOMORROW_MODEL__ANTHROPIC__MODEL="deepseek-v4-flash"
 export TOMORROW_MODEL__ANTHROPIC__API_KEY="your-api-key"
 ```
 
-具体字段和默认值请参阅 `src/tomorrow/settings.py`。
+For specific fields and default values, please refer to`src/tomorrow/settings.py`。
 
 Subagent configuration passed`TOMORROW_SUBAGENTS`Passed in, each subagent requires at least`name`、`description`and`system_prompt`field, you can also specify`model`and`skills`,For example:
 
