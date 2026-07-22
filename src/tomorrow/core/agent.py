@@ -1,7 +1,9 @@
 from typing import Optional
 
 from deepagents import create_deep_agent
+from deepagents.middleware.subagents import SubAgent
 from langchain_core.messages import SystemMessage
+from langchain_quickjs import CodeInterpreterMiddleware
 from langgraph.checkpoint.base import BaseCheckpointSaver
 from langgraph.graph.state import CompiledStateGraph
 
@@ -33,6 +35,19 @@ class AgentManager:
         cls._agent = None
 
     @staticmethod
+    def get_subagents() -> list[SubAgent]:
+        return [
+            {
+                "name": subagent.name,
+                "description": subagent.description,
+                "system_prompt": subagent.system_prompt,
+                **({"model": subagent.model} if subagent.model is not None else {}),
+                **({"skills": subagent.skills} if subagent.skills else {}),
+            }
+            for subagent in settings.SUBAGENTS
+        ]
+
+    @staticmethod
     def create_agent(checkpointer: Optional[BaseCheckpointSaver] = None) -> CompiledStateGraph:
         logger.info(f"Initializing Agent for {settings.APP}...")
 
@@ -51,12 +66,17 @@ class AgentManager:
 
         skills = settings.SKILLS
         logger.info(f"SKILLS: {skills}")
+        subagents = AgentManager.get_subagents()
+        logger.info(f"SUBAGENTS: {subagents}")
 
         return create_deep_agent(
+            name=settings.APP,
             model=get_model(),
             memory=[],
             tools=[],
             skills=skills,
+            subagents=subagents,
+            middleware=[CodeInterpreterMiddleware()],
             system_prompt=SystemMessage(content="""你是一名智能助理，运用你的知识尽可能的回答用户问题。"""),
             checkpointer=checkpointer,
             backend=get_backend(),

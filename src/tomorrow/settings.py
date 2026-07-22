@@ -80,20 +80,30 @@ class StoreSqliteConfig(BaseConfigModel):
 
 
 class StoreConfig(BaseConfigModel):
-    type: StoreType = StoreType.MEMORY
+    type: StoreType = StoreType.SQLITE
     memory: StoreMemoryConfig = Field(default_factory=StoreMemoryConfig, alias=StoreType.MEMORY)
     sqlite: StoreSqliteConfig = Field(default_factory=StoreSqliteConfig, alias=StoreType.SQLITE)
+
+
+class SubAgentConfig(BaseConfigModel):
+    name: str
+    description: str
+    system_prompt: str
+    model: str | None = None
+    skills: list[str] = Field(default_factory=list)
 
 
 class TomorrowSettings(BaseSettings):
     APP: str = "tomorrow"
     BASE_DIR: ClassVar[Path] = Path(__file__).resolve().parent.parent
+    RECURSION_LIMIT: int = Field(default=100, gt=0)
 
     MODEL: ModelConfig = Field(default_factory=ModelConfig)
     CHECKPOINT: CheckpointConfig = Field(default_factory=CheckpointConfig)
     BACKEND: BackendConfig = Field(default_factory=BackendConfig)
     STORE: StoreConfig = Field(default_factory=StoreConfig)
     SKILLS: list[str] = Field(default_factory=lambda: ["skills/"])
+    SUBAGENTS: list[SubAgentConfig] = Field(default_factory=list)
 
     model_config = SettingsConfigDict(
         env_prefix="TOMORROW_",

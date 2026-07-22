@@ -6,6 +6,7 @@ from fastapi.sse import EventSourceResponse
 from langgraph.graph.state import CompiledStateGraph
 from pydantic import BaseModel, Field
 
+from tomorrow.conf import settings
 from tomorrow.core.agent import AgentManager
 
 router = APIRouter()
@@ -20,7 +21,10 @@ class ChatRequest(BaseModel):
 async def chat(request: ChatRequest, agent: CompiledStateGraph = Depends(AgentManager.get_agent)) -> str:
     response = await agent.ainvoke(
         {"messages": [("user", request.message)]},
-        config={"configurable": {"thread_id": request.thread_id}},
+        config={
+            "recursion_limit": settings.RECURSION_LIMIT,
+            "configurable": {"thread_id": request.thread_id},
+        },
         stream_mode="values",
         version="v2",
     )
@@ -36,7 +40,10 @@ async def chat_stream(
     async def event_generator():
         async for event in agent.astream_events(
             {"messages": [("user", request.message)]},
-            config={"configurable": {"thread_id": request.thread_id}},
+            config={
+                "recursion_limit": settings.RECURSION_LIMIT,
+                "configurable": {"thread_id": request.thread_id},
+            },
             version="v2",
         ):
             if not isinstance(event, dict):
@@ -59,7 +66,10 @@ async def chat_stream_event(
     async def event_generator():
         async for event in agent.astream_events(
             {"messages": [("user", request.message)]},
-            config={"configurable": {"thread_id": request.thread_id}},
+            config={
+                "recursion_limit": settings.RECURSION_LIMIT,
+                "configurable": {"thread_id": request.thread_id},
+            },
             version="v2",
         ):
             try:

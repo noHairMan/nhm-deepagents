@@ -27,7 +27,7 @@
   PYTHONPATH=src \
   TOMORROW_APP=tomorrow \
   RAINY_APP=rainy \
-  uv run coverage run --rcfile=pyproject.toml -m pytest && uv run coverage report --rcfile=pyproject.toml
+  uv run coverage run --rcfile=pyproject.toml -m pytest
   ```
 
 ## 3. 编码规范

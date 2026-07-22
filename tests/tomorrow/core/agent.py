@@ -65,6 +65,7 @@ class TestAgent:
         with (
             patch("tomorrow.core.agent.create_deep_agent", return_value=mock_agent) as mock_create,
             patch("tomorrow.core.agent.get_backend", return_value=mock_backend) as mock_get_backend,
+            patch("tomorrow.core.agent.CodeInterpreterMiddleware") as mock_middleware,
             patch("tomorrow.core.agent.logger") as mock_logger,
         ):
             agent = AgentManager.create_agent(mock_checkpointer)
@@ -74,6 +75,9 @@ class TestAgent:
             args, kwargs = mock_create.call_args
             assert kwargs["checkpointer"] == mock_checkpointer
             assert kwargs["backend"] == mock_backend
+            mock_middleware.assert_called_once_with()
+            assert len(kwargs["middleware"]) == 1
+            assert kwargs["middleware"][0] == mock_middleware.return_value
 
             # 验证日志是否被调用
             # Initializing Agent for ... (1)
@@ -82,8 +86,43 @@ class TestAgent:
             # STORE: ... (1)
             # CHECKPOINT: ... (1)
             # SKILLS: ... (1)
-            assert mock_logger.info.call_count == 6
+            assert mock_logger.info.call_count == 7
             assert kwargs["skills"] == settings.SKILLS
+            assert kwargs["subagents"] == []
+
+    def test_get_subagents(self):
+        from tomorrow.conf import settings
+        from tomorrow.settings import SubAgentConfig
+
+        configured = [
+            SubAgentConfig(
+                name="researcher",
+                description="Researches a topic",
+                system_prompt="You research carefully.",
+                model="test-model",
+                skills=["research/"],
+            ),
+            SubAgentConfig(
+                name="writer",
+                description="Writes a summary",
+                system_prompt="You write clearly.",
+            ),
+        ]
+        with patch.object(settings, "SUBAGENTS", configured):
+            assert AgentManager.get_subagents() == [
+                {
+                    "name": "researcher",
+                    "description": "Researches a topic",
+                    "system_prompt": "You research carefully.",
+                    "model": "test-model",
+                    "skills": ["research/"],
+                },
+                {
+                    "name": "writer",
+                    "description": "Writes a summary",
+                    "system_prompt": "You write clearly.",
+                },
+            ]
 
     def test_agent_manager_methods(self):
         mock_agent = MagicMock()
