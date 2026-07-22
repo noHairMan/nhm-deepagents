@@ -19,7 +19,7 @@
 项目内部包含三个主要模块：
 - **`tomorrow`**: 核心智能体模块。代号取自游戏《死亡搁浅 2：冥滩之上》（Death Stranding 2: On the Beach）中的角色 **Tomorrow**（由艾丽·范宁饰演）。在剧情中，她是主角山姆·布里吉斯（Sam Bridges）的女儿，也被揭示为前作中的 **Lou** (BB-28)。
 - **`rainy`**: 基于 FastAPI 的 API 服务模块。代号同样取自《死亡搁浅 2》中的角色 **Rainy**（由忽那汐里饰演）。在游戏中，她拥有引发“时间雨”（Timefall）和具有治愈能力的“核心雨”（Corefall）的神奇力量，被描述为既能伤害也能治愈的“药（Pharmakon）”。
-- **`fragile`**: 基于 Typer 的命令行客户端，用于直接向 Tomorrow 智能体提问或启动交互式会话。其名称取自同一作品中的角色 **Fragile**。
+- **`fragile`**: 基于 Typer 的命令行客户端，用于直接向 Tomorrow 智能体提问或启动交互式会话。其名称取自同一作品中的角色 **Fragile**。Fragile 是 Fragile Express 的创始人和快递员，因接触时间雨而快速衰老，却始终在危险环境中为他人运送重要物资；这种“脆弱”外表下仍坚持承担连接与传递使命的形象，正是该客户端名称的背景。
 
 该项目提供了一个通用的智能助理智能体，利用 `deepagents` 框架分析用户输入，并通过 `rainy` 模块对外提供同步（`/api/chat`）及**流式（`/api/chat/stream`）** API 接口。
 
