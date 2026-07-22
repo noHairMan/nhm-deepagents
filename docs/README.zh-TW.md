@@ -14,7 +14,7 @@
 
 -   **`tomorrow`**: 核心智能體模組。代號取自遊戲《死亡擱淺 2：冥灘之上》（Death Stranding 2: On the Beach）中的角色**明天**（艾莉·範甯飾演）。在劇情中，她是主角山姆布里吉斯（Sam Bridges）的女兒，也被揭露為前作中的**大樓**(BB-28)。
 -   **`rainy`**: 基於 FastAPI 的 API 服務模組。代號同樣取自《死亡擱淺 2》中的角色**下雨天**（由忽那汐裡飾演）。在遊戲中，她擁有引發「時間雨」（Timefall）和具有治癒能力的「核心雨」（Corefall）的神奇力量，被描述為既能傷害也能治癒的「藥（Pharmakon）」。
--   **`fragile`**: 基於 Typer 的命令列客戶端，用於直接向 Tomorrow 智能體提問或啟動互動式會話。其名稱取自同一作品中的角色**脆弱的**。
+-   **`fragile`**: 基於 Typer 的命令列客戶端，用於直接向 Tomorrow 智能體提問或啟動互動式會話。其名稱取自同一作品中的角色**脆弱的**。 Fragile 是 Fragile Express 的創辦人和快遞員，因接觸時間雨而快速衰老，卻始終在危險環境中為他人運送重要物資；這種「脆弱」外表下仍堅持承擔連接與傳遞使命的形象，正是該客戶端名稱的背景。
 
 該專案提供了一個通用的智慧助理智能體，利用`deepagents`框架分析使用者輸入，並透過`rainy`模組對外提供同步（`/api/chat`）及**流式（`/api/chat/stream`）**API 介面。
 
@@ -122,7 +122,7 @@ uv run fragile interactive
 
 ## ⚙️ 配置
 
-該項目使用**懸垂設定**進行配置管理。設定分別定義在`src/tomorrow/settings.py`（明天）和`src/rainy/settings.py`(Rainy) 中，可以透過環境變數或`.env`文件進行覆蓋。環境變數優先權最高，Tomorrow 使用`TOMORROW_`前綴，Rainy 使用`RAINY_`前綴。
+該項目使用**懸垂設定**進行配置管理。設定分別定義在`src/tomorrow/settings.py`（明天）和`src/rainy/settings.py`(Rainy) 中，可以透過環境變數或`.env`文件進行覆蓋。環境變數優先權最高，Tomorrow 使用`TOMORROW_` 前缀，Rainy 使用 `RAINY_`前綴。
 
 ### 環境變數
 
