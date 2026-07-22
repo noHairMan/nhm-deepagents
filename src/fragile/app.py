@@ -52,6 +52,10 @@ def _content_text(content: Any) -> str:
     return "".join(parts)
 
 
+def _is_exit_command(prompt: str) -> bool:
+    return prompt.strip().casefold() in {"exit", "quit"}
+
+
 async def _chat(prompt: str, thread_id: UUID) -> None:
     async with get_checkpointer_context() as checkpointer:
         agent = AgentManager.create_agent(checkpointer)
@@ -81,7 +85,7 @@ def interactive(thread: str | None = typer.Option(None, "--thread", "-t", help="
         except EOFError, KeyboardInterrupt:
             typer.echo()
             break
-        if prompt.strip().lower() in {"exit", "quit"}:
+        if _is_exit_command(prompt):
             break
         if prompt.strip():  # pragma: no branch
             asyncio.run(_chat(prompt, thread_id))

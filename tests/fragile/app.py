@@ -38,6 +38,12 @@ class TestApp:
         assert _content_text(["a", {"type": "text", "text": "b"}, {"type": "image"}]) == "ab"
         assert _content_text(None) == ""
 
+    def test_is_exit_command_ignores_case_and_whitespace(self) -> None:
+        from fragile.app import _is_exit_command
+
+        assert _is_exit_command("  EXIT  ") is True
+        assert _is_exit_command("continue") is False
+
     @pytest.mark.asyncio
     async def test_chat_uses_checkpoint_and_prints(self, capsys) -> None:
         context = MagicMock()
