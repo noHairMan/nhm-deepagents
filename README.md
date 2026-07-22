@@ -7,7 +7,7 @@
 | src/rainy/\_\_init\_\_.py                     |        0 |        0 |        0 |        0 |     100% |           |
 | src/rainy/api/\_\_init\_\_.py                 |        0 |        0 |        0 |        0 |     100% |           |
 | src/rainy/api/endpoints/\_\_init\_\_.py       |        0 |        0 |        0 |        0 |     100% |           |
-| src/rainy/api/endpoints/chat.py               |       36 |        0 |       10 |        0 |     100% |           |
+| src/rainy/api/endpoints/chat.py               |       37 |        0 |       10 |        0 |     100% |           |
 | src/rainy/api/endpoints/health.py             |        7 |        0 |        0 |        0 |     100% |           |
 | src/rainy/api/endpoints/urls.py               |        6 |        0 |        0 |        0 |     100% |           |
 | src/rainy/app.py                              |       10 |        0 |        2 |        0 |     100% |           |
@@ -27,7 +27,7 @@
 | src/tomorrow/conf/\_\_init\_\_.py             |        1 |        0 |        0 |        0 |     100% |           |
 | src/tomorrow/conf/config.py                   |        5 |        0 |        0 |        0 |     100% |           |
 | src/tomorrow/core/\_\_init\_\_.py             |        0 |        0 |        0 |        0 |     100% |           |
-| src/tomorrow/core/agent.py                    |       38 |        0 |        2 |        0 |     100% |           |
+| src/tomorrow/core/agent.py                    |       45 |        0 |        2 |        0 |     100% |           |
 | src/tomorrow/core/backend/\_\_init\_\_.py     |       15 |        0 |        4 |        0 |     100% |           |
 | src/tomorrow/core/backend/filesystem.py       |       10 |        0 |        2 |        0 |     100% |           |
 | src/tomorrow/core/backend/local\_shell.py     |       10 |        0 |        2 |        0 |     100% |           |
@@ -50,11 +50,11 @@
 | src/tomorrow/models/constants/checkpoint.py   |        7 |        0 |        0 |        0 |     100% |           |
 | src/tomorrow/models/constants/model.py        |        5 |        0 |        0 |        0 |     100% |           |
 | src/tomorrow/models/constants/store.py        |        4 |        0 |        0 |        0 |     100% |           |
-| src/tomorrow/settings.py                      |       63 |        0 |        0 |        0 |     100% |           |
+| src/tomorrow/settings.py                      |       68 |        0 |        0 |        0 |     100% |           |
 | src/tomorrow/utils/\_\_init\_\_.py            |        0 |        0 |        0 |        0 |     100% |           |
 | src/tomorrow/utils/functional.py              |      224 |        0 |       58 |        0 |     100% |           |
 | src/tomorrow/utils/log.py                     |        6 |        0 |        0 |        0 |     100% |           |
-| **TOTAL**                                     |  **694** |    **0** |  **108** |    **0** | **100%** |           |
+| **TOTAL**                                     |  **707** |    **0** |  **108** |    **0** | **100%** |           |
 
 
 ## Setup coverage badge
