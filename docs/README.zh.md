@@ -25,6 +25,9 @@
 ### 核心功能
 - **深度智能体**: 集成 `deepagents` 框架，支持复杂任务处理与状态管理。
 - **技能模块**: 支持通过 `TOMORROW_SKILLS` 配置技能目录，为智能体加载可扩展的领域能力。
+- **子代理**: 支持通过 `TOMORROW_SUBAGENTS` 配置专用子代理及其模型、技能和系统提示词。
+- **代码解释器**: 集成 QuickJS 中间件，为智能体提供代码执行能力。
+- **递归控制**: 支持通过 `TOMORROW_RECURSION_LIMIT` 限制智能体递归调用深度。
 - **生命周期管理**: 引入 `AgentManager` 统一管理智能体实例的创建与销毁，确保资源的优雅初始化。
 - **高性能 API**: 基于 FastAPI 构建，支持同步响应与 Server-Sent Events (SSE) 流式输出。
 - **可靠性保障**: 强制类型提示、Ruff 静态检查、100% 测试覆盖率要求。
@@ -45,6 +48,7 @@
 - **Web 服务器**: [Uvicorn](https://www.uvicorn.org/)
 - **智能体框架**: [deepagents](https://github.com/zongxuheng/deepagents) (基于 LangGraph/LangChain)
 - **LLM 提供商**: [Ollama](https://ollama.com/)、[HuggingFace](https://huggingface.co/) 和 [Anthropic](https://www.anthropic.com/)
+- **代码执行**: [langchain-quickjs](https://github.com/langchain-ai/langchainjs) 提供的 QuickJS 中间件
 - **配置管理**: [Pydantic Settings](https://docs.pydantic.dev/latest/usage/settings/)
 - **异常处理**: 自定义异常体系 (`TomorrowError` 及其子类)，涵盖模型、后端、存储和检查点错误。
 - **代码质量**: [Ruff](https://github.com/astral-sh/ruff) (替代 Black 和 Isort)、`pre-commit`、强制类型提示 (Strict Type Hinting)
@@ -117,8 +121,10 @@ CLI 会读取根目录的 `langgraph.json`，并暴露名为 `tomorrow` 的 grap
 | `TOMORROW_MODEL` | 模型配置，支持 OLLAMA、HUGGINGFACE 和 ANTHROPIC | `{"type": ModelType.OLLAMA, ...}` |
 | `TOMORROW_CHECKPOINT` | 检查点配置，支持 MEMORY 和 SQLITE | `{"type": CheckpointType.MEMORY}` |
 | `TOMORROW_BACKEND` | 后端配置，支持 FILESYSTEM 和 LOCAL_SHELL | `{"type": BackendType.FILESYSTEM}` |
-| `TOMORROW_STORE` | 存储配置，支持 MEMORY 和 SQLITE | `{"type": StoreType.MEMORY}` |
+| `TOMORROW_STORE` | 存储配置，支持 MEMORY 和 SQLITE | `{"type": StoreType.SQLITE}` |
 | `TOMORROW_SKILLS` | 技能目录列表 | `["skills/"]` |
+| `TOMORROW_SUBAGENTS` | 子代理配置列表 | `[]` |
+| `TOMORROW_RECURSION_LIMIT` | 智能体递归调用上限 | `100` |
 
 模型配置通过 `TOMORROW_MODEL` 传入。使用 Anthropic 时，将模型类型设置为 `anthropic`，并提供模型名称和 API 密钥，例如：
 
@@ -127,6 +133,12 @@ export TOMORROW_MODEL='{"type":"anthropic","anthropic":{"model":"claude-sonnet-5
 ```
 
 使用 Ollama 或 HuggingFace 时，可分别配置 `ollama` 或 `huggingface` 对象；具体字段和默认值请参阅 `src/tomorrow/settings.py`。
+
+子代理配置通过 `TOMORROW_SUBAGENTS` 传入，每个子代理至少需要 `name`、`description` 和 `system_prompt` 字段，也可以指定 `model` 与 `skills`，例如：
+
+```bash
+export TOMORROW_SUBAGENTS='[{"name":"researcher","description":"负责资料检索","system_prompt":"你是一名研究助手。","skills":["skills/research/"]}]'
+```
 
 #### Rainy 配置 (API)
 
