@@ -1,0 +1,116 @@
+from unittest.mock import AsyncMock, MagicMock, patch
+from uuid import UUID
+
+import pytest
+from typer.testing import CliRunner
+
+from fragile.app import app
+
+runner = CliRunner()
+
+
+class TestApp:
+    @pytest.mark.asyncio
+    async def test_events_filters_and_yields_text(self) -> None:
+        agent = MagicMock()
+
+        async def stream(*args, **kwargs):
+            yield "ignored"
+            yield {"event": "other", "data": {}}
+            yield {"event": "on_chat_model_stream", "data": {"chunk": MagicMock(content="")}}
+            yield {"event": "on_chat_model_stream", "data": {"chunk": MagicMock(content="ok")}}
+            yield {
+                "event": "on_chat_model_stream",
+                "data": {
+                    "chunk": MagicMock(content=[{"type": "text", "text": "你好"}, {"type": "text", "text": "呀"}])
+                },
+            }
+
+        agent.astream_events = stream
+        from fragile.app import _events
+
+        assert [value async for value in _events(agent, "prompt", UUID(int=1))] == ["ok", "你好呀"]
+
+    def test_content_text_handles_supported_content(self) -> None:
+        from fragile.app import _content_text
+
+        assert _content_text("text") == "text"
+        assert _content_text(["a", {"type": "text", "text": "b"}, {"type": "image"}]) == "ab"
+        assert _content_text(None) == ""
+
+    @pytest.mark.asyncio
+    async def test_chat_uses_checkpoint_and_prints(self, capsys) -> None:
+        context = MagicMock()
+        context.__aenter__ = AsyncMock(return_value="checkpoint")
+        context.__aexit__ = AsyncMock(return_value=None)
+        with (
+            patch("fragile.app.get_checkpointer_context", return_value=context),
+            patch("fragile.app.AgentManager.create_agent", return_value=MagicMock()),
+            patch("fragile.app._events", return_value=self._async_values("answer")),
+        ):
+            from fragile.app import _chat
+
+            await _chat("prompt", UUID(int=1))
+        assert capsys.readouterr().out == "answer\n"
+
+    @staticmethod
+    async def _async_values(*values: str):
+        for value in values:
+            yield value
+
+    def test_help(self) -> None:
+        result = runner.invoke(app, ["--help"])
+        assert result.exit_code == 0
+        assert "interactive" in result.stdout
+
+    def test_prompt_streams_response(self) -> None:
+        with patch("fragile.app._chat", new_callable=AsyncMock) as chat:
+            result = runner.invoke(app, ["你好"])
+        assert result.exit_code == 0
+        chat.assert_awaited_once()
+
+    def test_invalid_thread(self) -> None:
+        result = runner.invoke(app, ["你好", "--thread", "bad"])
+        assert result.exit_code != 0
+
+    def test_thread_id_rejects_invalid_value(self) -> None:
+        from fragile.app import _thread_id
+
+        with pytest.raises(Exception, match="必须是有效的 UUID"):
+            _thread_id("bad")
+
+    def test_main_without_prompt(self) -> None:
+        from fragile.app import main
+
+        main(None, None)
+
+    def test_interactive_handles_keyboard_interrupt(self) -> None:
+        from fragile.app import interactive
+
+        with patch("fragile.app.typer.prompt", side_effect=KeyboardInterrupt):
+            interactive(None)
+
+    def test_interactive_sends_nonempty_prompt(self) -> None:
+        from fragile.app import interactive
+
+        with (
+            patch("fragile.app.typer.prompt", side_effect=["hello", "quit"]),
+            patch("fragile.app._chat", new_callable=AsyncMock) as chat,
+        ):
+            interactive(None)
+        chat.assert_awaited_once()
+
+    def test_interactive_exit(self) -> None:
+        result = runner.invoke(app, ["interactive"], input="exit\n")
+        assert result.exit_code == 0
+
+    def test_interactive_empty_prompt(self) -> None:
+        with patch("fragile.app._chat", new_callable=AsyncMock):
+            result = runner.invoke(app, ["interactive"], input="\nexit\n")
+        assert result.exit_code == 0
+
+    def test_thread_id(self) -> None:
+        from fragile.app import _thread_id
+
+        value = UUID("12345678-1234-5678-1234-567812345678")
+        assert _thread_id(str(value)) == value
