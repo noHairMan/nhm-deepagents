@@ -15,7 +15,7 @@ The project contains two main modules:
 -   **`tomorrow`**: Core agent module. The codename is taken from a character in the game "Death Stranding 2: On the Beach"**Tomorrow**(played by Elle Fanning). In the plot, she is the daughter of protagonist Sam Bridges, who was also revealed to be a character in the previous game.**Lou**(BB-28)。
 -   **`rainy`**: API service module based on FastAPI. The codename is also taken from a character in Death Stranding 2**Rainy**(played by Shiori Kutsuna). In the game, she has the magical power to cause "Timefall" and the healing "Corefall", and is described as a "Pharmakon" that can both hurt and heal.
 
-该项目提供了一个通用的智能助理智能体，利用 `deepagents`The framework analyzes user input and passes`rainy`The module provides external synchronization (`/api/chat`)and**streaming (`/api/chat/stream`）**API interface.
+This project provides a general smart assistant agent that utilizes`deepagents`The framework analyzes user input and passes`rainy`The module provides external synchronization (`/api/chat`)and**streaming (`/api/chat/stream`）**API interface.
 
 ### Core functions
 
@@ -55,11 +55,8 @@ The project integrates GitHub Actions workflows, including:
 
 -   **Python 3.14+**
 -   **uv**: A fast Python package installer and parser.
--   **To be**: must be running and accessible.
--   **LLM model**: Use Ollama by default`qwen3.5:9b`. You can get it using the following command:
-    ```bash
-    ollama pull qwen3.5:9b
-    ```
+-   **LLM provider**: current`.env`Using the Anthropic-compatible interface, there is no need to run Ollama.
+-   **LLM model**: Current configuration uses`deepseek-v4-flash`;You can also pass`TOMORROW_MODEL`Switch to Ollama or HuggingFace.
 
 ## 🚀 Quick Start
 
@@ -84,9 +81,12 @@ The project integrates GitHub Actions workflows, including:
     uv run pre-commit install
     ```
 
-5.  **Start Ollama and get the model**:
+5.  **Configure LLM**:
     ```bash
-    ollama pull qwen3.5:9b
+    export TOMORROW_MODEL__TYPE="anthropic"
+    export TOMORROW_MODEL__ANTHROPIC__BASE_URL="https://www.llmgateway.cn"
+    export TOMORROW_MODEL__ANTHROPIC__MODEL="deepseek-v4-flash"
+    export TOMORROW_MODEL__ANTHROPIC__API_KEY="your-api-key"
     ```
 
 ### Run application
@@ -115,24 +115,27 @@ Environment variables are prefixed by default`TOMORROW_`(core module) or`RAINY_`
 
 #### Tomorrow configuration (core)
 
-| variable                   | describe                                                        | default value                      |
-| -------------------------- | --------------------------------------------------------------- | ---------------------------------- |
-| `TOMORROW_APP`             | Application name (used as environment variable prefix)          | `tomorrow`                         |
-| `TOMORROW_MODEL`           | Model configuration, supports OLLAMA, HUGGINGFACE and ANTHROPIC | `{"type": ModelType.OLLAMA, ...}`  |
-| `TOMORROW_CHECKPOINT`      | Checkpoint configuration, supports MEMORY and SQLITE            | `{"type": CheckpointType.MEMORY}`  |
-| `TOMORROW_BACKEND`         | Backend configuration, supports FILESYSTEM and LOCAL_SHELL      | `{"type": BackendType.FILESYSTEM}` |
-| `TOMORROW_STORE`           | Storage configuration, supports MEMORY and SQLITE               | `{"type": StoreType.SQLITE}`       |
-| `TOMORROW_SKILLS`          | Skill Catalog List                                              | `["skills/"]`                      |
-| `TOMORROW_SUBAGENTS`       | Subagent configuration list                                     | `[]`                               |
-| `TOMORROW_RECURSION_LIMIT` | The upper limit of agent recursive calls                        | `100`                              |
+| variable                   | describe                                                        | default value                                   |
+| -------------------------- | --------------------------------------------------------------- | ----------------------------------------------- |
+| `TOMORROW_APP`             | Application name (used as environment variable prefix)          | `tomorrow`                                      |
+| `TOMORROW_MODEL`           | Model configuration, supports OLLAMA, HUGGINGFACE and ANTHROPIC | current`.env`use`anthropic`/`deepseek-v4-flash` |
+| `TOMORROW_CHECKPOINT`      | Checkpoint configuration, supports MEMORY and SQLITE            | `{"type":"memory"}`                             |
+| `TOMORROW_BACKEND`         | Backend configuration, supports FILESYSTEM and LOCAL_SHELL      | `{"type":"filesystem"}`                         |
+| `TOMORROW_STORE`           | Storage configuration, supports MEMORY and SQLITE               | `{"type":"sqlite"}`                             |
+| `TOMORROW_SKILLS`          | Skill Catalog List                                              | `["skills/"]`                                   |
+| `TOMORROW_SUBAGENTS`       | Subagent configuration list                                     | `[]`                                            |
+| `TOMORROW_RECURSION_LIMIT` | The upper limit of agent recursive calls                        | `100`                                           |
 
-Model configuration passed`TOMORROW_MODEL`incoming. When using Anthropic, set the model type to`anthropic`, and provide the model name and API key, for example:
+Model configuration passed`TOMORROW_MODEL`Or pass in nested environment variables. current`.env`Use Anthropic compatible interfaces and`deepseek-v4-flash`;When using other providers, please configure accordingly`ollama`or`huggingface`object. For example:
 
 ```bash
-export TOMORROW_MODEL='{"type":"anthropic","anthropic":{"model":"claude-sonnet-5","api_key":"your-anthropic-api-key"}}'
+export TOMORROW_MODEL__TYPE="anthropic"
+export TOMORROW_MODEL__ANTHROPIC__BASE_URL="https://www.llmgateway.cn"
+export TOMORROW_MODEL__ANTHROPIC__MODEL="deepseek-v4-flash"
+export TOMORROW_MODEL__ANTHROPIC__API_KEY="your-api-key"
 ```
 
-When using Ollama or HuggingFace, you can configure them separately`ollama`or`huggingface`Object; for specific fields and default values, see`src/tomorrow/settings.py`。
+For specific fields and default values, please refer to`src/tomorrow/settings.py`。
 
 Subagent configuration passed`TOMORROW_SUBAGENTS`Passed in, each subagent requires at least`name`、`description`and`system_prompt`field, you can also specify`model`and`skills`,For example:
 
@@ -172,7 +175,7 @@ Commonly used development scripts:
     -   `core/agent.py`: Define deep agents and their instructions, providing`AgentManager`Perform life cycle management.
     -   `core/backend/`: Unify backend loading logic, support`FILESYSTEM`and`LOCAL_SHELL`。
     -   `core/checkpoint/`: Checkpoint implementation, support`MEMORY`and`SQLITE`。
-    -   `core/model/`: Model loading implementation, support`OLLAMA`、`HUGGINGFACE` 和 `ANTHROPIC`。
+    -   `core/model/`: Model loading implementation, support`OLLAMA`、`HUGGINGFACE`and`ANTHROPIC`。
     -   `core/store/`: Storage implementation, support`MEMORY`and`SQLITE`。
     -   `exceptions.py`: Define application-specific exception class system.
     -   `models/constants/`: Define various types of constants (Backend, Checkpoint, Model, Store).
@@ -182,11 +185,11 @@ Commonly used development scripts:
     -   `app.py`: FastAPI application definition, integrated life cycle management and routing.
     -   `lifespan.py`: Handle the startup and shutdown logic of the application and manage the life cycle of the agent instance.
     -   `api/endpoints/`: API route definition.
-        -   `chat.py`: Synchronous and streaming chat interface (using OpenAI-like response format), integrated with deep agent module.
+        -   `chat.py`: Synchronous and streaming chat interface, integrated with deep agent module (responses are uniformly packaged by middleware).
             -   `POST /api/chat`: Synchronize chat responses.
             -   `POST /api/chat/stream`: SSE streaming response.
             -   `POST /api/chat/stream/event`: Event stream response.
-        -   `health.py`: Health check interface.
+        -   `health.py`: Health check interface (`GET /api/health`)。
         -   `urls.py`: Unified routing mounting.
     -   `middleware/`: Custom middleware (processing time, unified response format).
     -   `settings.py`: API module default configuration.
