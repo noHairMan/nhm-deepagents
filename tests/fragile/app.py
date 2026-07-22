@@ -107,8 +107,10 @@ class TestApp:
         chat.assert_awaited_once()
 
     def test_interactive_exit(self) -> None:
-        result = runner.invoke(app, ["interactive"], input="exit\n")
+        with patch("fragile.app._chat", new_callable=AsyncMock) as chat:
+            result = runner.invoke(app, ["interactive"], input="exit\n")
         assert result.exit_code == 0
+        chat.assert_not_awaited()
 
     def test_interactive_empty_prompt(self) -> None:
         with patch("fragile.app._chat", new_callable=AsyncMock):

@@ -70,6 +70,9 @@ def main(
     thread: str | None = typer.Option(None, "--thread", "-t", help="用于恢复会话的线程 UUID。"),
 ) -> None:
     """直接提问；不带问题时请使用 `interactive`。"""
+    if prompt == "interactive":
+        interactive(thread)
+        return
     if prompt is not None:
         asyncio.run(_chat(prompt, _thread_id(thread)))
 
