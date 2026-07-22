@@ -10,10 +10,11 @@ A Python project to build and run Deep Agents using a modern LLM framework.
 
 `nhm-deepagents`is a professional Python project focusing on deep agents. It leverages modern Python features (3.14+) and powerful tools to provide a high-quality development experience for AI agent research and applications.
 
-The project contains two main modules:
+The project contains three main modules:
 
 -   **`tomorrow`**: Core agent module. The codename is taken from a character in the game "Death Stranding 2: On the Beach"**Tomorrow**(played by Elle Fanning). In the plot, she is the daughter of protagonist Sam Bridges, who was also revealed to be a character in the previous game.**Lou**(BB-28)。
 -   **`rainy`**: API service module based on FastAPI. The codename is also taken from a character in Death Stranding 2**Rainy**(played by Shiori Kutsuna). In the game, she has the magical power to cause "Timefall" and the healing "Corefall", and is described as a "Pharmakon" that can both hurt and heal.
+-   **`fragile`**: A Typer-based command line client for asking questions directly to the Tomorrow agent or starting interactive sessions. Its name is taken from a character in the same work**Fragile**。
 
 This project provides a general smart assistant agent that utilizes`deepagents`The framework analyzes user input and passes`rainy`The module provides external synchronization (`/api/chat`)and**streaming (`/api/chat/stream`）**API interface.
 
@@ -60,7 +61,7 @@ The project integrates GitHub Actions workflows, including:
 
 ## 🚀 Quick Start
 
-### Install
+### 安装
 
 1.  **Install`uv`**:
     Please follow[uv official warehouse](https://github.com/astral-sh/uv)Follow the instructions in .
@@ -105,6 +106,20 @@ uv run langgraph dev
 
 The CLI will read the root directory`langgraph.json`, and expose the name`tomorrow`graph.
 
+use`fragile`Command line client to ask a single question:
+
+```bash
+uv run fragile "请介绍一下你的能力"
+```
+
+Start an interactive session:
+
+```bash
+uv run fragile interactive
+```
+
+pass`--thread`or`-t`Passing in the UUID can restore an existing session; if not passed in, a new thread will be automatically created.
+
 ## ⚙️ Configuration
 
 This project uses**Pydantic Settings**Perform configuration management. The settings are respectively defined in`src/tomorrow/settings.py`(Tomorrow) 和`src/rainy/settings.py`(Rainy), you can use environment variables or`.env`file is overwritten. Environment variables have the highest priority and are used by Tomorrow`TOMORROW_`Prefix, used by Rainy`RAINY_`prefix.
@@ -135,7 +150,7 @@ export TOMORROW_MODEL__ANTHROPIC__MODEL="deepseek-v4-flash"
 export TOMORROW_MODEL__ANTHROPIC__API_KEY="your-api-key"
 ```
 
-For specific fields and default values, please refer to`src/tomorrow/settings.py`。
+具体字段和默认值请参阅 `src/tomorrow/settings.py`。
 
 Subagent configuration passed`TOMORROW_SUBAGENTS`Passed in, each subagent requires at least`name`、`description`and`system_prompt`field, you can also specify`model`and`skills`,For example:
 
@@ -169,7 +184,9 @@ Commonly used development scripts:
 
 ## 📂 Project structure
 
--   `src/main.py`: The main entry point of the application. Set up the environment and start the Uvicorn server.
+-   `src/main.py`: The main entry point of the Rainy API service. Set up the environment and start the Uvicorn server.
+-   `src/fragile/`: Command line client package directory.
+    -   `app.py`: Provides single question and interactive session commands, and supports session resumption via thread UUID.
 -   `src/tomorrow/`: Core agent package directory.
     -   `graph.py`:`langgraph-cli`The graph entry to use.
     -   `core/agent.py`: Define deep agents and their instructions, providing`AgentManager`Perform life cycle management.
@@ -214,6 +231,11 @@ Project use`pytest`run a test and ask**100%**test coverage.
 -   **Run Rainy tests**:
     ```bash
     PYTHONPATH=src RAINY_APP=rainy uv run pytest tests/rainy
+    ```
+
+-   **Run Fragile tests**:
+    ```bash
+    PYTHONPATH=src TOMORROW_APP=tomorrow uv run pytest tests/fragile
     ```
 
 ### Run coverage tests
