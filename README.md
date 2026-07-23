@@ -5,7 +5,11 @@
 | Name                                          |    Stmts |     Miss |   Branch |   BrPart |    Cover |   Missing |
 |---------------------------------------------- | -------: | -------: | -------: | -------: | -------: | --------: |
 | src/fragile/\_\_init\_\_.py                   |        0 |        0 |        0 |        0 |     100% |           |
-| src/fragile/app.py                            |       67 |        0 |       28 |        0 |     100% |           |
+| src/fragile/cli.py                            |        7 |        0 |        0 |        0 |     100% |           |
+| src/fragile/commands/\_\_init\_\_.py          |        0 |        0 |        0 |        0 |     100% |           |
+| src/fragile/commands/interactive.py           |       59 |        0 |       24 |        0 |     100% |           |
+| src/fragile/exceptions.py                     |        4 |        0 |        0 |        0 |     100% |           |
+| src/fragile/settings.py                       |       14 |        0 |        0 |        0 |     100% |           |
 | src/rainy/\_\_init\_\_.py                     |        0 |        0 |        0 |        0 |     100% |           |
 | src/rainy/api/\_\_init\_\_.py                 |        0 |        0 |        0 |        0 |     100% |           |
 | src/rainy/api/endpoints/\_\_init\_\_.py       |        0 |        0 |        0 |        0 |     100% |           |
@@ -56,7 +60,7 @@
 | src/tomorrow/utils/\_\_init\_\_.py            |        0 |        0 |        0 |        0 |     100% |           |
 | src/tomorrow/utils/functional.py              |      224 |        0 |       58 |        0 |     100% |           |
 | src/tomorrow/utils/log.py                     |        6 |        0 |        0 |        0 |     100% |           |
-| **TOTAL**                                     |  **774** |    **0** |  **136** |    **0** | **100%** |           |
+| **TOTAL**                                     |  **791** |    **0** |  **132** |    **0** | **100%** |           |
 
 
 ## Setup coverage badge
