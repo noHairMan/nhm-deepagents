@@ -225,3 +225,4 @@ coverage/
 .run/
 .workspace/
 .langgraph_api/
+.junie/

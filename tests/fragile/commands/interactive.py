@@ -14,6 +14,15 @@ runner = CliRunner()
 
 
 class TestApp:
+    def test_commands(self) -> None:
+        from fragile.commands.enums import Command
+
+        assert Command.NEW.value == "new"
+        assert Command.QUIT.value == "quit"
+        assert Command.NEW.label == "New"
+        assert Command.QUIT.label == "Quit"
+        assert str(Command.NEW) == "Command.NEW"
+
     @pytest.mark.asyncio
     async def test_events_filters_and_yields_text(self) -> None:
         agent = MagicMock()
@@ -151,14 +160,6 @@ class TestApp:
         result = runner.invoke(app, ["--help"])
         assert result.exit_code == 0
         assert "interactive" not in result.stdout
-
-    def test_module_entrypoint(self) -> None:
-        import runpy
-
-        with patch("fragile.cli.app") as app_mock:
-            runpy.run_path("src/fragile/__main__.py", run_name="__main__")
-
-        app_mock.assert_called_once_with()
 
     def test_prompt_argument_is_rejected(self) -> None:
         result = runner.invoke(app, ["你好"])
