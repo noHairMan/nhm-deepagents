@@ -11,8 +11,10 @@ dependencies = [
     "langchain-ollama>=1.1.0",
     "langgraph-checkpoint-sqlite>=3.1.0",
     "langgraph-cli[inmem]>=0.4.31",
+    "prompt-toolkit>=3.0.52",
     "pydantic>=2.13.4",
     "pydantic-settings>=2.14.1",
+    "rich>=15.0.0",
     "typer>=0.27.0",
     "uvicorn>=0.48.0",
 ]
@@ -72,7 +74,7 @@ ignore = [
 "__init__.py" = ["F401", "F403"]
 
 [tool.ruff.lint.isort]
-known-first-party = ["tomorrow", "rainy"]
+known-first-party = ["tomorrow", "rainy", "frigile"]
 section-order = ["future", "standard-library", "third-party", "first-party", "local-folder"]
 
 [tool.pytest.ini_options]
