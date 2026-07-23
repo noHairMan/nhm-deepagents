@@ -2,9 +2,11 @@ from unittest.mock import AsyncMock, MagicMock, patch
 from uuid import UUID
 
 import pytest
+import typer
 from typer.testing import CliRunner
 
 from fragile.cli import app
+from fragile.exceptions import FragileError, InvalidThreadIdError
 
 runner = CliRunner()
 
@@ -80,8 +82,12 @@ class TestApp:
     def test_thread_id_rejects_invalid_value(self) -> None:
         from fragile.commands.interactive import _thread_id
 
-        with pytest.raises(Exception, match="必须是有效的 UUID"):
+        with pytest.raises(InvalidThreadIdError, match="必须是有效的 UUID"):
             _thread_id("bad")
+
+    def test_invalid_thread_id_is_fragile_error_and_typer_parameter(self) -> None:
+        assert issubclass(InvalidThreadIdError, FragileError)
+        assert issubclass(InvalidThreadIdError, typer.BadParameter)
 
     def test_main_without_prompt(self) -> None:
         from fragile.cli import main

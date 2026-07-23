@@ -8,11 +8,10 @@ from uuid import UUID, uuid4
 import typer
 from langgraph.graph.state import CompiledStateGraph
 
+from fragile.exceptions import InvalidThreadIdError
 from tomorrow.conf import settings
 from tomorrow.core.agent import AgentManager
 from tomorrow.core.checkpoint import get_checkpointer_context
-
-app = typer.Typer(help="与 Tomorrow 智能体交互的 Fragile 命令行工具。", no_args_is_help=True)
 
 
 def _thread_id(value: str | None) -> UUID:
@@ -21,7 +20,7 @@ def _thread_id(value: str | None) -> UUID:
     try:
         return UUID(value)
     except ValueError as error:
-        raise typer.BadParameter("必须是有效的 UUID") from error
+        raise InvalidThreadIdError("必须是有效的 UUID") from error
 
 
 async def _events(agent: CompiledStateGraph, prompt: str, thread_id: UUID) -> AsyncIterator[str]:
@@ -64,20 +63,6 @@ async def _chat(prompt: str, thread_id: UUID) -> None:
     typer.echo()
 
 
-@app.callback(invoke_without_command=True)
-def main(
-    prompt: str | None = typer.Argument(None, help="要发送给智能体的问题。"),
-    thread: str | None = typer.Option(None, "--thread", "-t", help="用于恢复会话的线程 UUID。"),
-) -> None:
-    """直接提问；不带问题时请使用 `interactive`。"""
-    if prompt == "interactive":
-        interactive(thread)
-        return
-    if prompt is not None:
-        asyncio.run(_chat(prompt, _thread_id(thread)))
-
-
-@app.command()
 def interactive(thread: str | None = typer.Option(None, "--thread", "-t", help="用于恢复会话的线程 UUID。")) -> None:
     """启动交互式会话。输入 exit 或 quit 退出。"""
     thread_id = _thread_id(thread)
@@ -92,7 +77,3 @@ def interactive(thread: str | None = typer.Option(None, "--thread", "-t", help="
             break
         if prompt.strip():  # pragma: no branch
             asyncio.run(_chat(prompt, thread_id))
-
-
-if __name__ == "__main__":  # pragma: no cover
-    app()

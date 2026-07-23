@@ -3,7 +3,7 @@
 ## 1. 环境与配置
 - **包管理**: 使用 `uv`。执行 `uv sync` 安装依赖。
 - **配置管理**: 基于 `Pydantic Settings`。
-  - `TOMORROW_APP` / `RAINY_APP`: 应用名/环境变量前缀。
+  - `TOMORROW_APP` / `RAINY_APP` / `FRAGILE_APP`: 应用名/环境变量前缀。
 - **模型配置**: 当前 `.env` 使用 Anthropic 兼容接口和 `deepseek-v4-flash`；Ollama 与 HuggingFace 为可选模型提供商。
 - **路径与环境加载**:
   - 如果智能体无法找到某个命令，必须通过当前 Shell 的 **Login Shell** 模式执行，以强制加载完整的用户环境配置（比如说zsh -i -c "uv version"）。
@@ -22,11 +22,16 @@
     ```bash
     PYTHONPATH=src RAINY_APP=rainy uv run pytest tests/rainy
     ```
+  - `fragile`:
+    ```bash
+    PYTHONPATH=src FRAGILE_APP=fragile uv run pytest tests/fragile
+    ```
 - **运行覆盖率测试**:
   ```bash
   PYTHONPATH=src \
   TOMORROW_APP=tomorrow \
   RAINY_APP=rainy \
+  FRAGILE_APP=fragile \
   uv run coverage run --rcfile=pyproject.toml -m pytest
   ```
 
@@ -34,10 +39,9 @@
 - **Lint & 格式化**: Ruff。
 - **类型提示**: 必须为所有方法和函数添加明确的类型注释 (Type Hinting)，确保代码的类型安全。
 - **核心文件**:
-  - `src/tomorrow/core/agent.py`: Deep Agent 定义。
-  - `src/tomorrow/conf/config.py`: 配置加载实现。
   - `src/tomorrow/settings.py`: `tomorrow` 默认配置。
   - `src/rainy/settings.py`: `rainy` 默认配置。
+  - `src/fragile/settings.py`: `fragile` 默认配置。
 - **注意事项**: 修改配置项需同步更新 `settings.py`；环境变量优先级最高。
 
 ## 4. 智能体指令
