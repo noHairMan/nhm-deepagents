@@ -43,8 +43,51 @@ class TestApp:
     def test_is_exit_command_ignores_case_and_whitespace(self) -> None:
         from fragile.commands.interactive import _is_exit_command
 
-        assert _is_exit_command("  EXIT  ") is True
+        assert _is_exit_command("  EXIT  ") is False
+        assert _is_exit_command("  quit  ") is False
+        assert _is_exit_command("  /QUIT  ") is True
         assert _is_exit_command("continue") is False
+
+    def test_is_new_command_ignores_case_and_whitespace(self) -> None:
+        from fragile.commands.interactive import _is_new_command
+
+        assert _is_new_command("  /NEW  ") is True
+        assert _is_new_command("new") is False
+
+    def test_clear_screen(self, capsys) -> None:
+        from fragile.commands.interactive import _clear_screen
+
+        _clear_screen()
+
+        assert capsys.readouterr().out == "\033[2J\033[3J\033[H"
+
+    def test_fullscreen_terminal_sequences(self, capsys) -> None:
+        from fragile.commands.interactive import _enter_fullscreen, _leave_fullscreen
+
+        _enter_fullscreen()
+        _leave_fullscreen()
+
+        assert capsys.readouterr().out == "\033[2J\033[3J\033[H\033[?25l\033[?25h"
+
+    def test_startup_display_for_new_session(self, capsys) -> None:
+        from fragile.commands.interactive import _show_startup
+
+        _show_startup(UUID(int=1), False)
+
+        output = capsys.readouterr().out
+        assert "Fresh start" in output
+        assert "All previous messages and task state have been cleared" in output
+        assert "Connected to Tomorrow agent" in output
+        assert "Fragile is ready" in output
+
+    def test_startup_display_for_resumed_session(self, capsys) -> None:
+        from fragile.commands.interactive import _show_startup
+
+        _show_startup(UUID(int=1), True)
+
+        output = capsys.readouterr().out
+        assert "已恢复会话" in output
+        assert "Fresh start" not in output
 
     @pytest.mark.asyncio
     async def test_chat_uses_checkpoint_and_prints(self, capsys) -> None:
@@ -70,6 +113,14 @@ class TestApp:
         result = runner.invoke(app, ["--help"])
         assert result.exit_code == 0
         assert "interactive" not in result.stdout
+
+    def test_module_entrypoint(self) -> None:
+        import runpy
+
+        with patch("fragile.cli.app") as app_mock:
+            runpy.run_path("src/fragile/__main__.py", run_name="__main__")
+
+        app_mock.assert_called_once_with()
 
     def test_prompt_argument_is_rejected(self) -> None:
         result = runner.invoke(app, ["你好"])
@@ -98,21 +149,89 @@ class TestApp:
 
     def test_main_without_arguments_enters_interactive_mode(self) -> None:
         with patch("fragile.commands.interactive._chat", new_callable=AsyncMock) as chat:
-            result = runner.invoke(app, [], input="exit\n")
+            result = runner.invoke(app, [], input="/quit\n")
         assert result.exit_code == 0
         chat.assert_not_awaited()
 
-    def test_interactive_handles_keyboard_interrupt(self) -> None:
+    def test_interactive_requires_two_consecutive_keyboard_interrupts(self) -> None:
         from fragile.commands.interactive import interactive
 
-        with patch("fragile.commands.interactive.typer.prompt", side_effect=KeyboardInterrupt):
+        with (
+            patch(
+                "fragile.commands.interactive.typer.prompt",
+                side_effect=[KeyboardInterrupt, "hello", KeyboardInterrupt, KeyboardInterrupt],
+            ),
+            patch("fragile.commands.interactive._chat", new_callable=AsyncMock) as chat,
+        ):
             interactive(None)
+
+        assert chat.await_args.args[0] == "hello"
+
+    def test_interactive_requires_two_consecutive_abort_exceptions(self) -> None:
+        from fragile.commands.interactive import interactive
+
+        with (
+            patch(
+                "fragile.commands.interactive.typer.prompt",
+                side_effect=[typer.Abort, "hello", typer.Abort, typer.Abort],
+            ),
+            patch("fragile.commands.interactive._chat", new_callable=AsyncMock) as chat,
+        ):
+            interactive(None)
+
+        assert chat.await_args.args[0] == "hello"
+
+    def test_interactive_requires_interrupts_within_one_second(self) -> None:
+        from fragile.commands.interactive import interactive
+
+        with (
+            patch(
+                "fragile.commands.interactive.typer.prompt",
+                side_effect=[KeyboardInterrupt, KeyboardInterrupt, "/quit"],
+            ),
+            patch("fragile.commands.interactive.time.monotonic", side_effect=[0, 1.1]),
+        ):
+            interactive(None)
+
+    def test_interactive_exits_after_two_interrupts_within_one_second(self) -> None:
+        from fragile.commands.interactive import interactive
+
+        with (
+            patch(
+                "fragile.commands.interactive.typer.prompt",
+                side_effect=[KeyboardInterrupt, KeyboardInterrupt],
+            ),
+            patch("fragile.commands.interactive.time.monotonic", side_effect=[0, 1]),
+        ):
+            interactive(None)
+
+    def test_interactive_ignores_eof(self) -> None:
+        from fragile.commands.interactive import interactive
+
+        with patch(
+            "fragile.commands.interactive.typer.prompt",
+            side_effect=[EOFError, "/quit"],
+        ):
+            interactive(None)
+
+    def test_interactive_restores_terminal_on_exit(self) -> None:
+        from fragile.commands.interactive import interactive
+
+        with (
+            patch("fragile.commands.interactive._enter_fullscreen") as enter_fullscreen,
+            patch("fragile.commands.interactive._leave_fullscreen") as leave_fullscreen,
+            patch("fragile.commands.interactive.typer.prompt", return_value="/quit"),
+        ):
+            interactive(None)
+
+        enter_fullscreen.assert_called_once_with()
+        leave_fullscreen.assert_called_once_with()
 
     def test_interactive_sends_nonempty_prompt(self) -> None:
         from fragile.commands.interactive import interactive
 
         with (
-            patch("fragile.commands.interactive.typer.prompt", side_effect=["hello", "quit"]),
+            patch("fragile.commands.interactive.typer.prompt", side_effect=["hello", "/quit"]),
             patch("fragile.commands.interactive._chat", new_callable=AsyncMock) as chat,
         ):
             interactive(None)
@@ -120,8 +239,25 @@ class TestApp:
 
     def test_interactive_empty_prompt(self) -> None:
         with patch("fragile.commands.interactive._chat", new_callable=AsyncMock):
-            result = runner.invoke(app, [], input="\nexit\n")
+            result = runner.invoke(app, [], input="\n/quit\n")
         assert result.exit_code == 0
+
+    def test_interactive_new_command_clears_screen_and_starts_new_thread(self) -> None:
+        with (
+            patch("fragile.commands.interactive._clear_screen") as clear_screen,
+            patch("fragile.commands.interactive.uuid4", side_effect=[UUID(int=1), UUID(int=2)]),
+            patch("fragile.commands.interactive._show_startup") as show_startup,
+            patch("fragile.commands.interactive._chat", new_callable=AsyncMock) as chat,
+        ):
+            from fragile.commands.interactive import interactive
+
+            with patch("fragile.commands.interactive.typer.prompt", side_effect=["/new", "hello", "/quit"]):
+                interactive(None)
+
+        clear_screen.assert_called_once_with()
+        assert show_startup.call_args_list[0].args == (UUID(int=1), False)
+        assert show_startup.call_args_list[1].args == (UUID(int=2), False)
+        chat.assert_awaited_once_with("hello", UUID(int=2))
 
     def test_thread_id(self) -> None:
         from fragile.commands.interactive import _thread_id
