@@ -226,3 +226,4 @@ coverage/
 .workspace/
 .langgraph_api/
 .junie/
+.output*
