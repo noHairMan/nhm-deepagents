@@ -106,16 +106,10 @@ uv run langgraph dev
 
 The CLI will read the root directory`langgraph.json`, and expose the name`tomorrow`graph.
 
-use`fragile`Command line client to ask a single question:
+use`fragile`The command line client starts an interactive session:
 
 ```bash
-uv run fragile "请介绍一下你的能力"
-```
-
-Start an interactive session:
-
-```bash
-uv run fragile interactive
+uv run fragile
 ```
 
 pass`--thread`or`-t`Passing in the UUID can restore an existing session; if not passed in, a new thread will be automatically created.
@@ -186,7 +180,7 @@ Commonly used development scripts:
 
 -   `src/main.py`: The main entry point of the Rainy API service. Set up the environment and start the Uvicorn server.
 -   `src/fragile/`: Command line client package directory.
-    -   `app.py`: Provides single question and interactive session commands, and supports session resumption via thread UUID.
+    -   `app.py`: Provides interactive sessions and supports session resumption via thread UUID.
 -   `src/tomorrow/`: Core agent package directory.
     -   `graph.py`:`langgraph-cli`The graph entry to use.
     -   `core/agent.py`: Define deep agents and their instructions, providing`AgentManager`Perform life cycle management.
