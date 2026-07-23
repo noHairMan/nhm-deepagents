@@ -4,7 +4,7 @@ from uuid import UUID
 import pytest
 from typer.testing import CliRunner
 
-from fragile.app import app
+from fragile.cli import app
 
 runner = CliRunner()
 
@@ -27,19 +27,19 @@ class TestApp:
             }
 
         agent.astream_events = stream
-        from fragile.app import _events
+        from fragile.commands.interactive import _events
 
         assert [value async for value in _events(agent, "prompt", UUID(int=1))] == ["ok", "你好呀"]
 
     def test_content_text_handles_supported_content(self) -> None:
-        from fragile.app import _content_text
+        from fragile.commands.interactive import _content_text
 
         assert _content_text("text") == "text"
         assert _content_text(["a", {"type": "text", "text": "b"}, {"type": "image"}]) == "ab"
         assert _content_text(None) == ""
 
     def test_is_exit_command_ignores_case_and_whitespace(self) -> None:
-        from fragile.app import _is_exit_command
+        from fragile.commands.interactive import _is_exit_command
 
         assert _is_exit_command("  EXIT  ") is True
         assert _is_exit_command("continue") is False
@@ -50,11 +50,11 @@ class TestApp:
         context.__aenter__ = AsyncMock(return_value="checkpoint")
         context.__aexit__ = AsyncMock(return_value=None)
         with (
-            patch("fragile.app.get_checkpointer_context", return_value=context),
-            patch("fragile.app.AgentManager.create_agent", return_value=MagicMock()),
-            patch("fragile.app._events", return_value=self._async_values("answer")),
+            patch("fragile.commands.interactive.get_checkpointer_context", return_value=context),
+            patch("fragile.commands.interactive.AgentManager.create_agent", return_value=MagicMock()),
+            patch("fragile.commands.interactive._events", return_value=self._async_values("answer")),
         ):
-            from fragile.app import _chat
+            from fragile.commands.interactive import _chat
 
             await _chat("prompt", UUID(int=1))
         assert capsys.readouterr().out == "answer\n"
@@ -67,58 +67,58 @@ class TestApp:
     def test_help(self) -> None:
         result = runner.invoke(app, ["--help"])
         assert result.exit_code == 0
-        assert "interactive" in result.stdout
+        assert "interactive" not in result.stdout
 
-    def test_prompt_streams_response(self) -> None:
-        with patch("fragile.app._chat", new_callable=AsyncMock) as chat:
-            result = runner.invoke(app, ["你好"])
-        assert result.exit_code == 0
-        chat.assert_awaited_once()
+    def test_prompt_argument_is_rejected(self) -> None:
+        result = runner.invoke(app, ["你好"])
+        assert result.exit_code != 0
 
     def test_invalid_thread(self) -> None:
-        result = runner.invoke(app, ["你好", "--thread", "bad"])
+        result = runner.invoke(app, ["--thread", "bad"])
         assert result.exit_code != 0
 
     def test_thread_id_rejects_invalid_value(self) -> None:
-        from fragile.app import _thread_id
+        from fragile.commands.interactive import _thread_id
 
         with pytest.raises(Exception, match="必须是有效的 UUID"):
             _thread_id("bad")
 
     def test_main_without_prompt(self) -> None:
-        from fragile.app import main
+        from fragile.cli import main
 
-        main(None, None)
+        with patch("fragile.cli.interactive") as interactive:
+            main(None)
+        interactive.assert_called_once_with(None)
+
+    def test_main_without_arguments_enters_interactive_mode(self) -> None:
+        with patch("fragile.commands.interactive._chat", new_callable=AsyncMock) as chat:
+            result = runner.invoke(app, [], input="exit\n")
+        assert result.exit_code == 0
+        chat.assert_not_awaited()
 
     def test_interactive_handles_keyboard_interrupt(self) -> None:
-        from fragile.app import interactive
+        from fragile.commands.interactive import interactive
 
-        with patch("fragile.app.typer.prompt", side_effect=KeyboardInterrupt):
+        with patch("fragile.commands.interactive.typer.prompt", side_effect=KeyboardInterrupt):
             interactive(None)
 
     def test_interactive_sends_nonempty_prompt(self) -> None:
-        from fragile.app import interactive
+        from fragile.commands.interactive import interactive
 
         with (
-            patch("fragile.app.typer.prompt", side_effect=["hello", "quit"]),
-            patch("fragile.app._chat", new_callable=AsyncMock) as chat,
+            patch("fragile.commands.interactive.typer.prompt", side_effect=["hello", "quit"]),
+            patch("fragile.commands.interactive._chat", new_callable=AsyncMock) as chat,
         ):
             interactive(None)
         chat.assert_awaited_once()
 
-    def test_interactive_exit(self) -> None:
-        with patch("fragile.app._chat", new_callable=AsyncMock) as chat:
-            result = runner.invoke(app, ["interactive"], input="exit\n")
-        assert result.exit_code == 0
-        chat.assert_not_awaited()
-
     def test_interactive_empty_prompt(self) -> None:
-        with patch("fragile.app._chat", new_callable=AsyncMock):
-            result = runner.invoke(app, ["interactive"], input="\nexit\n")
+        with patch("fragile.commands.interactive._chat", new_callable=AsyncMock):
+            result = runner.invoke(app, [], input="\nexit\n")
         assert result.exit_code == 0
 
     def test_thread_id(self) -> None:
-        from fragile.app import _thread_id
+        from fragile.commands.interactive import _thread_id
 
         value = UUID("12345678-1234-5678-1234-567812345678")
         assert _thread_id(str(value)) == value
