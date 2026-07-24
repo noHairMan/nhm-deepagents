@@ -8,7 +8,6 @@ from uuid import UUID, uuid4
 
 import typer
 
-from fragile.commands.enums import Command
 from fragile.commands.interactive.agent import chat
 from fragile.commands.interactive.display import (
     clear_screen,
@@ -18,6 +17,7 @@ from fragile.commands.interactive.display import (
     show_startup,
 )
 from fragile.commands.interactive.input import create_prompt_session, prompt
+from fragile.enums import Command
 from fragile.exceptions import InvalidThreadIdError
 
 

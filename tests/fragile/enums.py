@@ -1,4 +1,4 @@
-from fragile.commands.enums import Command
+from fragile.enums import Command
 
 
 class TestCommand:

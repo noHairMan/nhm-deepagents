@@ -11,7 +11,7 @@ from prompt_toolkit.history import InMemoryHistory
 from prompt_toolkit.key_binding import KeyBindings
 from prompt_toolkit.styles import Style
 
-from fragile.commands.enums import Command
+from fragile.enums import Command
 
 PROMPT_STYLE = Style.from_dict({"prompt": "#00aa00 bold"})
 COMMANDS = tuple(f"/{command.value}" for command in Command)
