@@ -31,7 +31,7 @@
 - **递归控制**: 支持通过 `TOMORROW_RECURSION_LIMIT` 限制智能体递归调用深度。
 - **生命周期管理**: 引入 `AgentManager` 统一管理智能体实例的创建与销毁，确保资源的优雅初始化。
 - **高性能 API**: 基于 FastAPI 构建，支持同步响应与 Server-Sent Events (SSE) 流式输出。
-- **交互式 CLI**: `fragile` 支持 `/new` 创建新会话、`/quit` 退出、会话恢复、输入历史、斜线命令补全和多行编辑。
+- **交互式 CLI**: `fragile` 支持 `/new` 创建新会话、`/history` 浏览并切换已持久化的历史会话、`/quit` 退出、会话恢复、输入历史、斜线命令补全和多行编辑。
 - **可靠性保障**: 强制类型提示、Ruff 静态检查、100% 测试覆盖率要求。
 
 ## ⚙️ CI/CD
@@ -114,15 +114,15 @@ CLI 会读取根目录的 `langgraph.json`，并暴露名为 `tomorrow` 的 grap
 uv run fragile
 ```
 
-通过 `--thread` 或 `-t` 传入 UUID 可以恢复已有会话；不传入时会自动创建新的线程。交互过程中输入 `/new` 可清屏并开始新会话，输入 `/quit` 退出；按 `Esc` 后回车可插入换行。
+通过 `--thread` 或 `-t` 传入 UUID 可以恢复已有会话；不传入时会自动创建新的线程。交互过程中输入 `/new` 可清屏并开始新会话，输入 `/history` 可查看已保存的会话并按编号或 UUID 切换，输入 `/quit` 退出；按 `Esc` 后回车可插入换行。
 
 ## ⚙️ 配置
 
-该项目使用 **Pydantic Settings** 进行配置管理。设置分别定义在 `src/tomorrow/settings.py` (Tomorrow)、`src/rainy/settings.py` (Rainy) 和 `src/fragile/settings.py` (Fragile) 中，可以通过环境变量或 `.env` 文件进行覆盖。环境变量优先级最高，三个模块分别使用 `TOMORROW_`、`RAINY_` 和 `FRAGILE_` 前缀。
+该项目使用 **Pydantic Settings** 进行配置管理。设置分别定义在 `src/tomorrow/settings.py` (Tomorrow)、`src/rainy/settings.py` (Rainy) 和 `src/fragile/settings.py` (Fragile) 中，可以通过环境变量或 `.env` 文件进行覆盖。环境变量优先级最高，三个模块分别使用 `TOMORROW_`、`RAINY_` 和 `FRAGILE_` 前缀；也可以通过 `TOMORROW_ENV_FILE`、`RAINY_ENV_FILE` 或 `FRAGILE_ENV_FILE` 指定配置文件路径。
 
 ### 环境变量
 
-环境变量默认以前缀 `TOMORROW_` (核心模块) 或 `RAINY_` (API 模块) 开头。
+环境变量默认以前缀 `TOMORROW_` (核心模块)、`RAINY_` (API 模块) 或 `FRAGILE_` (CLI 模块) 开头。
 
 #### Tomorrow 配置 (核心)
 | 变量 | 描述 | 默认值 |
@@ -192,6 +192,10 @@ Fragile 的其他交互行为通过命令行选项和内置斜线命令控制。
   - `cli.py`: 定义 `fragile` 命令行入口。
   - `commands/interactive/`: 交互式会话实现，支持会话恢复、新建会话、命令补全和多行输入。
     - `agent.py`: 管理与 Tomorrow 智能体的交互。
+    - `commands/`: 交互式斜线命令实现。
+      - `history.py`: 查询并选择已持久化的历史会话。
+      - `new.py`: 创建新会话。
+      - `quit.py`: 退出交互式会话。
     - `display.py`: 管理终端显示。
     - `input.py`: 管理输入历史、命令补全和多行编辑。
     - `session.py`: 管理交互式会话流程。
