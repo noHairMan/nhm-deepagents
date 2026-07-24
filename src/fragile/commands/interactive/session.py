@@ -7,6 +7,17 @@ from uuid import UUID, uuid4
 import typer
 
 from fragile.commands.interactive.agent import chat
+from fragile.commands.interactive.commands.history import (
+    choose_history as _choose_history,
+)
+from fragile.commands.interactive.commands.history import (
+    is_history_command,
+)
+from fragile.commands.interactive.commands.history import (
+    list_thread_ids as _list_thread_ids,
+)
+from fragile.commands.interactive.commands.new import is_new_command
+from fragile.commands.interactive.commands.quit import is_exit_command
 from fragile.commands.interactive.display import (
     enter_fullscreen,
     leave_fullscreen,
@@ -14,7 +25,6 @@ from fragile.commands.interactive.display import (
     show_startup,
 )
 from fragile.commands.interactive.input import create_prompt_session, prompt
-from fragile.enums import Command
 from fragile.exceptions import InvalidThreadIdError
 from tomorrow.core.checkpoint import get_checkpointer_context
 
@@ -28,51 +38,14 @@ def parse_thread_id(value: str | None) -> UUID:
         raise InvalidThreadIdError("必须是有效的 UUID") from error
 
 
-def is_exit_command(prompt: str) -> bool:
-    return prompt.strip().casefold() == f"/{Command.QUIT.value}"
-
-
-def is_new_command(prompt: str) -> bool:
-    return prompt.strip().casefold() == f"/{Command.NEW.value}"
-
-
-def is_history_command(prompt: str) -> bool:
-    return prompt.strip().casefold() == f"/{Command.HISTORY.value}"
+def choose_history(prompt_session: object, thread_ids: list[UUID]) -> UUID | None:
+    """Display persisted threads and return the user's selected thread."""
+    return _choose_history(prompt_session, thread_ids, prompt)
 
 
 async def list_thread_ids() -> list[UUID]:
     """Return the distinct persisted conversation thread IDs."""
-    thread_ids: set[UUID] = set()
-    async with get_checkpointer_context() as checkpointer:
-        if checkpointer is None:
-            return []
-        async for checkpoint in checkpointer.alist(None):
-            value = checkpoint.config.get("configurable", {}).get("thread_id")
-            if value is not None:
-                thread_ids.add(UUID(str(value)))
-    return sorted(thread_ids, key=str)
-
-
-def choose_history(prompt_session: object, thread_ids: list[UUID]) -> UUID | None:
-    """Display persisted threads and return the user's selected thread."""
-    if not thread_ids:
-        typer.echo("暂无历史会话")
-        return None
-    typer.echo("历史会话：")
-    for index, thread_id in enumerate(thread_ids, 1):
-        typer.echo(f"{index}. {thread_id}")
-    value = prompt(prompt_session).strip()
-    if value.isdigit() and 1 <= int(value) <= len(thread_ids):
-        return thread_ids[int(value) - 1]
-    try:
-        selected = UUID(value)
-    except ValueError:
-        typer.echo("无效的会话编号或 UUID")
-        return None
-    if selected not in thread_ids:
-        typer.echo("找不到该历史会话")
-        return None
-    return selected
+    return await _list_thread_ids(get_checkpointer_context)  # pragma: no branch
 
 
 def interactive(
