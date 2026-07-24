@@ -5,15 +5,15 @@
 | Name                                             |    Stmts |     Miss |   Branch |   BrPart |    Cover |   Missing |
 |------------------------------------------------- | -------: | -------: | -------: | -------: | -------: | --------: |
 | src/fragile/\_\_init\_\_.py                      |        0 |        0 |        0 |        0 |     100% |           |
-| src/fragile/cli.py                               |        7 |        0 |        0 |        0 |     100% |           |
+| src/fragile/cli.py                               |        6 |        0 |        0 |        0 |     100% |           |
 | src/fragile/commands/\_\_init\_\_.py             |        0 |        0 |        0 |        0 |     100% |           |
 | src/fragile/commands/interactive/\_\_init\_\_.py |        2 |        0 |        0 |        0 |     100% |           |
-| src/fragile/commands/interactive/agent.py        |       28 |        0 |       12 |        0 |     100% |           |
-| src/fragile/commands/interactive/display.py      |       23 |        0 |        2 |        0 |     100% |           |
-| src/fragile/commands/interactive/input.py        |       30 |        0 |        6 |        0 |     100% |           |
-| src/fragile/commands/interactive/session.py      |       51 |        0 |       10 |        0 |     100% |           |
+| src/fragile/commands/interactive/agent.py        |       27 |        0 |       12 |        0 |     100% |           |
+| src/fragile/commands/interactive/display.py      |       22 |        0 |        2 |        0 |     100% |           |
+| src/fragile/commands/interactive/input.py        |       29 |        0 |        6 |        0 |     100% |           |
+| src/fragile/commands/interactive/session.py      |       50 |        0 |       10 |        0 |     100% |           |
 | src/fragile/enums.py                             |        4 |        0 |        0 |        0 |     100% |           |
-| src/fragile/exceptions.py                        |        4 |        0 |        0 |        0 |     100% |           |
+| src/fragile/exceptions.py                        |        3 |        0 |        0 |        0 |     100% |           |
 | src/fragile/settings.py                          |       14 |        0 |        0 |        0 |     100% |           |
 | src/rainy/\_\_init\_\_.py                        |        0 |        0 |        0 |        0 |     100% |           |
 | src/rainy/api/\_\_init\_\_.py                    |        0 |        0 |        0 |        0 |     100% |           |
@@ -65,7 +65,7 @@
 | src/tomorrow/utils/\_\_init\_\_.py               |        0 |        0 |        0 |        0 |     100% |           |
 | src/tomorrow/utils/functional.py                 |      224 |        0 |       58 |        0 |     100% |           |
 | src/tomorrow/utils/log.py                        |        6 |        0 |        0 |        0 |     100% |           |
-| **TOTAL**                                        |  **870** |    **0** |  **138** |    **0** | **100%** |           |
+| **TOTAL**                                        |  **864** |    **0** |  **138** |    **0** | **100%** |           |
 
 
 ## Setup coverage badge
