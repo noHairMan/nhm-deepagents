@@ -1,7 +1,5 @@
 """Exceptions raised by the Fragile command-line application."""
 
-from __future__ import annotations
-
 import typer
 
 

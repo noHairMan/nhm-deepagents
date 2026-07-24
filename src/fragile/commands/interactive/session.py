@@ -1,7 +1,5 @@
 """Interactive session orchestration."""
 
-from __future__ import annotations
-
 import asyncio
 import time
 from uuid import UUID, uuid4
