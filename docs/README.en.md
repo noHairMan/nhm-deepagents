@@ -8,7 +8,7 @@ A Python project to build and run Deep Agents using a modern LLM framework.
 
 ## 🌟 Project Overview
 
-`nhm-deepagents`is a professional Python project focusing on deep agents. It leverages modern Python features (3.14+) and powerful tools to provide a high-quality development experience for AI agent research and applications.
+`nhm-deepagents` 是一个专注于深度智能体的专业 Python 项目。它利用现代 Python 特性 (3.14+) 和强大的工具，为 AI 智能体研究和应用提供高质量的开发体验。
 
 The project contains three main modules:
 
@@ -27,7 +27,7 @@ This project provides a general smart assistant agent that utilizes`deepagents`T
 -   **recursive control**: support through`TOMORROW_RECURSION_LIMIT`Limit the depth of agent recursive calls.
 -   **life cycle management**: introduction`AgentManager`Unified management of the creation and destruction of agent instances ensures graceful initialization of resources.
 -   **High performance API**: Built on FastAPI, supports synchronous responses and Server-Sent Events (SSE) streaming output.
--   **Interactive CLI**:`fragile`support`/new`Create new session,`/quit`Exit, session recovery, input history, slash command completion and multi-line editing.
+-   **Interactive CLI**:`fragile`support`/new`Create new session,`/history`Browse and switch between persisted historical sessions,`/quit`Exit, session recovery, input history, slash command completion and multi-line editing.
 -   **Reliability guaranteed**: Forced type hints, Ruff static checking, 100% test coverage requirement.
 
 ## ⚙️ CI/CD
@@ -114,15 +114,15 @@ use`fragile`The command line client starts an interactive session:
 uv run fragile
 ```
 
-pass`--thread`or`-t`Passing in the UUID can restore an existing session; if not passed in, a new thread will be automatically created. Input during interaction`/new`To clear the screen and start a new session, enter`/quit`Exit; press`Esc`Press Enter to insert a line feed.
+pass`--thread`or`-t`Passing in the UUID can restore an existing session; if not passed in, a new thread will be automatically created. Input during interaction`/new`To clear the screen and start a new session, enter`/history`To view saved sessions and switch by number or UUID, enter`/quit`Exit; press`Esc`Press Enter to insert a line feed.
 
 ## ⚙️ Configuration
 
-This project uses**Pydantic Settings**Perform configuration management. The settings are respectively defined in`src/tomorrow/settings.py`(Tomorrow)、`src/rainy/settings.py`(Rainy) and`src/fragile/settings.py`(Fragile), you can use environment variables or`.env`file is overwritten. Environment variables have the highest priority and are used by the three modules respectively.`TOMORROW_`、`RAINY_`and`FRAGILE_`prefix.
+This project uses**Pydantic Settings**Perform configuration management. The settings are respectively defined in`src/tomorrow/settings.py`(Tomorrow)、`src/rainy/settings.py`(Rainy) and`src/fragile/settings.py`(Fragile), you can use environment variables or`.env`file is overwritten. Environment variables have the highest priority and are used by the three modules respectively.`TOMORROW_`、`RAINY_`and`FRAGILE_`prefix; can also be passed`TOMORROW_ENV_FILE`、`RAINY_ENV_FILE`or`FRAGILE_ENV_FILE`Specify the configuration file path.
 
 ### environment variables
 
-Environment variables are prefixed by default`TOMORROW_`(core module) or`RAINY_`(API module) at the beginning.
+Environment variables are prefixed by default`TOMORROW_`(core module),`RAINY_`(API module) or`FRAGILE_`(CLI module) beginning.
 
 #### Tomorrow configuration (core)
 
@@ -193,6 +193,10 @@ Commonly used development scripts:
     -   `cli.py`: definition`fragile`Command line entry.
     -   `commands/interactive/`: Interactive session implementation, supporting session recovery, new session, command completion and multi-line input.
         -   `agent.py`: Manages interactions with the Tomorrow agent.
+        -   `commands/`: Interactive slash command implementation.
+            -   `history.py`: Query and select persisted historical sessions.
+            -   `new.py`: Create a new session.
+            -   `quit.py`: Exit the interactive session.
         -   `display.py`: Management terminal display.
         -   `input.py`: Manage input history, command completion and multi-line editing.
         -   `session.py`: Manage the flow of interactive sessions.
@@ -203,7 +207,7 @@ Commonly used development scripts:
     -   `core/backend/`: Unify backend loading logic, support`FILESYSTEM`and`LOCAL_SHELL`。
     -   `core/checkpoint/`: Checkpoint implementation, support`MEMORY`and`SQLITE`。
     -   `core/model/`: Model loading implementation, support`OLLAMA`、`HUGGINGFACE`and`ANTHROPIC`。
-    -   `core/store/`: Storage implementation, support`MEMORY` 和 `SQLITE`。
+    -   `core/store/`: Storage implementation, support`MEMORY`and`SQLITE`。
     -   `exceptions.py`: Define application-specific exception class system.
     -   `models/constants/`: Define various types of constants (Backend, Checkpoint, Model, Store).
     -   `settings.py`: Default configuration value.
