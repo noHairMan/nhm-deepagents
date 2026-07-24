@@ -21,12 +21,12 @@ class TestDisplay:
 
         assert capsys.readouterr().out == "\033[2J\033[3J\033[H"
 
-    def test_fullscreen_terminal_sequences(self, capsys) -> None:
+    def test_fullscreen_uses_isolated_terminal_screen(self, capsys) -> None:
 
         enter_fullscreen()
         leave_fullscreen()
 
-        assert capsys.readouterr().out == "\033[2J\033[3J\033[H\033[?25l\033[?25h"
+        assert capsys.readouterr().out == "\033[?1049h\033[?1049l"
 
     def test_startup_display_for_new_session(self, capsys) -> None:
 

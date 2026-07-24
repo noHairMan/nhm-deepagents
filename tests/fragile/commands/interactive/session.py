@@ -121,9 +121,8 @@ class TestSession:
             result = runner.invoke(app, [])
         assert result.exit_code == 0
 
-    def testinteractive_new_command_clears_screen_and_starts_new_thread(self) -> None:
+    def testinteractive_new_command_preserves_screen_and_starts_new_thread(self) -> None:
         with (
-            patch("fragile.commands.interactive.session.clear_screen") as clear_screen,
             patch("fragile.commands.interactive.session.uuid4", side_effect=[UUID(int=1), UUID(int=2)]),
             patch("fragile.commands.interactive.session.show_startup") as show_startup,
             patch("fragile.commands.interactive.session.chat", new_callable=AsyncMock) as chat,
@@ -131,7 +130,6 @@ class TestSession:
             with patch("fragile.commands.interactive.session.prompt", side_effect=["/new", "hello", "/quit"]):
                 interactive(None)
 
-        clear_screen.assert_called_once_with()
         assert show_startup.call_args_list[0].args == (UUID(int=1), False)
         assert show_startup.call_args_list[1].args == (UUID(int=2), False)
         assert chat.await_args.args[:2] == ("hello", UUID(int=2))

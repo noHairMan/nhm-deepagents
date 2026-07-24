@@ -8,7 +8,6 @@ import typer
 
 from fragile.commands.interactive.agent import chat
 from fragile.commands.interactive.display import (
-    clear_screen,
     enter_fullscreen,
     leave_fullscreen,
     print_stream,
@@ -62,7 +61,6 @@ def interactive(
             if is_exit_command(input_prompt):
                 break
             if is_new_command(input_prompt):
-                clear_screen()
                 thread_id = uuid4()
                 show_startup(thread_id, False)
                 continue

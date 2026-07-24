@@ -23,11 +23,13 @@ def clear_screen() -> None:
 
 
 def enter_fullscreen() -> None:
-    typer.echo("\033[2J\033[3J\033[H\033[?25l", nl=False, color=True)
+    """Switch to a terminal screen isolated from the main scrollback buffer."""
+    typer.echo("\033[?1049h", nl=False, color=True)
 
 
 def leave_fullscreen() -> None:
-    typer.echo("\033[?25h", nl=False, color=True)
+    """Restore the terminal's main screen and its scrollback buffer."""
+    typer.echo("\033[?1049l", nl=False, color=True)
 
 
 def print_stream(content: str) -> None:
