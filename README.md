@@ -7,12 +7,12 @@
 | src/fragile/\_\_init\_\_.py                      |        0 |        0 |        0 |        0 |     100% |           |
 | src/fragile/cli.py                               |        7 |        0 |        0 |        0 |     100% |           |
 | src/fragile/commands/\_\_init\_\_.py             |        0 |        0 |        0 |        0 |     100% |           |
-| src/fragile/commands/enums.py                    |        4 |        0 |        0 |        0 |     100% |           |
 | src/fragile/commands/interactive/\_\_init\_\_.py |        2 |        0 |        0 |        0 |     100% |           |
 | src/fragile/commands/interactive/agent.py        |       28 |        0 |       12 |        0 |     100% |           |
 | src/fragile/commands/interactive/display.py      |       23 |        0 |        2 |        0 |     100% |           |
 | src/fragile/commands/interactive/input.py        |       30 |        0 |        6 |        0 |     100% |           |
 | src/fragile/commands/interactive/session.py      |       51 |        0 |       10 |        0 |     100% |           |
+| src/fragile/enums.py                             |        4 |        0 |        0 |        0 |     100% |           |
 | src/fragile/exceptions.py                        |        4 |        0 |        0 |        0 |     100% |           |
 | src/fragile/settings.py                          |       14 |        0 |        0 |        0 |     100% |           |
 | src/rainy/\_\_init\_\_.py                        |        0 |        0 |        0 |        0 |     100% |           |
