@@ -10,6 +10,8 @@
 
 [简体中文](/docs/README.zh.md) | [English](/docs/README.en.md) | [日本語](/docs/README.ja.md) | [繁体中文](/docs/README.zh-TW.md)
 
+![Fragile banner](images/fragile.png)
+
 一个使用现代 LLM 框架构建和运行“深度智能体”（Deep Agents）的 Python 项目。
 
 ## 🌟 项目概览
