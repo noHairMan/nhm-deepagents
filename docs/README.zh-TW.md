@@ -12,7 +12,7 @@
 
 專案內部包含三個主要模組：
 
--   **`tomorrow`**: 核心智能體模組。代號取自遊戲《死亡擱淺 2：冥灘之上》（Death Stranding 2: On the Beach）中的角色**明天**（艾莉·範甯飾演）。在劇情中，她是主角山姆布里吉斯（Sam Bridges）的女兒，也被揭露為前作中的**大樓**(BB-28)。
+-   **`tomorrow`**: 核心智能體模組。代號取自遊戲《死亡擱淺 2：冥灘之上》（Death Stranding 2: On the Beach）中的角色**Tomorrow**（艾莉·範甯飾演）。在劇情中，她是主角山姆布里吉斯（Sam Bridges）的女兒，也被揭露為前作中的**大樓**(BB-28)。
 -   **`rainy`**: 基於 FastAPI 的 API 服務模組。代號同樣取自《死亡擱淺 2》中的角色**下雨天**（由忽那汐裡飾演）。在遊戲中，她擁有引發「時間雨」（Timefall）和具有治癒能力的「核心雨」（Corefall）的神奇力量，被描述為既能傷害也能治癒的「藥（Pharmakon）」。
 -   **`fragile`**: 基於 Typer 的命令列客戶端，用於直接向 Tomorrow 智能體提問或啟動互動式會話。其名稱取自同一作品中的角色**脆弱的**。 Fragile 是 Fragile Express 的創辦人和快遞員，因接觸時間雨而快速衰老，卻始終在危險環境中為他人運送重要物資；這種「脆弱」外表下仍堅持承擔連接與傳遞使命的形象，正是該客戶端名稱的背景。
 
@@ -114,7 +114,7 @@ CLI 會讀取根目錄的`langgraph.json`，並暴露名為`tomorrow`的 graph�
 uv run fragile
 ```
 
-透過`--thread`或`-t`傳入 UUID 可以恢復已有會話；不傳入時會自動建立新的執行緒。互動過程中輸入`/new`可清屏並開始新會話，輸入`/history`可查看已儲存的會話並按編號或 UUID 切換，輸入`/quit`退出；按`Esc`後回車可插入換行。
+透過`--thread`或`-t`傳入 UUID 可以恢復已有會話；不傳入時會自動建立新的執行緒。互動過程中輸入`/new`可清屏並開始新會話，輸入`/history`可查看已儲存的會話並按編號或 UUID 切換，輸入`/quit`退出；也可以連續兩次按`Ctrl+C`在短時間內退出會話，按`Esc`後回車可插入換行。
 
 ## ⚙️ 配置
 
@@ -126,7 +126,7 @@ uv run fragile
 
 #### Tomorrow 配置 (核心)
 
-| 變數                         | 描述                                     | 預設值                                       |
+| 变量                         | 描述                                     | 預設值                                       |
 | -------------------------- | -------------------------------------- | ----------------------------------------- |
 | `TOMORROW_APP`             | 應用名稱（用作環境變數前綴）                         | `tomorrow`                                |
 | `TOMORROW_MODEL`           | 模型配置，支援 OLLAMA、HUGGINGFACE 和 ANTHROPIC | 目前`.env`使用`anthropic`/`deepseek-v4-flash` |
@@ -165,11 +165,13 @@ export TOMORROW_SUBAGENTS='[{"name":"researcher","description":"负责资料检�
 
 #### Fragile 設定 (CLI)
 
-| 變數            | 描述             | 預設值       |
-| ------------- | -------------- | --------- |
-| `FRAGILE_APP` | 應用名稱（用作環境變數前綴） | `fragile` |
+| 變數                                 | 描述                     | 預設值                    |
+| ---------------------------------- | ---------------------- | ---------------------- |
+| `FRAGILE_APP`                      | 應用名稱（用作環境變數前綴）         | `fragile`              |
+| `FRAGILE_INTERRUPT_EXIT_THRESHOLD` | 兩次`Ctrl+C`觸發退出的最大間隔（秒） | `0.5`                  |
+| `FRAGILE_ENABLED_COMMANDS`         | 啟用的互動式命令類別路徑列表         | `quit`、`new`、`history` |
 
-Fragile 的其他互動行為透過命令列選項和內建斜線命令控制。
+Fragile 的其他互動行為透過命令列選項和內建斜線命令控制。命令透過註冊表統一發現和處理，可使用`FRAGILE_ENABLED_COMMANDS`調整啟用的命令。
 
 ## 📜 腳本
 
@@ -193,13 +195,17 @@ Fragile 的其他互動行為透過命令列選項和內建斜線命令控制。
     -   `cli.py`: 定義`fragile`命令列入口。
     -   `commands/interactive/`: 互動式會話實現，支援會話復原、新會話、命令補全和多行輸入。
         -   `agent.py`: 管理與 Tomorrow 智能體的互動。
-        -   `commands/`: 互動式斜線命令實作。
+        -   `commands/`: 互動式斜線命令實作和命令註冊表。
+            -   `base.py`: 定義互動式指令的基礎介面和處理結果。
             -   `history.py`: 查詢並選擇已持久化的歷史會話。
             -   `new.py`: 建立新會話。
             -   `quit.py`: 退出互動會話。
         -   `display.py`: 管理終端顯示。
         -   `input.py`: 管理輸入歷史記錄、命令補全和多行編輯。
         -   `session.py`: 管理互動式會話流程。
+    -   `conf/config.py`: 提供延遲載入的 CLI 全域配置。
+    -   `models/session.py`: 定義互動式會話狀態模型。
+    -   `models/constants/command.py`: 定義指令處理結果常數。
     -   `settings.py`: CLI 模組預設配置。
 -   `src/tomorrow/`: 核心智能體包目錄。
     -   `graph.py`:`langgraph-cli`使用的 graph 入口。
