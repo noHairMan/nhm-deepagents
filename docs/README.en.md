@@ -68,7 +68,7 @@ The project integrates GitHub Actions workflows, including:
 1.  **Install`uv`**:
     Please follow[uv official warehouse](https://github.com/astral-sh/uv)Follow the instructions in .
 
-2.  **克隆仓库**:
+2.  **Clone repository**:
     ```bash
     git clone <repository-url>
     cd nhm-deepagents
