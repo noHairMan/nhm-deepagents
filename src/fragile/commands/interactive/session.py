@@ -17,6 +17,9 @@ from fragile.commands.interactive.display import (
 )
 from fragile.commands.interactive.input import create_prompt_session, prompt
 from fragile.exceptions import InvalidThreadIdError
+from fragile.settings import FragileSettings
+
+settings = FragileSettings()
 
 
 def parse_thread_id(value: str | None) -> UUID:
@@ -45,7 +48,10 @@ def interactive(
             except KeyboardInterrupt, typer.Abort:
                 typer.echo()
                 now = time.monotonic()
-                if last_keyboard_interrupt is not None and now - last_keyboard_interrupt <= 0.5:
+                if (
+                    last_keyboard_interrupt is not None
+                    and now - last_keyboard_interrupt <= settings.INTERRUPT_EXIT_THRESHOLD
+                ):
                     break
                 last_keyboard_interrupt = now
                 continue

@@ -2,7 +2,7 @@ import os
 from pathlib import Path
 from typing import ClassVar
 
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
@@ -17,6 +17,7 @@ class BaseConfigModel(BaseModel):
 class FragileSettings(BaseSettings):
     APP: str = "fragile"
     BASE_DIR: ClassVar[Path] = Path(__file__).resolve().parent.parent
+    INTERRUPT_EXIT_THRESHOLD: float = Field(default=0.5, gt=0)
 
     model_config = SettingsConfigDict(
         env_prefix="FRAGILE_",

@@ -122,7 +122,8 @@ class TestSession:
                 "fragile.commands.interactive.session.prompt",
                 side_effect=[KeyboardInterrupt, KeyboardInterrupt, "/quit"],
             ),
-            patch("fragile.commands.interactive.session.time.monotonic", side_effect=[0, 1.1]),
+            patch("fragile.commands.interactive.session.time.monotonic", side_effect=[0, 0.6]),
+            patch("fragile.commands.interactive.session.settings.INTERRUPT_EXIT_THRESHOLD", 0.5),
         ):
             interactive(None)
 
@@ -133,6 +134,7 @@ class TestSession:
                 side_effect=[KeyboardInterrupt, KeyboardInterrupt],
             ),
             patch("fragile.commands.interactive.session.time.monotonic", side_effect=[0, 0.5]),
+            patch("fragile.commands.interactive.session.settings.INTERRUPT_EXIT_THRESHOLD", 0.5),
         ):
             interactive(None)
 
