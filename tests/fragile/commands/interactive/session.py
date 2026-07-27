@@ -54,7 +54,7 @@ class TestSession:
                 new_callable=AsyncMock,
                 return_value=[first],
             ),
-            patch("fragile.commands.interactive.commands.history.prompt", return_value="1"),
+            patch("fragile.commands.interactive.commands.history.choice", return_value=first),
             patch("fragile.commands.interactive.session.prompt", side_effect=["/history", "/quit"]),
             patch("fragile.commands.interactive.commands.history.show_startup") as show_startup,
         ):
@@ -62,17 +62,20 @@ class TestSession:
 
         show_startup.assert_any_call(first, True)
 
-    def testinteractive_history_command_keeps_current_thread_on_invalid_selection(self) -> None:
+    def testinteractive_history_command_uses_keyboard_selector(self) -> None:
+        first = UUID(int=1)
         with (
             patch(
                 "fragile.commands.interactive.commands.history.list_thread_ids",
                 new_callable=AsyncMock,
-                return_value=[UUID(int=1)],
+                return_value=[first],
             ),
-            patch("fragile.commands.interactive.commands.history.prompt", return_value="bad"),
+            patch("fragile.commands.interactive.commands.history.choice", return_value=first) as selector,
             patch("fragile.commands.interactive.session.prompt", side_effect=["/history", "/quit"]),
         ):
             interactive(None)
+
+        selector.assert_called_once()
 
     def testparse_thread_id_rejects_invalid_value(self) -> None:
 
