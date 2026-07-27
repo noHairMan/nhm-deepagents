@@ -1,7 +1,6 @@
 from uuid import UUID
 
 from fragile.commands.interactive.display import (
-    clear_screen,
     enter_fullscreen,
     leave_fullscreen,
     print_stream,
@@ -14,12 +13,6 @@ class TestDisplay:
         print_stream("answer")
 
         assert capsys.readouterr().out == "answer"
-
-    def testclear_screen(self, capsys) -> None:
-
-        clear_screen()
-
-        assert capsys.readouterr().out == "\033[2J\033[3J\033[H"
 
     def test_fullscreen_uses_isolated_terminal_screen(self, capsys) -> None:
 

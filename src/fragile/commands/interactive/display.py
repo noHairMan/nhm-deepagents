@@ -18,10 +18,6 @@ STARTUP_BANNER = """\
 console = Console()
 
 
-def clear_screen() -> None:
-    typer.echo("\033[2J\033[3J\033[H", nl=False, color=True)
-
-
 def enter_fullscreen() -> None:
     """Switch to a terminal screen isolated from the main scrollback buffer."""
     typer.echo("\033[?1049h", nl=False, color=True)

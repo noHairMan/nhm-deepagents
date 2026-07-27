@@ -36,19 +36,6 @@ def _message_title(message: Any) -> str | None:  # pragma: no cover - defensive 
     return str(content)
 
 
-async def list_thread_ids(checkpointer_context: Callable[[], object] = get_checkpointer_context) -> list[UUID]:
-    """Return the distinct persisted conversation thread IDs."""
-    thread_ids: set[UUID] = set()
-    async with checkpointer_context() as checkpointer:  # pragma: no branch
-        if checkpointer is None:  # pragma: no cover - unavailable persistence backend
-            return []
-        async for checkpoint in checkpointer.alist(None):
-            value = checkpoint.config.get("configurable", {}).get("thread_id")
-            if value is not None:
-                thread_ids.add(UUID(str(value)))
-    return sorted(thread_ids, key=str)
-
-
 async def list_history(
     checkpointer_context: Callable[[], object] = get_checkpointer_context,
 ) -> list[tuple[UUID, str]]:

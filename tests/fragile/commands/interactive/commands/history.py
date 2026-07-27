@@ -10,7 +10,6 @@ from fragile.commands.interactive.commands.history import (
     handle_history,
     is_history_command,
     list_history,
-    list_thread_ids,
 )
 
 
@@ -18,46 +17,6 @@ class TestHistoryCommand:
     def test_is_history_command_ignores_case_and_whitespace(self) -> None:
         assert is_history_command("  /HISTORY  ") is True
         assert is_history_command("history") is False
-
-    @pytest.mark.asyncio
-    async def test_list_thread_ids_returns_distinct_ids(self) -> None:
-        first = UUID(int=1)
-        second = UUID(int=2)
-        checkpoints = [
-            type("Checkpoint", (), {"config": {"configurable": {"thread_id": str(second)}}})(),
-            type("Checkpoint", (), {"config": {"configurable": {"thread_id": str(first)}}})(),
-            type("Checkpoint", (), {"config": {"configurable": {"thread_id": str(second)}}})(),
-        ]
-
-        async def alist(self: object, config: object) -> object:
-            for checkpoint in checkpoints:
-                yield checkpoint
-
-        checkpointer = type("Checkpointer", (), {"alist": alist})()
-        context = MagicMock()
-        context.return_value.__aenter__ = AsyncMock(return_value=checkpointer)
-        context.return_value.__aexit__ = AsyncMock(return_value=None)
-        assert await list_thread_ids(context) == [first, second]
-
-    @pytest.mark.asyncio
-    async def test_list_thread_ids_ignores_missing_thread_id(self) -> None:
-        checkpoint = type("Checkpoint", (), {"config": {"configurable": {}}})()
-
-        async def alist(self: object, config: object) -> object:
-            yield checkpoint
-
-        checkpointer = type("Checkpointer", (), {"alist": alist})()
-        context = MagicMock()
-        context.return_value.__aenter__ = AsyncMock(return_value=checkpointer)
-        context.return_value.__aexit__ = AsyncMock(return_value=None)
-        assert await list_thread_ids(context) == []
-
-    @pytest.mark.asyncio
-    async def test_list_thread_ids_returns_empty_without_checkpointer(self) -> None:
-        context = MagicMock()
-        context.return_value.__aenter__ = AsyncMock(return_value=None)
-        context.return_value.__aexit__ = AsyncMock(return_value=None)
-        assert await list_thread_ids(context) == []
 
     def test_choose_history_returns_selected_thread(self) -> None:
         first = UUID(int=1)
