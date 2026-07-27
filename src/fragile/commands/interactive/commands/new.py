@@ -2,9 +2,9 @@
 
 from uuid import uuid4
 
-from fragile.commands.interactive.commands.base import CommandResult, SessionState
 from fragile.commands.interactive.display import show_startup
-from fragile.enums import Command
+from fragile.models import SessionState
+from fragile.models.constants import Command, CommandResult
 
 
 def is_new_command(prompt: str) -> bool:

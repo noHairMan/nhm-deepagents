@@ -6,24 +6,21 @@ import typer
 from typer.testing import CliRunner
 
 from fragile.cli import app
+from fragile.commands.interactive.commands import handle_command
 from fragile.commands.interactive.commands.history import is_history_command
 from fragile.commands.interactive.commands.new import is_new_command
 from fragile.commands.interactive.commands.quit import is_exit_command
-from fragile.commands.interactive.session import (
-    CommandResult,
-    SessionState,
-    handle_command,
-    interactive,
-    parse_thread_id,
-)
+from fragile.commands.interactive.session import interactive, parse_thread_id
 from fragile.exceptions import FragileError, InvalidThreadIdError
+from fragile.models import SessionState
+from fragile.models.constants import CommandResult
 
 runner = CliRunner()
 
 
 class TestSession:
     def testhandle_command_dispatches_registered_commands(self) -> None:
-        state = SessionState(UUID(int=1), object())
+        state = SessionState(thread_id=UUID(int=1), prompt_session=object())
 
         assert handle_command("/quit", state) is CommandResult.EXIT
         assert handle_command("/new", state) is CommandResult.CONTINUE

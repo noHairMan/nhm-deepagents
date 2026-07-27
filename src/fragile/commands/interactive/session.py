@@ -8,7 +8,6 @@ import typer
 
 from fragile.commands.interactive.agent import chat
 from fragile.commands.interactive.commands import handle_command
-from fragile.commands.interactive.commands.base import CommandResult, SessionState
 from fragile.commands.interactive.display import (
     enter_fullscreen,
     leave_fullscreen,
@@ -17,6 +16,8 @@ from fragile.commands.interactive.display import (
 )
 from fragile.commands.interactive.input import create_prompt_session, prompt
 from fragile.exceptions import InvalidThreadIdError
+from fragile.models import SessionState
+from fragile.models.constants import CommandResult
 from fragile.settings import FragileSettings
 
 settings = FragileSettings()
@@ -40,7 +41,7 @@ def interactive(
     try:
         show_startup(thread_id, thread is not None)
         prompt_session = create_prompt_session()
-        state = SessionState(thread_id, prompt_session)
+        state = SessionState(thread_id=thread_id, prompt_session=prompt_session)
         last_keyboard_interrupt: float | None = None
         while True:
             try:

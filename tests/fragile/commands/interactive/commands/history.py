@@ -4,13 +4,14 @@ from uuid import UUID
 import pytest
 import typer
 
-from fragile.commands.interactive.commands.base import CommandResult, SessionState
 from fragile.commands.interactive.commands.history import (
     choose_history,
     handle_history,
     is_history_command,
     list_history,
 )
+from fragile.models import SessionState
+from fragile.models.constants import CommandResult
 
 
 class TestHistoryCommand:
@@ -74,7 +75,7 @@ class TestHistoryCommand:
         assert await list_history(context) == [(first, "第一次对话")]
 
     def test_handle_history_keeps_state_when_selection_is_cancelled(self) -> None:
-        state = SessionState(UUID(int=1), object())
+        state = SessionState(thread_id=UUID(int=1), prompt_session=object())
         with (
             patch(
                 "fragile.commands.interactive.commands.history.list_history",

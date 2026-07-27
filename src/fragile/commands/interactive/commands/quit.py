@@ -1,7 +1,7 @@
 """Exit command handling."""
 
-from fragile.commands.interactive.commands.base import CommandResult, SessionState
-from fragile.enums import Command
+from fragile.models import SessionState
+from fragile.models.constants import Command, CommandResult
 
 
 def is_exit_command(prompt: str) -> bool:

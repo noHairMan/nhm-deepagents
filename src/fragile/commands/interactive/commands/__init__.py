@@ -2,10 +2,11 @@
 
 from collections.abc import Callable
 
-from fragile.commands.interactive.commands.base import CommandResult, SessionState
 from fragile.commands.interactive.commands.history import handle_history
 from fragile.commands.interactive.commands.new import handle_new
 from fragile.commands.interactive.commands.quit import handle_exit
+from fragile.models import SessionState
+from fragile.models.constants import CommandResult
 
 CommandHandler = Callable[[str, SessionState], CommandResult]
 COMMAND_HANDLERS: tuple[CommandHandler, ...] = (handle_exit, handle_new, handle_history)

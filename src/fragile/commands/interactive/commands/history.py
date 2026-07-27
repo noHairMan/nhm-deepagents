@@ -8,9 +8,9 @@ import typer
 from prompt_toolkit.key_binding import KeyBindings
 from prompt_toolkit.shortcuts import choice
 
-from fragile.commands.interactive.commands.base import CommandResult, SessionState
 from fragile.commands.interactive.display import show_startup
-from fragile.enums import Command
+from fragile.models import SessionState
+from fragile.models.constants import Command, CommandResult
 from tomorrow.core.checkpoint import get_checkpointer_context
 
 
