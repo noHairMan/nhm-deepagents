@@ -19,8 +19,3 @@ class QuitCommand(BaseCommand):
 def is_exit_command(prompt: str) -> bool:
     """Return whether the prompt requests leaving the session."""
     return prompt.strip().casefold() == f"/{Command.QUIT.value}"
-
-
-def handle_exit(prompt: str, state: SessionState) -> CommandResult:
-    """Handle the command that exits the interactive session."""
-    return QuitCommand().handle(prompt, state)

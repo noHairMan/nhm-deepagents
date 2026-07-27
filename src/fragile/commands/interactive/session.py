@@ -7,7 +7,7 @@ from uuid import UUID, uuid4
 import typer
 
 from fragile.commands.interactive.agent import chat
-from fragile.commands.interactive.commands import handle_command
+from fragile.commands.interactive.commands import COMMAND_REGISTRY
 from fragile.commands.interactive.display import (
     enter_fullscreen,
     leave_fullscreen,
@@ -59,7 +59,7 @@ def interactive(
             except EOFError:
                 continue
             last_keyboard_interrupt = None
-            result = handle_command(input_prompt, state)
+            result = COMMAND_REGISTRY.handle(input_prompt, state)
             if result is CommandResult.EXIT:
                 break
             if result is CommandResult.CONTINUE:

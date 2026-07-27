@@ -25,8 +25,3 @@ class NewCommand(BaseCommand):
 def is_new_command(prompt: str) -> bool:
     """Return whether the prompt requests a new conversation."""
     return prompt.strip().casefold() == f"/{Command.NEW.value}"
-
-
-def handle_new(prompt: str, state: SessionState) -> CommandResult:
-    """Handle the command that starts a new conversation."""
-    return NewCommand().handle(prompt, state)
