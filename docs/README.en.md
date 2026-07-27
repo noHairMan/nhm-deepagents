@@ -8,7 +8,7 @@ A Python project to build and run Deep Agents using a modern LLM framework.
 
 ## 🌟 Project Overview
 
-`nhm-deepagents` 是一个专注于深度智能体的专业 Python 项目。它利用现代 Python 特性 (3.14+) 和强大的工具，为 AI 智能体研究和应用提供高质量的开发体验。
+`nhm-deepagents`is a professional Python project focusing on deep agents. It leverages modern Python features (3.14+) and powerful tools to provide a high-quality development experience for AI agent research and applications.
 
 The project contains three main modules:
 
@@ -68,7 +68,7 @@ The project integrates GitHub Actions workflows, including:
 1.  **Install`uv`**:
     Please follow[uv official warehouse](https://github.com/astral-sh/uv)Follow the instructions in .
 
-2.  **Clone repository**:
+2.  **克隆仓库**:
     ```bash
     git clone <repository-url>
     cd nhm-deepagents
@@ -114,7 +114,7 @@ use`fragile`The command line client starts an interactive session:
 uv run fragile
 ```
 
-pass`--thread`or`-t`Passing in the UUID can restore an existing session; if not passed in, a new thread will be automatically created. Input during interaction`/new`To clear the screen and start a new session, enter`/history`To view saved sessions and switch by number or UUID, enter`/quit`Exit; press`Esc`Press Enter to insert a line feed.
+pass`--thread`or`-t`Passing in the UUID can restore an existing session; if not passed in, a new thread will be automatically created. Input during interaction`/new`To clear the screen and start a new session, enter`/history`To view saved sessions and switch by number or UUID, enter`/quit`Exit; you can also press twice in succession`Ctrl+C`To exit a session in a short time, press`Esc`Press Enter to insert a line feed.
 
 ## ⚙️ Configuration
 
@@ -165,11 +165,13 @@ export TOMORROW_SUBAGENTS='[{"name":"researcher","description":"负责资料检�
 
 #### Fragile configuration (CLI)
 
-| variable      | describe                                               | default value |
-| ------------- | ------------------------------------------------------ | ------------- |
-| `FRAGILE_APP` | Application name (used as environment variable prefix) | `fragile`     |
+| variable                           | describe                                                         | default value          |
+| ---------------------------------- | ---------------------------------------------------------------- | ---------------------- |
+| `FRAGILE_APP`                      | Application name (used as environment variable prefix)           | `fragile`              |
+| `FRAGILE_INTERRUPT_EXIT_THRESHOLD` | twice`Ctrl+C`Maximum interval between triggering exits (seconds) | `0.5`                  |
+| `FRAGILE_ENABLED_COMMANDS`         | Enabled interactive command classpath list                       | `quit`、`new`、`history` |
 
-Other interactive behavior of Fragile is controlled through command line options and built-in slash commands.
+Other interactive behavior of Fragile is controlled through command line options and built-in slash commands. Commands are discovered and processed uniformly through the registry, using`FRAGILE_ENABLED_COMMANDS`Adjust enabled commands.
 
 ## 📜 Screenplay
 
@@ -193,13 +195,17 @@ Commonly used development scripts:
     -   `cli.py`: definition`fragile`Command line entry.
     -   `commands/interactive/`: Interactive session implementation, supporting session recovery, new session, command completion and multi-line input.
         -   `agent.py`: Manages interactions with the Tomorrow agent.
-        -   `commands/`: Interactive slash command implementation.
+        -   `commands/`: Interactive slash command implementation and command registry.
+            -   `base.py`: Define the basic interface and processing results of interactive commands.
             -   `history.py`: Query and select persisted historical sessions.
             -   `new.py`: Create a new session.
             -   `quit.py`: Exit the interactive session.
         -   `display.py`: Management terminal display.
         -   `input.py`: Manage input history, command completion and multi-line editing.
         -   `session.py`: Manage the flow of interactive sessions.
+    -   `conf/config.py`: Provides lazy-loaded CLI global configuration.
+    -   `models/session.py`: Defines the interactive session state model.
+    -   `models/constants/command.py`: Define command processing result constants.
     -   `settings.py`: CLI module default configuration.
 -   `src/tomorrow/`: Core agent package directory.
     -   `graph.py`:`langgraph-cli`The graph entry to use.
