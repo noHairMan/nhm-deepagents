@@ -1,4 +1,4 @@
-from unittest.mock import AsyncMock, MagicMock, patch
+from unittest.mock import AsyncMock, patch
 from uuid import UUID
 
 import pytest
@@ -7,12 +7,13 @@ from typer.testing import CliRunner
 
 from fragile.cli import app
 from fragile.commands.interactive.session import (
-    choose_history,
+    CommandResult,
+    SessionState,
+    handle_command,
     interactive,
     is_exit_command,
     is_history_command,
     is_new_command,
-    list_thread_ids,
     parse_thread_id,
 )
 from fragile.exceptions import FragileError, InvalidThreadIdError
@@ -21,6 +22,13 @@ runner = CliRunner()
 
 
 class TestSession:
+    def testhandle_command_dispatches_registered_commands(self) -> None:
+        state = SessionState(UUID(int=1), object())
+
+        assert handle_command("/quit", state) is CommandResult.EXIT
+        assert handle_command("/new", state) is CommandResult.CONTINUE
+        assert handle_command("ordinary prompt", state) is CommandResult.NOT_HANDLED
+
     def testis_exit_command_ignores_case_and_whitespace(self) -> None:
 
         assert is_exit_command("  EXIT  ") is False
@@ -38,72 +46,17 @@ class TestSession:
         assert is_history_command("  /HISTORY  ") is True
         assert is_history_command("history") is False
 
-    @pytest.mark.asyncio
-    async def testlist_thread_ids_returns_distinct_ids(self) -> None:
-        first = UUID(int=1)
-        second = UUID(int=2)
-        checkpoints = [
-            type("Checkpoint", (), {"config": {"configurable": {"thread_id": str(second)}}})(),
-            type("Checkpoint", (), {"config": {"configurable": {"thread_id": str(first)}}})(),
-            type("Checkpoint", (), {"config": {"configurable": {"thread_id": str(second)}}})(),
-        ]
-
-        async def alist(self: object, config: object) -> object:
-            for checkpoint in checkpoints:
-                yield checkpoint
-
-        checkpointer = type("Checkpointer", (), {"alist": alist})()
-        with patch("fragile.commands.interactive.session.get_checkpointer_context") as context:
-            context.return_value.__aenter__ = AsyncMock(return_value=checkpointer)
-            context.return_value.__aexit__ = AsyncMock(return_value=None)
-            assert await list_thread_ids() == [first, second]
-
-    @pytest.mark.asyncio
-    async def testlist_thread_ids_ignores_checkpoints_without_thread_id(self) -> None:
-        checkpoint = type("Checkpoint", (), {"config": {"configurable": {}}})()
-
-        async def alist(self: object, config: object) -> object:
-            yield checkpoint
-
-        checkpointer = type("Checkpointer", (), {"alist": alist})()
-        with patch("fragile.commands.interactive.session.get_checkpointer_context") as context:
-            context.return_value.__aenter__ = AsyncMock(return_value=checkpointer)
-            context.return_value.__aexit__ = AsyncMock(return_value=None)
-            assert await list_thread_ids() == []
-
-    def testchoose_history_accepts_number_and_rejects_unknown(self) -> None:
-        first = UUID(int=1)
-        session = object()
-        with patch("fragile.commands.interactive.session.prompt", return_value="1"):
-            assert choose_history(session, [first]) == first
-        with patch("fragile.commands.interactive.session.prompt", return_value="bad"):
-            assert choose_history(session, [first]) is None
-        with patch("fragile.commands.interactive.session.prompt", return_value="2"):
-            assert choose_history(session, [first]) is None
-
-    def testchoose_history_accepts_uuid_and_handles_empty_or_unknown_history(self) -> None:
-        first = UUID(int=1)
-        session = object()
-        with patch("fragile.commands.interactive.session.prompt", return_value=str(first)):
-            assert choose_history(session, [first]) == first
-        with patch("fragile.commands.interactive.session.prompt", return_value=str(UUID(int=2))):
-            assert choose_history(session, [first]) is None
-        assert choose_history(session, []) is None
-
-    @pytest.mark.asyncio
-    async def testlist_thread_ids_returns_empty_without_checkpointer(self) -> None:
-        context = MagicMock()
-        context.return_value.__aenter__ = AsyncMock(return_value=None)
-        context.return_value.__aexit__ = AsyncMock(return_value=None)
-        with patch("fragile.commands.interactive.session.get_checkpointer_context", context):
-            assert await list_thread_ids() == []
-
     def testinteractive_history_command_reads_prompt_outside_async_context(self) -> None:
         first = UUID(int=1)
         with (
-            patch("fragile.commands.interactive.session.list_thread_ids", new_callable=AsyncMock, return_value=[first]),
-            patch("fragile.commands.interactive.session.prompt", side_effect=["/history", "1", "/quit"]),
-            patch("fragile.commands.interactive.session.show_startup") as show_startup,
+            patch(
+                "fragile.commands.interactive.commands.history.list_thread_ids",
+                new_callable=AsyncMock,
+                return_value=[first],
+            ),
+            patch("fragile.commands.interactive.commands.history.prompt", return_value="1"),
+            patch("fragile.commands.interactive.session.prompt", side_effect=["/history", "/quit"]),
+            patch("fragile.commands.interactive.commands.history.show_startup") as show_startup,
         ):
             interactive(None)
 
@@ -112,11 +65,12 @@ class TestSession:
     def testinteractive_history_command_keeps_current_thread_on_invalid_selection(self) -> None:
         with (
             patch(
-                "fragile.commands.interactive.session.list_thread_ids",
+                "fragile.commands.interactive.commands.history.list_thread_ids",
                 new_callable=AsyncMock,
                 return_value=[UUID(int=1)],
             ),
-            patch("fragile.commands.interactive.session.prompt", side_effect=["/history", "bad", "/quit"]),
+            patch("fragile.commands.interactive.commands.history.prompt", return_value="bad"),
+            patch("fragile.commands.interactive.session.prompt", side_effect=["/history", "/quit"]),
         ):
             interactive(None)
 
@@ -218,15 +172,17 @@ class TestSession:
 
     def testinteractive_new_command_preserves_screen_and_starts_new_thread(self) -> None:
         with (
-            patch("fragile.commands.interactive.session.uuid4", side_effect=[UUID(int=1), UUID(int=2)]),
+            patch("fragile.commands.interactive.session.uuid4", side_effect=[UUID(int=1)]),
+            patch("fragile.commands.interactive.commands.new.uuid4", side_effect=[UUID(int=2)]),
             patch("fragile.commands.interactive.session.show_startup") as show_startup,
+            patch("fragile.commands.interactive.commands.new.show_startup") as new_show_startup,
             patch("fragile.commands.interactive.session.chat", new_callable=AsyncMock) as chat,
         ):
             with patch("fragile.commands.interactive.session.prompt", side_effect=["/new", "hello", "/quit"]):
                 interactive(None)
 
         assert show_startup.call_args_list[0].args == (UUID(int=1), False)
-        assert show_startup.call_args_list[1].args == (UUID(int=2), False)
+        assert new_show_startup.call_args.args == (UUID(int=2), False)
         assert chat.await_args.args[:2] == ("hello", UUID(int=2))
 
     def testparse_thread_id(self) -> None:

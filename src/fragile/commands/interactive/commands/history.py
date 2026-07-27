@@ -5,6 +5,9 @@ from uuid import UUID
 
 import typer
 
+from fragile.commands.interactive.commands.base import CommandResult, SessionState
+from fragile.commands.interactive.display import show_startup
+from fragile.commands.interactive.input import prompt
 from fragile.enums import Command
 from tomorrow.core.checkpoint import get_checkpointer_context
 
@@ -51,3 +54,17 @@ def choose_history(
         typer.echo("找不到该历史会话")
         return None
     return selected
+
+
+def handle_history(prompt_value: str, state: SessionState) -> CommandResult:
+    """Handle the command that selects a persisted conversation."""
+    if not is_history_command(prompt_value):
+        return CommandResult.NOT_HANDLED
+    from asyncio import run
+
+    thread_ids = run(list_thread_ids())
+    selected_thread = choose_history(state.prompt_session, thread_ids, prompt)
+    if selected_thread is not None:
+        state.thread_id = selected_thread
+        show_startup(state.thread_id, True)
+    return CommandResult.CONTINUE

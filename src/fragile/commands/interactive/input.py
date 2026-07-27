@@ -50,4 +50,4 @@ def create_prompt_session() -> PromptSession[str]:
 
 def prompt(session: PromptSession[str]) -> str:
     """读取一条支持历史、补全和多行编辑的用户输入。"""
-    return session.prompt("你> ")
+    return session.prompt("> ")
