@@ -79,7 +79,7 @@ class TestSession:
 
     def testparse_thread_id_rejects_invalid_value(self) -> None:
 
-        with pytest.raises(InvalidThreadIdError, match="必须是有效的 UUID"):
+        with pytest.raises(InvalidThreadIdError, match="Must be a valid UUID"):
             parse_thread_id("bad")
 
     def test_invalidparse_thread_id_is_fragile_error_and_typer_parameter(self) -> None:

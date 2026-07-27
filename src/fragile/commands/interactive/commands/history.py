@@ -67,7 +67,7 @@ async def list_history(
             messages = checkpoint_data.get("channel_values", {}).get("messages", [])
             title = next(
                 (title for message in messages if (title := _message_title(message)) is not None),
-                "未命名会话",  # pragma: no cover - malformed checkpoint compatibility
+                "Untitled conversation",  # pragma: no cover - malformed checkpoint compatibility
             )
             histories[thread_id] = title
     return sorted(histories.items(), key=lambda item: str(item[0]))
@@ -79,7 +79,7 @@ def choose_history(
 ) -> UUID | None:
     """Display persisted threads and return the user's selected thread."""
     if not histories:
-        typer.echo("暂无历史会话")
+        typer.echo("No conversation history available.")
         return None
     if selector is None:
         selector = choice
@@ -91,7 +91,7 @@ def choose_history(
 
     try:
         return selector(
-            "请选择历史会话：",
+            "Select a conversation:",
             options=histories,
             key_bindings=key_bindings,
             enable_interrupt=False,

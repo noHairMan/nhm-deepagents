@@ -41,7 +41,7 @@ def show_startup(thread_id: UUID, resumed: bool) -> None:
     """显示交互式会话的启动信息。"""
     console.print(Text(STARTUP_BANNER, style="cyan"), end="")
     if resumed:
-        console.print(Panel(f"已恢复会话  {thread_id}", title="Fragile", border_style="green"))
+        console.print(Panel(f"Resumed conversation  {thread_id}", title="Fragile", border_style="green"))
     else:
         console.print(
             Panel(

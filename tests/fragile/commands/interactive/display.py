@@ -43,5 +43,5 @@ class TestDisplay:
         show_startup(UUID(int=1), True)
 
         output = capsys.readouterr().out
-        assert "已恢复会话" in output
+        assert "Resumed conversation" in output
         assert "Fresh start" not in output

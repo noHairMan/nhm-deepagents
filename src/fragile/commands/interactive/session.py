@@ -28,13 +28,13 @@ def parse_thread_id(value: str | None) -> UUID:
     try:
         return UUID(value)
     except ValueError as error:
-        raise InvalidThreadIdError("必须是有效的 UUID") from error
+        raise InvalidThreadIdError("Must be a valid UUID") from error
 
 
 def interactive(
-    thread: str | None = typer.Option(None, "--thread", "-t", help="用于恢复会话的线程 UUID。"),
+    thread: str | None = typer.Option(None, "--thread", "-t", help="Thread UUID to resume a conversation."),
 ) -> None:
-    """启动交互式会话。输入 /quit 退出。"""
+    """Start an interactive session. Enter /quit to exit."""
     thread_id = parse_thread_id(thread)
     enter_fullscreen()
     try:

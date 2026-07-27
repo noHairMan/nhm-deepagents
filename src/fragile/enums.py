@@ -2,7 +2,7 @@ from tomorrow.core.enums import TextChoices
 
 
 class Command(TextChoices):
-    """Fragile 交互式会话支持的内置命令。"""
+    """Built-in commands supported by the Fragile interactive session."""
 
     NEW = "new", "New"
     HISTORY = "history", "History"

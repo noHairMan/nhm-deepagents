@@ -65,7 +65,7 @@ class TestHistoryCommand:
         with patch("fragile.commands.interactive.commands.history.typer.echo"):
             assert choose_history([(first, "第一次对话")], selector) == first
         selector.assert_called_once_with(
-            "请选择历史会话：",
+            "Select a conversation:",
             options=[(first, "第一次对话")],
             key_bindings=selector.call_args.kwargs["key_bindings"],
             enable_interrupt=False,

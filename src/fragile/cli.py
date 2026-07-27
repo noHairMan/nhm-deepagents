@@ -2,14 +2,14 @@ import typer
 
 from fragile.commands.interactive import interactive
 
-app = typer.Typer(help="与 Tomorrow 智能体交互的 Fragile 命令行工具。")
+app = typer.Typer(help="Fragile CLI for interacting with the Tomorrow agent.")
 
 
 @app.callback(invoke_without_command=True)
 def main(
-    thread: str | None = typer.Option(None, "--thread", "-t", help="用于恢复会话的线程 UUID。"),
+    thread: str | None = typer.Option(None, "--thread", "-t", help="Thread UUID to resume a conversation."),
 ) -> None:
-    """启动交互式会话。输入 /quit 退出。"""
+    """Start an interactive session. Enter /quit to exit."""
     interactive(thread)
 
 
