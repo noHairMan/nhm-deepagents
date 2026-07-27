@@ -6,14 +6,14 @@ import typer
 from typer.testing import CliRunner
 
 from fragile.cli import app
+from fragile.commands.interactive.commands.history import is_history_command
+from fragile.commands.interactive.commands.new import is_new_command
+from fragile.commands.interactive.commands.quit import is_exit_command
 from fragile.commands.interactive.session import (
     CommandResult,
     SessionState,
     handle_command,
     interactive,
-    is_exit_command,
-    is_history_command,
-    is_new_command,
     parse_thread_id,
 )
 from fragile.exceptions import FragileError, InvalidThreadIdError
@@ -132,7 +132,7 @@ class TestSession:
                 "fragile.commands.interactive.session.prompt",
                 side_effect=[KeyboardInterrupt, KeyboardInterrupt],
             ),
-            patch("fragile.commands.interactive.session.time.monotonic", side_effect=[0, 1]),
+            patch("fragile.commands.interactive.session.time.monotonic", side_effect=[0, 0.5]),
         ):
             interactive(None)
 

@@ -12,7 +12,7 @@ class TestInput:
         session.prompt.return_value = "answer"
 
         assert prompt(session) == "answer"
-        session.prompt.assert_called_once_with("你> ")
+        session.prompt.assert_called_once_with("> ")
 
     def testprompt_session_configuresinteractive_features(self) -> None:
 
