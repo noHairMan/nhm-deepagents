@@ -11,10 +11,10 @@
 | src/fragile/commands/interactive/agent.py                 |       27 |        0 |       12 |        0 |     100% |           |
 | src/fragile/commands/interactive/commands/\_\_init\_\_.py |       13 |        0 |        4 |        0 |     100% |           |
 | src/fragile/commands/interactive/commands/base.py         |        9 |        0 |        0 |        0 |     100% |           |
-| src/fragile/commands/interactive/commands/history.py      |       55 |        0 |       14 |        0 |     100% |           |
+| src/fragile/commands/interactive/commands/history.py      |       47 |        0 |       10 |        0 |     100% |           |
 | src/fragile/commands/interactive/commands/new.py          |       12 |        0 |        2 |        0 |     100% |           |
 | src/fragile/commands/interactive/commands/quit.py         |        7 |        0 |        0 |        0 |     100% |           |
-| src/fragile/commands/interactive/display.py               |       22 |        0 |        2 |        0 |     100% |           |
+| src/fragile/commands/interactive/display.py               |       20 |        0 |        2 |        0 |     100% |           |
 | src/fragile/commands/interactive/input.py                 |       29 |        0 |        6 |        0 |     100% |           |
 | src/fragile/commands/interactive/session.py               |       48 |        0 |       10 |        0 |     100% |           |
 | src/fragile/enums.py                                      |        5 |        0 |        0 |        0 |     100% |           |
@@ -70,7 +70,7 @@
 | src/tomorrow/utils/\_\_init\_\_.py                        |        0 |        0 |        0 |        0 |     100% |           |
 | src/tomorrow/utils/functional.py                          |      224 |        0 |       58 |        0 |     100% |           |
 | src/tomorrow/utils/log.py                                 |        6 |        0 |        0 |        0 |     100% |           |
-| **TOTAL**                                                 |  **960** |    **0** |  **158** |    **0** | **100%** |           |
+| **TOTAL**                                                 |  **950** |    **0** |  **154** |    **0** | **100%** |           |
 
 
 ## Setup coverage badge
