@@ -67,7 +67,7 @@
             <a id="nextFileLink" class="nav" href="z_d7948f679440d569___init___py.html">&#xbb; next</a>
             &nbsp; &nbsp; &nbsp;
             <a class="nav" href="https://coverage.readthedocs.io/en/7.15.2">coverage.py v7.15.2</a>,
-            created at 2026-07-27 02:15 +0000
+            created at 2026-07-27 05:52 +0000
         </p>
         <aside class="hidden">
             <button type="button" class="button_next_chunk" data-shortcut="j"></button>
@@ -86,14 +86,14 @@
     <p class="pln"><span class="n"><a id="t2" href="#t2">2</a></span><span class="t">&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t3" href="#t3">3</a></span><span class="t"><span class="key">from</span> <span class="nam">fragile</span><span class="op">.</span><span class="nam">commands</span><span class="op">.</span><span class="nam">interactive</span> <span class="key">import</span> <span class="nam">interactive</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t4" href="#t4">4</a></span><span class="t">&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t5" href="#t5">5</a></span><span class="t"><span class="nam">app</span> <span class="op">=</span> <span class="nam">typer</span><span class="op">.</span><span class="nam">Typer</span><span class="op">(</span><span class="nam">help</span><span class="op">=</span><span class="str">"&#19982; Tomorrow &#26234;&#33021;&#20307;&#20132;&#20114;&#30340; Fragile &#21629;&#20196;&#34892;&#24037;&#20855;&#12290;"</span><span class="op">)</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t5" href="#t5">5</a></span><span class="t"><span class="nam">app</span> <span class="op">=</span> <span class="nam">typer</span><span class="op">.</span><span class="nam">Typer</span><span class="op">(</span><span class="nam">help</span><span class="op">=</span><span class="str">"Fragile CLI for interacting with the Tomorrow agent."</span><span class="op">)</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t6" href="#t6">6</a></span><span class="t">&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t7" href="#t7">7</a></span><span class="t">&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t8" href="#t8">8</a></span><span class="t"><span class="op">@</span><span class="nam">app</span><span class="op">.</span><span class="nam">callback</span><span class="op">(</span><span class="nam">invoke_without_command</span><span class="op">=</span><span class="key">True</span><span class="op">)</span>&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t9" href="#t9">9</a></span><span class="t"><span class="key">def</span> <span class="nam">main</span><span class="op">(</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run run2"><span class="n"><a id="t10" href="#t10">10</a></span><span class="t">    <span class="nam">thread</span><span class="op">:</span> <span class="nam">str</span> <span class="op">|</span> <span class="key">None</span> <span class="op">=</span> <span class="nam">typer</span><span class="op">.</span><span class="nam">Option</span><span class="op">(</span><span class="key">None</span><span class="op">,</span> <span class="str">"--thread"</span><span class="op">,</span> <span class="str">"-t"</span><span class="op">,</span> <span class="nam">help</span><span class="op">=</span><span class="str">"&#29992;&#20110;&#24674;&#22797;&#20250;&#35805;&#30340;&#32447;&#31243; UUID&#12290;"</span><span class="op">)</span><span class="op">,</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run run2"><span class="n"><a id="t10" href="#t10">10</a></span><span class="t">    <span class="nam">thread</span><span class="op">:</span> <span class="nam">str</span> <span class="op">|</span> <span class="key">None</span> <span class="op">=</span> <span class="nam">typer</span><span class="op">.</span><span class="nam">Option</span><span class="op">(</span><span class="key">None</span><span class="op">,</span> <span class="str">"--thread"</span><span class="op">,</span> <span class="str">"-t"</span><span class="op">,</span> <span class="nam">help</span><span class="op">=</span><span class="str">"Thread UUID to resume a conversation."</span><span class="op">)</span><span class="op">,</span>&nbsp;</span><span class="r"></span></p>
     <p class="run run2"><span class="n"><a id="t11" href="#t11">11</a></span><span class="t"><span class="op">)</span> <span class="op">-></span> <span class="key">None</span><span class="op">:</span>&nbsp;</span><span class="r"></span></p>
-    <p class="pln"><span class="n"><a id="t12" href="#t12">12</a></span><span class="t">    <span class="str">"""&#21551;&#21160;&#20132;&#20114;&#24335;&#20250;&#35805;&#12290;&#36755;&#20837; /quit &#36864;&#20986;&#12290;"""</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t12" href="#t12">12</a></span><span class="t">    <span class="str">"""Start an interactive session. Enter /quit to exit."""</span>&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t13" href="#t13">13</a></span><span class="t">    <span class="nam">interactive</span><span class="op">(</span><span class="nam">thread</span><span class="op">)</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t14" href="#t14">14</a></span><span class="t">&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t15" href="#t15">15</a></span><span class="t">&nbsp;</span><span class="r"></span></p>
@@ -108,7 +108,7 @@
             <a class="nav" href="z_d7948f679440d569___init___py.html">&#xbb; next</a>
             &nbsp; &nbsp; &nbsp;
             <a class="nav" href="https://coverage.readthedocs.io/en/7.15.2">coverage.py v7.15.2</a>,
-            created at 2026-07-27 02:15 +0000
+            created at 2026-07-27 05:52 +0000
         </p>
     </div>
 </footer>
