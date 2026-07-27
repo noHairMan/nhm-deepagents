@@ -114,7 +114,7 @@ CLI 会读取根目录的 `langgraph.json`，并暴露名为 `tomorrow` 的 grap
 uv run fragile
 ```
 
-通过 `--thread` 或 `-t` 传入 UUID 可以恢复已有会话；不传入时会自动创建新的线程。交互过程中输入 `/new` 可清屏并开始新会话，输入 `/history` 可查看已保存的会话并按编号或 UUID 切换，输入 `/quit` 退出；按 `Esc` 后回车可插入换行。
+通过 `--thread` 或 `-t` 传入 UUID 可以恢复已有会话；不传入时会自动创建新的线程。交互过程中输入 `/new` 可清屏并开始新会话，输入 `/history` 可查看已保存的会话并按编号或 UUID 切换，输入 `/quit` 退出；也可以连续两次按 `Ctrl+C` 在短时间内退出会话，按 `Esc` 后回车可插入换行。
 
 ## ⚙️ 配置
 
@@ -167,8 +167,10 @@ export TOMORROW_SUBAGENTS='[{"name":"researcher","description":"负责资料检�
 | 变量 | 描述 | 默认值 |
 |----------|-------------|---------|
 | `FRAGILE_APP` | 应用名称（用作环境变量前缀） | `fragile` |
+| `FRAGILE_INTERRUPT_EXIT_THRESHOLD` | 两次 `Ctrl+C` 触发退出的最大间隔（秒） | `0.5` |
+| `FRAGILE_ENABLED_COMMANDS` | 启用的交互式命令类路径列表 | `quit`、`new`、`history` |
 
-Fragile 的其他交互行为通过命令行选项和内置斜线命令控制。
+Fragile 的其他交互行为通过命令行选项和内置斜线命令控制。命令通过注册表统一发现和处理，可使用 `FRAGILE_ENABLED_COMMANDS` 调整启用的命令。
 
 ## 📜 脚本
 
@@ -192,13 +194,17 @@ Fragile 的其他交互行为通过命令行选项和内置斜线命令控制。
   - `cli.py`: 定义 `fragile` 命令行入口。
   - `commands/interactive/`: 交互式会话实现，支持会话恢复、新建会话、命令补全和多行输入。
     - `agent.py`: 管理与 Tomorrow 智能体的交互。
-    - `commands/`: 交互式斜线命令实现。
+    - `commands/`: 交互式斜线命令实现和命令注册表。
+      - `base.py`: 定义交互式命令的基础接口和处理结果。
       - `history.py`: 查询并选择已持久化的历史会话。
       - `new.py`: 创建新会话。
       - `quit.py`: 退出交互式会话。
     - `display.py`: 管理终端显示。
     - `input.py`: 管理输入历史、命令补全和多行编辑。
     - `session.py`: 管理交互式会话流程。
+  - `conf/config.py`: 提供延迟加载的 CLI 全局配置。
+  - `models/session.py`: 定义交互式会话状态模型。
+  - `models/constants/command.py`: 定义命令处理结果常量。
   - `settings.py`: CLI 模块默认配置。
 - `src/tomorrow/`: 核心智能体包目录。
   - `graph.py`: `langgraph-cli` 使用的 graph 入口。
