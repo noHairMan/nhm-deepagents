@@ -1,7 +1,7 @@
 """History command handling."""
 
 from collections.abc import Callable
-from typing import Any
+from typing import Any, Optional
 from uuid import UUID
 
 import typer
@@ -11,23 +11,25 @@ from prompt_toolkit.shortcuts import choice
 from fragile.commands.interactive.commands.base import Command as BaseCommand
 from fragile.commands.interactive.display import show_startup
 from fragile.models import SessionState
-from fragile.models.constants import Command, CommandResult
+from fragile.models.constants import CommandResult
 from tomorrow.core.checkpoint import get_checkpointer_context
 
 
 class HistoryCommand(BaseCommand):
     """Select a persisted conversation."""
 
-    name = Command.HISTORY.value
+    name = "history"
 
-    def handle(self, prompt_value: str, state: SessionState) -> CommandResult:
+    def handle(self, prompt: Optional[str], state: SessionState) -> CommandResult:
         """Handle the history selection command."""
-        return handle_history(prompt_value, state)
+        from asyncio import run
 
-
-def is_history_command(prompt: str) -> bool:
-    """Return whether the prompt requests conversation history."""
-    return prompt.strip().casefold() == f"/{Command.HISTORY.value}"
+        histories = run(list_history())
+        selected_thread = choose_history(histories)
+        if selected_thread is not None:
+            state.thread_id = selected_thread
+            show_startup(state.thread_id, True)
+        return CommandResult.CONTINUE
 
 
 def _message_title(message: Any) -> str | None:  # pragma: no cover - defensive format compatibility
@@ -96,17 +98,3 @@ def choose_history(
         )
     except typer.Abort:
         return None
-
-
-def handle_history(prompt_value: str, state: SessionState) -> CommandResult:
-    """Handle the command that selects a persisted conversation."""
-    if not is_history_command(prompt_value):
-        return CommandResult.NOT_HANDLED
-    from asyncio import run
-
-    histories = run(list_history())
-    selected_thread = choose_history(histories)
-    if selected_thread is not None:
-        state.thread_id = selected_thread
-        show_startup(state.thread_id, True)
-    return CommandResult.CONTINUE

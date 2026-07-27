@@ -1,9 +1,11 @@
-from fragile.commands.interactive.commands.quit import is_exit_command
+from uuid import UUID
+
+from fragile.commands.interactive.commands.quit import QuitCommand
+from fragile.models import SessionState
+from fragile.models.constants import CommandResult
 
 
 class TestQuitCommand:
-    def test_is_exit_command_ignores_case_and_whitespace(self) -> None:
-        assert is_exit_command("  EXIT  ") is False
-        assert is_exit_command("  quit  ") is False
-        assert is_exit_command("  /QUIT  ") is True
-        assert is_exit_command("continue") is False
+    def test_quit_command_handles_prompt_directly(self) -> None:
+        state = SessionState(thread_id=UUID(int=1), prompt_session=object())
+        assert QuitCommand().handle("ordinary prompt", state) is CommandResult.EXIT

@@ -7,9 +7,8 @@ from typer.testing import CliRunner
 
 from fragile.cli import app
 from fragile.commands.interactive.commands import COMMAND_REGISTRY, CommandRegistry
-from fragile.commands.interactive.commands.history import is_history_command
-from fragile.commands.interactive.commands.new import is_new_command
-from fragile.commands.interactive.commands.quit import QuitCommand, is_exit_command
+from fragile.commands.interactive.commands.base import extract_prompt
+from fragile.commands.interactive.commands.quit import QuitCommand
 from fragile.commands.interactive.session import interactive, parse_thread_id
 from fragile.exceptions import FragileError, InvalidThreadIdError
 from fragile.models import SessionState
@@ -19,14 +18,9 @@ runner = CliRunner()
 
 
 class TestSession:
-    def test_command_registry_registers_and_filters_commands(self) -> None:
-        registry = CommandRegistry()
-        command = QuitCommand()
-        registry.register(command)
-
-        path = "fragile.commands.interactive.commands.quit.QuitCommand"
-        assert registry.build((path,)) == {"/quit": command}
-        assert registry.build(("other",)) == {}
+    def test_command_registry_rejects_non_command_registration(self) -> None:
+        with pytest.raises(TypeError, match="command must be a Command instance"):
+            CommandRegistry().register(object())
 
     def test_command_registry_handles_registered_commands(self) -> None:
         state = SessionState(thread_id=UUID(int=1), prompt_session=object())
@@ -37,7 +31,7 @@ class TestSession:
 
     def test_command_registry_handles_only_the_indexed_handler(self) -> None:
         state = SessionState(thread_id=UUID(int=1), prompt_session=object())
-        with patch.dict(COMMAND_REGISTRY._handlers, {"/quit": QuitCommand()}, clear=True):
+        with patch.dict(COMMAND_REGISTRY._handlers, {"quit": QuitCommand()}, clear=True):
             assert COMMAND_REGISTRY.handle("  /QUIT  ", state) is CommandResult.EXIT
 
     def test_command_registry_does_not_call_handlers_for_unknown_command(self) -> None:
@@ -47,22 +41,11 @@ class TestSession:
             assert COMMAND_REGISTRY.handle("/unknown", state) is CommandResult.NOT_HANDLED
         mocked_handler.assert_not_called()
 
-    def testis_exit_command_ignores_case_and_whitespace(self) -> None:
-
-        assert is_exit_command("  EXIT  ") is False
-        assert is_exit_command("  quit  ") is False
-        assert is_exit_command("  /QUIT  ") is True
-        assert is_exit_command("continue") is False
-
-    def testis_new_command_ignores_case_and_whitespace(self) -> None:
-
-        assert is_new_command("  /NEW  ") is True
-        assert is_new_command("new") is False
-
-    def testis_history_command_ignores_case_and_whitespace(self) -> None:
-
-        assert is_history_command("  /HISTORY  ") is True
-        assert is_history_command("history") is False
+    def test_extract_command_ignores_case_and_whitespace(self) -> None:
+        assert extract_prompt("  /QUIT  ").model_dump() == {"command": "quit", "prompt": None}
+        assert extract_prompt("  /NEW  你好呀").model_dump() == {"command": "new", "prompt": "你好呀"}
+        assert extract_prompt("  /HISTORY  ").model_dump() == {"command": "history", "prompt": None}
+        assert extract_prompt("你好呀").model_dump() == {"command": None, "prompt": "你好呀"}
 
     def testinteractive_history_command_reads_prompt_outside_async_context(self) -> None:
         first = UUID(int=1)

@@ -4,20 +4,23 @@ from uuid import UUID
 import pytest
 import typer
 
-from fragile.commands.interactive.commands.history import (
-    choose_history,
-    handle_history,
-    is_history_command,
-    list_history,
-)
+from fragile.commands.interactive.commands.history import HistoryCommand, choose_history, list_history
 from fragile.models import SessionState
 from fragile.models.constants import CommandResult
 
 
 class TestHistoryCommand:
-    def test_is_history_command_ignores_case_and_whitespace(self) -> None:
-        assert is_history_command("  /HISTORY  ") is True
-        assert is_history_command("history") is False
+    def test_history_command_handles_prompt_directly(self) -> None:
+        state = SessionState(thread_id=UUID(int=1), prompt_session=object())
+        with (
+            patch(
+                "fragile.commands.interactive.commands.history.list_history",
+                new_callable=AsyncMock,
+                return_value=[],
+            ),
+            patch("fragile.commands.interactive.commands.history.choose_history", return_value=None),
+        ):
+            assert HistoryCommand().handle("ordinary prompt", state) is CommandResult.CONTINUE
 
     def test_choose_history_returns_selected_thread(self) -> None:
         first = UUID(int=1)
@@ -74,7 +77,7 @@ class TestHistoryCommand:
         context.return_value.__aexit__ = AsyncMock(return_value=None)
         assert await list_history(context) == [(first, "第一次对话")]
 
-    def test_handle_history_keeps_state_when_selection_is_cancelled(self) -> None:
+    def test_history_command_keeps_state_when_selection_is_cancelled(self) -> None:
         state = SessionState(thread_id=UUID(int=1), prompt_session=object())
         with (
             patch(
@@ -87,5 +90,5 @@ class TestHistoryCommand:
                 return_value=None,
             ),
         ):
-            assert handle_history("/history", state) is CommandResult.CONTINUE
+            assert HistoryCommand().handle("/history", state) is CommandResult.CONTINUE
         assert state.thread_id == UUID(int=1)

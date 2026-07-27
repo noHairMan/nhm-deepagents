@@ -1,3 +1,3 @@
-from .command import Command, CommandResult
+from .command import CommandResult
 
-__all__ = ["Command", "CommandResult"]
+__all__ = ["CommandResult"]

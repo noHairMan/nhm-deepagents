@@ -15,12 +15,10 @@ from fragile.commands.interactive.display import (
     show_startup,
 )
 from fragile.commands.interactive.input import create_prompt_session, prompt
+from fragile.conf import settings
 from fragile.exceptions import InvalidThreadIdError
 from fragile.models import SessionState
 from fragile.models.constants import CommandResult
-from fragile.settings import FragileSettings
-
-settings = FragileSettings()
 
 
 def parse_thread_id(value: str | None) -> UUID:

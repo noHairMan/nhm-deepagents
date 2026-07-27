@@ -9,10 +9,11 @@ from prompt_toolkit.history import InMemoryHistory
 from prompt_toolkit.key_binding import KeyBindings
 from prompt_toolkit.styles import Style
 
-from fragile.models.constants import Command
+from fragile.commands.interactive.commands import _load_command
+from fragile.conf import settings
 
 PROMPT_STYLE = Style.from_dict({"prompt": "#00aa00 bold"})
-COMMANDS = tuple(f"/{command.value}" for command in Command)
+COMMANDS = tuple(f"/{_load_command(path).name}" for path in settings.ENABLED_COMMANDS)
 
 
 class CommandCompleter(Completer):
