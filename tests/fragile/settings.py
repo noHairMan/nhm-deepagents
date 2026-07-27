@@ -14,6 +14,11 @@ class TestFragileSettings:
         settings = FragileSettings(_env_file="/non/existent/path")
 
         assert settings.APP == "fragile"
+        assert settings.ENABLED_COMMANDS == (
+            "fragile.commands.interactive.commands.quit.QuitCommand",
+            "fragile.commands.interactive.commands.new.NewCommand",
+            "fragile.commands.interactive.commands.history.HistoryCommand",
+        )
 
     def test_base_config_model(self):
         from fragile.settings import BaseConfigModel

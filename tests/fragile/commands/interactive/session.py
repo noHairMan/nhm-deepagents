@@ -6,7 +6,8 @@ import typer
 from typer.testing import CliRunner
 
 from fragile.cli import app
-from fragile.commands.interactive.commands import handle_command
+from fragile.commands.interactive import commands
+from fragile.commands.interactive.commands import CommandRegistry, handle_command
 from fragile.commands.interactive.commands.history import is_history_command
 from fragile.commands.interactive.commands.new import is_new_command
 from fragile.commands.interactive.commands.quit import is_exit_command
@@ -19,12 +20,33 @@ runner = CliRunner()
 
 
 class TestSession:
+    def test_command_registry_registers_and_filters_commands(self) -> None:
+        registry = CommandRegistry()
+        handler = lambda prompt, state: CommandResult.EXIT
+        registry.register(" /CUSTOM ", handler)
+
+        assert registry.build(("custom",)) == {"/custom": handler}
+        assert registry.build(("other",)) == {}
+
     def testhandle_command_dispatches_registered_commands(self) -> None:
         state = SessionState(thread_id=UUID(int=1), prompt_session=object())
 
         assert handle_command("/quit", state) is CommandResult.EXIT
         assert handle_command("/new", state) is CommandResult.CONTINUE
         assert handle_command("ordinary prompt", state) is CommandResult.NOT_HANDLED
+
+    def testhandle_command_uses_only_the_indexed_handler(self) -> None:
+        state = SessionState(thread_id=UUID(int=1), prompt_session=object())
+        custom_handler = lambda prompt, state: CommandResult.EXIT
+        with patch.dict(commands.COMMAND_HANDLER_MAP, {"/custom": custom_handler}, clear=True):
+            assert handle_command("  /CUSTOM  ", state) is CommandResult.EXIT
+
+    def testhandle_command_does_not_call_handlers_for_unknown_command(self) -> None:
+        state = SessionState(thread_id=UUID(int=1), prompt_session=object())
+        handler = patch("fragile.commands.interactive.commands.handle_exit")
+        with handler as mocked_handler:
+            assert handle_command("/unknown", state) is CommandResult.NOT_HANDLED
+        mocked_handler.assert_not_called()
 
     def testis_exit_command_ignores_case_and_whitespace(self) -> None:
 

@@ -1,7 +1,19 @@
 """Exit command handling."""
 
+from fragile.commands.interactive.commands.base import Command as BaseCommand
 from fragile.models import SessionState
 from fragile.models.constants import Command, CommandResult
+
+
+class QuitCommand(BaseCommand):
+    """Exit the interactive session."""
+
+    name = Command.QUIT.value
+
+    def handle(self, prompt: str, state: SessionState) -> CommandResult:
+        """Handle the exit command."""
+        del state
+        return CommandResult.EXIT if is_exit_command(prompt) else CommandResult.NOT_HANDLED
 
 
 def is_exit_command(prompt: str) -> bool:
@@ -11,5 +23,4 @@ def is_exit_command(prompt: str) -> bool:
 
 def handle_exit(prompt: str, state: SessionState) -> CommandResult:
     """Handle the command that exits the interactive session."""
-    del state
-    return CommandResult.EXIT if is_exit_command(prompt) else CommandResult.NOT_HANDLED
+    return QuitCommand().handle(prompt, state)

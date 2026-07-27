@@ -8,10 +8,21 @@ import typer
 from prompt_toolkit.key_binding import KeyBindings
 from prompt_toolkit.shortcuts import choice
 
+from fragile.commands.interactive.commands.base import Command as BaseCommand
 from fragile.commands.interactive.display import show_startup
 from fragile.models import SessionState
 from fragile.models.constants import Command, CommandResult
 from tomorrow.core.checkpoint import get_checkpointer_context
+
+
+class HistoryCommand(BaseCommand):
+    """Select a persisted conversation."""
+
+    name = Command.HISTORY.value
+
+    def handle(self, prompt_value: str, state: SessionState) -> CommandResult:
+        """Handle the history selection command."""
+        return handle_history(prompt_value, state)
 
 
 def is_history_command(prompt: str) -> bool:
