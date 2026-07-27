@@ -50,9 +50,9 @@ class TestSession:
         first = UUID(int=1)
         with (
             patch(
-                "fragile.commands.interactive.commands.history.list_thread_ids",
+                "fragile.commands.interactive.commands.history.list_history",
                 new_callable=AsyncMock,
-                return_value=[first],
+                return_value=[(first, "第一次对话")],
             ),
             patch("fragile.commands.interactive.commands.history.choice", return_value=first),
             patch("fragile.commands.interactive.session.prompt", side_effect=["/history", "/quit"]),
@@ -66,9 +66,9 @@ class TestSession:
         first = UUID(int=1)
         with (
             patch(
-                "fragile.commands.interactive.commands.history.list_thread_ids",
+                "fragile.commands.interactive.commands.history.list_history",
                 new_callable=AsyncMock,
-                return_value=[first],
+                return_value=[(first, "第一次对话")],
             ),
             patch("fragile.commands.interactive.commands.history.choice", return_value=first) as selector,
             patch("fragile.commands.interactive.session.prompt", side_effect=["/history", "/quit"]),

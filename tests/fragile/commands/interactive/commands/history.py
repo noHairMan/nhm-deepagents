@@ -118,9 +118,9 @@ class TestHistoryCommand:
         state = SessionState(UUID(int=1), object())
         with (
             patch(
-                "fragile.commands.interactive.commands.history.list_thread_ids",
+                "fragile.commands.interactive.commands.history.list_history",
                 new_callable=AsyncMock,
-                return_value=[UUID(int=2)],
+                return_value=[(UUID(int=2), "第二次对话")],
             ),
             patch(
                 "fragile.commands.interactive.commands.history.choose_history",
