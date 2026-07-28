@@ -22,11 +22,11 @@
 
 -   **深層代理**： 融合的`deepagents`支援複雜任務處理和狀態管理的框架。
 -   **技能模組**: 支持透過`TOMORROW_SKILLS`配置技能目錄以載入代理程式的可擴充網域功能。
--   **子代理**: 支持透過`TOMORROW_SUBAGENTS`配置專用子代理程式及其模型、技能和系統提示。
+-   **subagent**: 支持透過`TOMORROW_SUBAGENTS`配置專用子代理程式及其模型、技能和系統提示。
 -   **程式碼解釋器**：整合QuickJS中間件，為代理提供程式碼執行能力。
 -   **遞迴控制**: 支持透過`TOMORROW_RECURSION_LIMIT`限制代理遞歸呼叫的深度。
 -   **生命週期管理**： 介紹`AgentManager`統一管理代理實例的建立和銷毀，確保資源的正常初始化。
--   **高性能API**：基於FastAPI構建，支援同步回應和伺服器發送事件（SSE）流輸出。
+-   **高性能API**：基於FastAPI構建，支援同步回應和伺服器發送事件（SSE）串流輸出。
 -   **互動式CLI**:`fragile`支援`/new`建立新會話，`/history`在持久的歷史會話之間瀏覽和切換，`/quit`退出、會話恢復、輸入歷史記錄、斜杠命令完成和多行編輯。
 -   **可靠性有保證**：強制類型提示、Ruff 靜態檢查、100% 測試覆蓋率要求。
 
@@ -65,7 +65,7 @@
 
 ### 安裝
 
-1.  **安裝`uv`**：
+1.  **安裝`uv`**:
     請關注[uv官方倉庫](https://github.com/astral-sh/uv)請按照 中的說明進行操作。
 
 2.  **克隆儲存庫**:
@@ -156,7 +156,7 @@ export TOMORROW_SUBAGENTS='[{"name":"researcher","description":"负责资料检�
 
 #### 雨天配置（API）
 
-| 多變的                | 描述               | 預設值         |
+| variable           | 描述               | 預設值         |
 | ------------------ | ---------------- | ----------- |
 | `RAINY_HOST`       | API服務監聽位址        | `localhost` |
 | `RAINY_PORT`       | API服務埠           | `8000`      |
@@ -230,7 +230,7 @@ Fragile 的其他互動行為是透過命令列選項和內建斜杠命令控制
         -   `urls.py`：統一路由掛載。
     -   `middleware/`：自訂中間件（處理時間，統一回應格式）。
     -   `settings.py`：API模組預設配置。
--   `tests/`：測試目錄、結構和`src`保持一致。
+-   `tests/`：測試目錄、結構及`src`保持一致。
 -   `docs/`：多語言文檔。
 -   `pyproject.toml`：項目元資料、依賴項和工具配置。
 -   `langgraph.json`:`langgraph-cli`圖和環境配置。
