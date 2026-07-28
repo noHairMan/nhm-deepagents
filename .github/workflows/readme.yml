@@ -27,16 +27,19 @@ jobs:
         uses: noHairMan/translate-readme@main
         with:
           LANG: zh-TW
+          README_PATH: "docs/README.zh.md"
           OUTPUT_DIR: "docs"
 
       - name: Adding README - English
         uses: noHairMan/translate-readme@main
         with:
           LANG: en
+          README_PATH: "docs/README.zh.md"
           OUTPUT_DIR: "docs"
 
       - name: Adding README - Japanese
         uses: noHairMan/translate-readme@main
         with:
           LANG: ja
+          README_PATH: "docs/README.zh.md"
           OUTPUT_DIR: "docs"
