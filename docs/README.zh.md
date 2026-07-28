@@ -10,7 +10,7 @@
 
 [简体中文](/docs/README.zh.md) | [English](/docs/README.en.md) | [日本語](/docs/README.ja.md) | [繁体中文](/docs/README.zh-TW.md)
 
-![Fragile banner](docs/images/fragile.png)
+![Fragile banner](/docs/images/fragile.png)
 
 一个使用现代 LLM 框架构建和运行“深度智能体”（Deep Agents）的 Python 项目。
 
@@ -104,12 +104,28 @@
 uv run python src/main.py
 ```
 
+该命令启动 Rainy API，默认监听 `http://localhost:8000`。也可以使用 Uvicorn 直接启动：
+
+```bash
+uv run uvicorn main:app --app-dir src --host localhost --port 8000
+```
+
 使用 `langgraph-cli` 启动智能体 API 服务：
 ```bash
 uv run langgraph dev
 ```
 
 CLI 会读取根目录的 `langgraph.json`，并暴露名为 `tomorrow` 的 graph。
+
+Rainy API 的请求体包含必填的 `message` 字段和可选的会话 `thread_id`。同步接口返回智能体的最终回复：
+
+```bash
+curl -X POST http://localhost:8000/api/chat \
+  -H 'Content-Type: application/json' \
+  -d '{"message":"你好"}'
+```
+
+需要逐步接收回复时，可调用 `/api/chat/stream` 获取 SSE 数据流；`/api/chat/stream/event` 会返回更完整的 LangGraph 事件流。健康检查接口为 `GET /api/health`。
 
 使用 `fragile` 命令行客户端启动交互式会话：
 ```bash
@@ -162,7 +178,9 @@ export TOMORROW_SUBAGENTS='[{"name":"researcher","description":"负责资料检�
 | `RAINY_HOST` | API 服务监听地址 | `localhost` |
 | `RAINY_PORT` | API 服务端口 | `8000` |
 | `RAINY_APP` | 应用名称（用作环境变量前缀） | `rainy` |
-| `RAINY_MIDDLEWARE` | 启用的中间件列表 | (见 settings.py) |
+| `RAINY_MIDDLEWARE` | 启用的中间件列表 | 统一响应格式、处理时间 |
+| `RAINY_UNIFY_RESPONSE_FORMAT_EXCLUDE` | 不进行统一响应包装的路径 | `/docs`、`/redoc`、`/openapi.json` |
+| `RAINY_LOG_LEVEL` | 日志级别 | `INFO` |
 
 #### Fragile 配置 (CLI)
 
