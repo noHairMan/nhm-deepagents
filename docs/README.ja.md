@@ -2,32 +2,34 @@
 
 [![Build Status](https://github.com/noHairMan/nhm-deepagents/actions/workflows/build.yml/badge.svg)](https://github.com/noHairMan/nhm-deepagents/actions/workflows/build.yml)[![Coverage badge](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/noHairMan/nhm-deepagents/python-coverage-comment-action-data/endpoint.json)](https://htmlpreview.github.io/?https://github.com/noHairMan/nhm-deepagents/blob/python-coverage-comment-action-data/htmlcov/index.html)[![Lint: Ruff](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/astral-sh/ruff/main/assets/badge/v2.json)](https://github.com/astral-sh/ruff)[![Python Version](https://img.shields.io/badge/python-3.14+-blue.svg)](https://www.python.org/downloads/release/python-3140/)[![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)[![Repo Size](https://img.shields.io/github/repo-size/noHairMan/nhm-deepagents)](https://github.com/noHairMan/nhm-deepagents)[![Last Commit](https://img.shields.io/github/last-commit/noHairMan/nhm-deepagents)](https://github.com/noHairMan/nhm-deepagents)
 
-[簡体字中国語](/docs/README.zh.md)\|[英語](/docs/README.en.md)\|[日本語](/docs/README.ja.md)\|[繁体字中国語](/docs/README.zh-TW.md)
+[簡体字中国語](/docs/README.zh.md)\|[英語](/docs/README.en.md)\|[日本語](/docs/README.ja.md)\|[繁体中文](/docs/README.zh-TW.md)
+
+![Fragile banner](/docs/images/fragile.png)
 
 最新の LLM フレームワークを使用して Deep Agent を構築および実行する Python プロジェクト。
 
 ## 🌟プロジェクト概要
 
-`nhm-deepagents`は、ディープ エージェントに焦点を当てたプロフェッショナルな Python プロジェクトです。最新の Python 機能 (3.14 以降) と強力なツールを活用して、AI エージェントの研究とアプリケーションに高品質の開発エクスペリエンスを提供します。
+`nhm-deepagents`1つです~~~~ディープエージェントに焦点を当てたプロフェッショナルな Python プロジェクト。最新の Python 機能 (3.14 以降) と強力なツールを活用して、AI エージェントの研究とアプリケーションに高品質の開発エクスペリエンスを提供します。
 
 プロジェクトには 3 つの主要なモジュールが含まれています。
 
 -   **`tomorrow`**: コアエージェントモジュール。コードネームはゲーム『デス・ストランディング2: オン・ザ・ビーチ』の登場人物から取られている。**明日**（エル・ファニングが演じる）。プロットでは、彼女は主人公サム・ブリッジスの娘であり、前作のキャラクターでもあることが明らかになりました。**ルー**(BB-28)。
 -   **`rainy`**: FastAPIをベースとしたAPIサービスモジュール。コードネームもデス・ストランディング2のキャラクターから取られています**雨が降る**（忽那汐里が演じる）。ゲーム内では「タイムフォール」と回復の「コアフォール」を引き起こす魔法の力を持ち、傷つけることも治すこともできる「ファルマコン」として描かれている。
--   **`fragile`**: Tomorrow エージェントに直接質問したり、対話型セッションを開始したりするための、Typer ベースのコマンド ライン クライアント。名前は同作の登場人物から。**壊れやすい**。 Fragile は Fragile Express の創設者であり配達員です。彼は時の雨にさらされて急速に老化しましたが、危険な環境で常に重要な物資を他の人に届けてきました。つながりと届けという使命を主張しながらも、「壊れやすい」佇まいのイメージが、このクライアント名の背景となっている。
+-   **`fragile`**: Tomorrow エージェントに直接質問したり、対話型セッションを開始したりするための、Typer ベースのコマンド ライン クライアント。名前は同作の登場人物から。**壊れやすい**。 Fragile は Fragile Express の創設者であり配達員です。彼は時の雨にさらされて急速に老化しましたが、危険な環境で常に重要な物資を他の人に届けてきました。つなぐ、届けるという使命を今も主張する「もろさ」のイメージが、このクライアント名の背景となっている。
 
 このプロジェクトは、`deepagents`フレームワークはユーザー入力を分析して渡します`rainy`このモジュールは外部同期を提供します (`/api/chat`）そして**ストリーミング (`/api/chat/stream`）**APIインターフェース。
 
 ### コア機能
 
--   **ディープエージェント**: 一体型`deepagents`複雑なタスク処理とステータス管理をサポートするフレームワーク。
+-   **ディープエージェント**: 集成`deepagents`複雑なタスク処理とステータス管理をサポートするフレームワーク。
 -   **スキルモジュール**：サポートを通じて`TOMORROW_SKILLS`エージェントのスケーラブルなドメイン機能をロードするようにスキル ディレクトリを構成します。
--   **復代理人**：サポートを通じて`TOMORROW_SUBAGENTS`専用サブエージェントとそのモデル、スキル、システム プロンプトを構成します。
+-   **子代理**：サポートを通じて`TOMORROW_SUBAGENTS`専用サブエージェントとそのモデル、スキル、システム プロンプトを構成します。
 -   **コードインタープリタ**: QuickJS ミドルウェアを統合して、エージェントにコード実行機能を提供します。
 -   **再帰的制御**：サポートを通じて`TOMORROW_RECURSION_LIMIT`エージェントの再帰呼び出しの深さを制限します。
 -   **ライフサイクル管理**： 導入`AgentManager`エージェント インスタンスの作成と破棄を一元管理することで、リソースの適切な初期化が保証されます。
--   **高性能API**: FastAPI 上に構築され、同期応答と Server-Sent Events (SSE) ストリーミング出力をサポートします。
--   **インタラクティブCLI**:`fragile`サポート`/new`新しいセッションを作成し、`/history`永続化された履歴セッションを参照して切り替えます。`/quit`終了、セッション回復、入力履歴、スラッシュコマンド補完、複数行編集。
+-   **高性能 API**: FastAPI 上に構築され、同期応答と Server-Sent Events (SSE) ストリーミング出力をサポートします。
+-   **交互式 CLI**:`fragile`支持`/new`新しいセッションを作成し、`/history`永続化された履歴セッションを参照して切り替えます。`/quit`終了、セッション回復、入力履歴、スラッシュコマンド補完、複数行編集。
 -   **信頼性の保証**: 強制型ヒント、Ruff 静的チェック、100% のテスト カバレッジ要件。
 
 ## ⚙️CI/CD
@@ -42,14 +44,14 @@
 ## 🛠️ テクノロジースタック
 
 -   **言語**:[パイソン](https://www.python.org/)>= 3.14
--   **パッケージマネージャー**:[紫外線](https://github.com/astral-sh/uv)
+-   **包管理器**:[紫外線](https://github.com/astral-sh/uv)
 -   **APIフレームワーク**:[早い](https://fastapi.tiangolo.com/)
 -   **ウェブサーバー**:[ユビコーン](https://www.uvicorn.org/)
 -   **エージェントフレームワーク**:[ディープエージェント](https://github.com/zongxuheng/deepagents)(LangGraph/LangChainに基づく)
 -   **LLMプロバイダー**:[であること](https://ollama.com/)、[ハグ顔](https://huggingface.co/)そして[人間的](https://www.anthropic.com/)
 -   **コードの実行**:[langchain-quickjs](https://github.com/langchain-ai/langchainjs)QuickJSミドルウェア提供
 -   **端末のインタラクション**:[プロンプトツールキット](https://github.com/prompt-toolkit/python-prompt-toolkit)入力履歴、コマンド補完、複数行編集を提供します。[リッチ](https://github.com/Textualize/rich)端末出力スタイルを提供します。
--   **構成管理**:[ピダンティックな設定](https://docs.pydantic.dev/latest/usage/settings/)
+-   **配置管理**:[ピダンティックな設定](https://docs.pydantic.dev/latest/usage/settings/)
 -   **例外処理**: カスタム例外システム (`TomorrowError`とそのサブクラス)、モデル、バックエンド、ストレージ、チェックポイントのエラーをカバーします。
 -   **コードの品質**:[ラフ](https://github.com/astral-sh/ruff)(ブラックとアイソートを置き換えます)、`pre-commit`、厳密な型ヒンティング
 -   **テストと適用範囲**:`pytest`,`coverage`
@@ -84,7 +86,7 @@
     uv run pre-commit install
     ```
 
-5.  **LLM の構成**:
+5.  **配置 LLM**:
     ```bash
     export TOMORROW_MODEL__TYPE="anthropic"
     export TOMORROW_MODEL__ANTHROPIC__BASE_URL="https://www.llmgateway.cn"
@@ -100,6 +102,12 @@
 uv run python src/main.py
 ```
 
+このコマンドは、デフォルトでリッスンする Rainy API を開始します。`http://localhost:8000`。 Uvicorn を使用して直接開始することもできます。
+
+```bash
+uv run uvicorn main:app --app-dir src --host localhost --port 8000
+```
+
 使用`langgraph-cli`エージェント API サービスを開始します。
 
 ```bash
@@ -107,6 +115,16 @@ uv run langgraph dev
 ```
 
 CLI はルート ディレクトリを読み取ります。`langgraph.json`、名前を公開します`tomorrow`グラフ。
+
+Rainy API のリクエストボディには必須の内容が含まれます`message`フィールドとオプションのセッション`thread_id`。同期インターフェイスはエージェントの最終応答を返します。
+
+```bash
+curl -X POST http://localhost:8000/api/chat \
+  -H 'Content-Type: application/json' \
+  -d '{"message":"你好"}'
+```
+
+段階的に返信を受け取る必要がある場合は、電話をかけることができます。`/api/chat/stream`SSE データ ストリームを取得します。`/api/chat/stream/event`LangGraph イベントのより完全なストリームが返されます。ヘルスチェックインターフェイスは次のとおりです。`GET /api/health`。
 
 使用`fragile`コマンド ライン クライアントは対話型セッションを開始します。
 
@@ -116,7 +134,7 @@ uv run fragile
 
 合格`--thread`または`-t`UUID を渡すと、既存のセッションを復元できます。渡されない場合、新しいスレッドが自動的に作成されます。インタラクション中の入力`/new`画面をクリアして新しいセッションを開始するには、次のように入力します。`/history`保存されたセッションを表示し、番号または UUID で切り替えるには、次のように入力します。`/quit`出口;続けて2回押すこともできます`Ctrl+C`セッションを短時間で終了するには、 を押します。`Esc`Enter キーを押して改行を挿入します。
 
-## ⚙️ 構成
+## ⚙️ 配置
 
 このプロジェクトでは、**ピダンティックな設定**構成管理を実行します。設定はそれぞれ次のように定義されています。`src/tomorrow/settings.py`（明日）、`src/rainy/settings.py`(雨) そして`src/fragile/settings.py`(壊れやすい)、環境変数を使用するか、`.env`ファイルが上書きされます。環境変数は最も高い優先順位を持ち、3 つのモジュールによってそれぞれ使用されます。`TOMORROW_`、`RAINY_`そして`FRAGILE_`接頭語;渡すこともできます`TOMORROW_ENV_FILE`、`RAINY_ENV_FILE`または`FRAGILE_ENV_FILE`設定ファイルのパスを指定します。
 
@@ -124,7 +142,7 @@ uv run fragile
 
 環境変数にはデフォルトで接頭辞が付けられます`TOMORROW_`(コアモジュール)、`RAINY_`(API モジュール) または`FRAGILE_`(CLI モジュール) が始まります。
 
-#### 明日の構成（コア）
+#### Tomorrow 配置 (核心)
 
 | 変数                         | 説明する                                      | デフォルト値                                    |
 | -------------------------- | ----------------------------------------- | ----------------------------------------- |
@@ -154,16 +172,18 @@ export TOMORROW_MODEL__ANTHROPIC__API_KEY="your-api-key"
 export TOMORROW_SUBAGENTS='[{"name":"researcher","description":"负责资料检索","system_prompt":"你是一名研究助手。","skills":["skills/research/"]}]'
 ```
 
-#### レイニー構成 (API)
+#### Rainy 配置 (API)
 
-| 変数                 | 説明する                      | デフォルト値           |
-| ------------------ | ------------------------- | ---------------- |
-| `RAINY_HOST`       | APIサービスリスニングアドレス          | `localhost`      |
-| `RAINY_PORT`       | APIサービスポート                | `8000`           |
-| `RAINY_APP`        | アプリケーション名 (環境変数の接頭辞として使用) | `rainy`          |
-| `RAINY_MIDDLEWARE` | 有効なミドルウェアのリスト             | (settings.pyを参照) |
+| 変数                                    | 説明する                      | デフォルト値                           |
+| ------------------------------------- | ------------------------- | -------------------------------- |
+| `RAINY_HOST`                          | APIサービスリスニングアドレス          | `localhost`                      |
+| `RAINY_PORT`                          | APIサービスポート                | `8000`                           |
+| `RAINY_APP`                           | アプリケーション名 (環境変数の接頭辞として使用) | `rainy`                          |
+| `RAINY_MIDDLEWARE`                    | 有効なミドルウェアのリスト             | 統一された応答形式と処理時間                   |
+| `RAINY_UNIFY_RESPONSE_FORMAT_EXCLUDE` | 統一応答パッケージ化のないパス           | `/docs`、`/redoc`、`/openapi.json` |
+| `RAINY_LOG_LEVEL`                     | ログレベル                     | `INFO`                           |
 
-#### 脆弱な構成 (CLI)
+#### Fragile 配置 (CLI)
 
 | 変数                                 | 説明する                          | デフォルト値                 |
 | ---------------------------------- | ----------------------------- | ---------------------- |
@@ -173,7 +193,7 @@ export TOMORROW_SUBAGENTS='[{"name":"researcher","description":"负责资料检�
 
 Fragile のその他の対話型動作は、コマンド ライン オプションと組み込みのスラッシュ コマンドによって制御されます。コマンドは、レジストリを通じて均一に検出され、処理されます。`FRAGILE_ENABLED_COMMANDS`有効なコマンドを調整します。
 
-## 📜脚本
+## 📜 脚本
 
 一般的に使用される開発スクリプト:
 
@@ -188,11 +208,11 @@ Fragile のその他の対話型動作は、コマンド ライン オプショ�
     uv run pre-commit run --all-files
     ```
 
-## 📂 プロジェクトの構造
+## 📂 项目结构
 
 -   `src/main.py`: Rainy API サービスのメイン エントリ ポイント。環境をセットアップし、Uvicorn サーバーを起動します。
 -   `src/fragile/`: コマンド ライン クライアント パッケージ ディレクトリ。
-    -   `cli.py`： 意味`fragile`コマンドライン入力。
+    -   `cli.py`： 意味`fragile`命令行入口。
     -   `commands/interactive/`: インタラクティブなセッション実装。セッション回復、新しいセッション、コマンド補完、複数行入力をサポートします。
         -   `agent.py`: Tomorrow エージェントとのやり取りを管理します。
         -   `commands/`: インタラクティブなスラッシュ コマンドの実装とコマンド レジストリ。
@@ -209,7 +229,7 @@ Fragile のその他の対話型動作は、コマンド ライン オプショ�
     -   `settings.py`: CLI モジュールのデフォルト設定。
 -   `src/tomorrow/`: コア エージェント パッケージ ディレクトリ。
     -   `graph.py`:`langgraph-cli`使用するグラフエントリ。
-    -   `core/agent.py`: ディープ エージェントとその命令を定義します。`AgentManager`ライフサイクル管理を実行します。
+    -   `core/agent.py`: 定义深度智能体及其指令，提供 `AgentManager`ライフサイクル管理を実行します。
     -   `core/backend/`: バックエンド読み込みロジックの統合、サポート`FILESYSTEM`そして`LOCAL_SHELL`。
     -   `core/checkpoint/`: チェックポイントの実装、サポート`MEMORY`そして`SQLITE`。
     -   `core/model/`：モデルローディングの実装、サポート`OLLAMA`、`HUGGINGFACE`そして`ANTHROPIC`。
@@ -230,7 +250,7 @@ Fragile のその他の対話型動作は、コマンド ライン オプショ�
         -   `urls.py`：統一配線実装。
     -   `middleware/`：カスタムミドルウェア（処理時間、統一応答形式）。
     -   `settings.py`: API モジュールのデフォルト設定。
--   `tests/`: テストディレクトリ、構造、および`src`一貫性を保ちましょう。
+-   `tests/`: テストディレクトリ、構造、および`src`保持一致。
 -   `docs/`: 多言語ドキュメント。
 -   `pyproject.toml`: プロジェクトのメタデータ、依存関係、およびツール構成。
 -   `langgraph.json`:`langgraph-cli`グラフと環境構成。
