@@ -4,17 +4,19 @@
 
 [Simplified Chinese](/docs/README.zh.md)\|[English](/docs/README.en.md)\|[Japanese](/docs/README.ja.md)\|[Traditional Chinese](/docs/README.zh-TW.md)
 
+![Fragile banner](/docs/images/fragile.png)
+
 A Python project to build and run Deep Agents using a modern LLM framework.
 
 ## 🌟 Project Overview
 
-`nhm-deepagents`is a professional Python project focusing on deep agents. It leverages modern Python features (3.14+) and powerful tools to provide a high-quality development experience for AI agent research and applications.
+`nhm-deepagents`is one~~~~A professional Python project focusing on deep agents. It leverages modern Python features (3.14+) and powerful tools to provide a high-quality development experience for AI agent research and applications.
 
 The project contains three main modules:
 
--   **`tomorrow`**: Core agent module. The codename is taken from a character in the game "Death Stranding 2: On the Beach"**Tomorrow**(played by Elle Fanning). In the plot, she is the daughter of protagonist Sam Bridges, who was also revealed to be a character in the previous game.**Lou**(BB-28)。
+-   **`tomorrow`**: Core agent module. The codename is taken from a character in the game "Death Stranding 2: On the Beach"**Tomorrow**（由艾丽·范宁饰演）。在剧情中，她是主角山姆·布里吉斯（Sam Bridges）的女儿，也被揭示为前作中的 **Lou**(BB-28)。
 -   **`rainy`**: API service module based on FastAPI. The codename is also taken from a character in Death Stranding 2**Rainy**(played by Shiori Kutsuna). In the game, she has the magical power to cause "Timefall" and the healing "Corefall", and is described as a "Pharmakon" that can both hurt and heal.
--   **`fragile`**: A Typer-based command line client for asking questions directly to the Tomorrow agent or starting interactive sessions. Its name is taken from a character in the same work**Fragile**. Fragile is the founder and courier of Fragile Express. He has aged rapidly due to exposure to the rain of time, but he has always delivered important supplies to others in dangerous environments. This image of a "fragile" appearance that still insists on the mission of connection and delivery is the background of the name of this client.
+-   **`fragile`**: A Typer-based command line client for asking questions directly to the Tomorrow agent or starting interactive sessions. Its name is taken from a character in the same work**Fragile**. Fragile is the founder and courier of Fragile Express. He has aged rapidly due to exposure to the rain of time, but he has always delivered important supplies to others in dangerous environments. This image of "fragility" that still insists on the mission of connecting and delivering is the background of the name of this client.
 
 This project provides a general smart assistant agent that utilizes`deepagents`The framework analyzes user input and passes`rainy`The module provides external synchronization (`/api/chat`)and**streaming (`/api/chat/stream`）**API interface.
 
@@ -35,7 +37,7 @@ This project provides a general smart assistant agent that utilizes`deepagents`T
 The project integrates GitHub Actions workflows, including:
 
 -   **Testing and Coverage**: Automatically run tests and check code coverage.
--   **Document translation**: automatically`README.zh.md`Translated into multiple languages ​​(English, Japanese, Traditional Chinese).
+-   **文档翻译**: automatically`README.zh.md`Translated into multiple languages ​​(English, Japanese, Traditional Chinese).
 -   **Code specifications**: Automatic execution`ruff`Check and format to ensure consistent code style and high quality.
 -   **CI process optimization**: Enhanced workflow trigger path rules, triggering builds only when relevant code or configuration changes, improving efficiency.
 
@@ -46,7 +48,7 @@ The project integrates GitHub Actions workflows, including:
 -   **API framework**:[speedy](https://fastapi.tiangolo.com/)
 -   **Web server**:[Uvicorn](https://www.uvicorn.org/)
 -   **agent framework**:[deepagents](https://github.com/zongxuheng/deepagents)(Based on LangGraph/LangChain)
--   **LLM provider**:[To be](https://ollama.com/)、[HuggingFace](https://huggingface.co/)and[Anthropic](https://www.anthropic.com/)
+-   **LLM provider**:[To be](https://ollama.com/)、[HuggingFace](https://huggingface.co/) 和 [Anthropic](https://www.anthropic.com/)
 -   **code execution**:[langchain-quickjs](https://github.com/langchain-ai/langchainjs)QuickJS middleware provided
 -   **Terminal interaction**:[prompt-toolkit](https://github.com/prompt-toolkit/python-prompt-toolkit)Provides input history, command completion and multi-line editing,[Rich](https://github.com/Textualize/rich)Provides terminal output styles.
 -   **Configuration management**:[Pydantic Settings](https://docs.pydantic.dev/latest/usage/settings/)
@@ -66,7 +68,7 @@ The project integrates GitHub Actions workflows, including:
 ### Install
 
 1.  **Install`uv`**:
-    Please follow[uv official warehouse](https://github.com/astral-sh/uv)Follow the instructions in .
+    Please follow[uv 官方仓库](https://github.com/astral-sh/uv)Follow the instructions in .
 
 2.  **Clone repository**:
     ```bash
@@ -100,6 +102,12 @@ Run the main entry point:
 uv run python src/main.py
 ```
 
+This command starts the Rainy API, which listens by default`http://localhost:8000`. You can also use Uvicorn to start directly:
+
+```bash
+uv run uvicorn main:app --app-dir src --host localhost --port 8000
+```
+
 use`langgraph-cli`Start the agent API service:
 
 ```bash
@@ -107,6 +115,16 @@ uv run langgraph dev
 ```
 
 The CLI will read the root directory`langgraph.json`, and expose the name`tomorrow`graph.
+
+The request body of Rainy API contains required`message`fields and optional sessions`thread_id`. The synchronization interface returns the agent's final reply:
+
+```bash
+curl -X POST http://localhost:8000/api/chat \
+  -H 'Content-Type: application/json' \
+  -d '{"message":"你好"}'
+```
+
+When you need to receive replies step by step, you can call`/api/chat/stream`Get SSE data stream;`/api/chat/stream/event`A more complete stream of LangGraph events is returned. The health check interface is`GET /api/health`。
 
 use`fragile`The command line client starts an interactive session:
 
@@ -156,12 +174,14 @@ export TOMORROW_SUBAGENTS='[{"name":"researcher","description":"负责资料检�
 
 #### Rainy configuration (API)
 
-| variable           | describe                                               | default value     |
-| ------------------ | ------------------------------------------------------ | ----------------- |
-| `RAINY_HOST`       | API service listening address                          | `localhost`       |
-| `RAINY_PORT`       | API service port                                       | `8000`            |
-| `RAINY_APP`        | Application name (used as environment variable prefix) | `rainy`           |
-| `RAINY_MIDDLEWARE` | List of enabled middlewares                            | (see settings.py) |
+| variable                              | describe                                               | default value                               |
+| ------------------------------------- | ------------------------------------------------------ | ------------------------------------------- |
+| `RAINY_HOST`                          | API service listening address                          | `localhost`                                 |
+| `RAINY_PORT`                          | API service port                                       | `8000`                                      |
+| `RAINY_APP`                           | Application name (used as environment variable prefix) | `rainy`                                     |
+| `RAINY_MIDDLEWARE`                    | List of enabled middlewares                            | Unified response format and processing time |
+| `RAINY_UNIFY_RESPONSE_FORMAT_EXCLUDE` | Path without unified response packaging                | `/docs`、`/redoc`、`/openapi.json`            |
+| `RAINY_LOG_LEVEL`                     | Log level                                              | `INFO`                                      |
 
 #### Fragile configuration (CLI)
 
