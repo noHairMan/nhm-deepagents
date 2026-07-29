@@ -6,7 +6,7 @@
 
 ![Fragile banner](/docs/images/fragile.png)
 
-一個使用現代 LLM 框架建構和運行「深度智能體」（Deep Agents）的 Python 專案。
+一个使用现代 LLM 框架构建和运行“深度智能体”（Deep Agents）的 Python 项目。
 
 ## 🌟 專案概覽
 
@@ -14,7 +14,7 @@
 
 專案內部包含三個主要模組：
 
--   **`tomorrow`**: 核心智能體模組。代號取自遊戲《死亡擱淺 2：冥灘之上》（Death Stranding 2: On the Beach）中的角色**明天**（艾莉·範甯飾演）。在劇情中，她是主角山姆布里吉斯（Sam Bridges）的女兒，也被揭露為前作中的**大樓**(BB-28)。
+-   **`tomorrow`**: 核心智能體模組。代號取自遊戲《死亡擱淺 2：冥灘之上》（Death Stranding 2: On the Beach）中的角色**明天**（艾莉·範甯飾演）。在劇情中，她是主角山姆布里吉斯（Sam Bridges）的女兒，也被揭露為前作中的**大樓** (BB-28)。
 -   **`rainy`**: 基於 FastAPI 的 API 服務模組。代號同樣取自《死亡擱淺 2》中的角色**下雨天**（由忽那汐裡飾演）。在遊戲中，她擁有引發「時間雨」（Timefall）和具有治癒能力的「核心雨」（Corefall）的神奇力量，被描述為既能傷害也能治癒的「藥（Pharmakon）」。
 -   **`fragile`**: 基於 Typer 的命令列客戶端，用於直接向 Tomorrow 智能體提問或啟動互動式會話。其名稱取自同一作品中的角色**脆弱的**。 Fragile 是 Fragile Express 的創辦人和快遞員，因接觸時間雨而快速衰老，卻始終在危險環境中為他人運送重要物資；這種「脆弱」外表下仍堅持承擔連接與傳遞使命的形象，正是該客戶端名稱的背景。
 
@@ -81,18 +81,13 @@
     uv sync
     ```
 
-4.  **安裝 pre-commit 鉤子**:
+4.  **安裝`fragile`命令**:
+
     ```bash
-    uv run pre-commit install
+    uv tool install .
     ```
 
-5.  **配置 LLM**:
-    ```bash
-    export TOMORROW_MODEL__TYPE="anthropic"
-    export TOMORROW_MODEL__ANTHROPIC__BASE_URL="https://www.llmgateway.cn"
-    export TOMORROW_MODEL__ANTHROPIC__MODEL="deepseek-v4-flash"
-    export TOMORROW_MODEL__ANTHROPIC__API_KEY="your-api-key"
-    ```
+    安裝完成後，可直接使用`fragile`命令啟動命令列客戶端。
 
 ### 運行應用
 
@@ -116,7 +111,7 @@ uv run langgraph dev
 
 CLI 會讀取根目錄的`langgraph.json`，並暴露名為`tomorrow`的 graph。
 
-Rainy API 的請求體包含必填的`message`字段和可選的會話`thread_id`。同步介面返回智能體的最終回覆：
+Rainy API 的请求体包含必填的 `message`字段和可選的會話`thread_id`。同步介面返回智能體的最終回覆：
 
 ```bash
 curl -X POST http://localhost:8000/api/chat \
@@ -127,6 +122,12 @@ curl -X POST http://localhost:8000/api/chat \
 需要逐步接收回應時，可調用`/api/chat/stream`取得 SSE 資料流；`/api/chat/stream/event`會傳回更完整的 LangGraph 事件流。健康檢查介面為`GET /api/health`。
 
 使用`fragile`命令列客戶端啟動互動式會話：
+
+```bash
+fragile
+```
+
+如果尚未使用`uv tool install .`安裝命令，也可以在專案環境中執行：
 
 ```bash
 uv run fragile
@@ -228,7 +229,7 @@ Fragile 的其他互動行為透過命令列選項和內建斜線命令控制。
     -   `models/constants/command.py`: 定義指令處理結果常數。
     -   `settings.py`: CLI 模組預設配置。
 -   `src/tomorrow/`: 核心智能體包目錄。
-    -   `graph.py`:`langgraph-cli`使用的 graph 入口。
+    -   `graph.py`:`langgraph-cli` 使用的 graph 入口。
     -   `core/agent.py`: 定義深度智能體及其指令，提供`AgentManager`進行生命週期管理。
     -   `core/backend/`: 統一後端載入邏輯，支持`FILESYSTEM`和`LOCAL_SHELL`。
     -   `core/checkpoint/`: 檢查點實現，支持`MEMORY`和`SQLITE`。
@@ -248,7 +249,7 @@ Fragile 的其他互動行為透過命令列選項和內建斜線命令控制。
             -   `POST /api/chat/stream/event`: 事件流響應。
         -   `health.py`: 健康檢查介面 (`GET /api/health`)。
         -   `urls.py`: 統一路由掛載。
-    -   `middleware/`: 自定义中间件（处理时间、统一响应格式）。
+    -   `middleware/`: 自訂中間件（處理時間、統一回應格式）。
     -   `settings.py`: API 模組預設配置。
 -   `tests/`: 測試目錄，結構與`src`保持一致。
 -   `docs/`: 多國語言文件。
