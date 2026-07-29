@@ -25,5 +25,12 @@ class TestCli:
         from fragile.app import main
 
         with patch("fragile.app.interactive") as interactive:
-            main(None)
+            main(None, None)
         interactive.assert_called_once_with(None)
+
+    def test_purge_command(self) -> None:
+        with patch("fragile.app.purge_sessions", return_value=3) as purge_sessions:
+            result = runner.invoke(app, ["purge"])
+        assert result.exit_code == 0
+        assert result.stdout == "Cleared 3 session records.\n"
+        purge_sessions.assert_called_once_with()
