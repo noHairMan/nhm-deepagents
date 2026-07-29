@@ -5,7 +5,7 @@ import pytest
 import typer
 from typer.testing import CliRunner
 
-from fragile.cli import app
+from fragile.app import app
 from fragile.commands.interactive.commands import COMMAND_REGISTRY, CommandRegistry
 from fragile.commands.interactive.commands.base import extract_prompt
 from fragile.commands.interactive.commands.quit import QuitCommand

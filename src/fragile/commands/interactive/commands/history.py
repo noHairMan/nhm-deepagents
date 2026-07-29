@@ -14,7 +14,7 @@ from fragile.commands.interactive.commands.base import Command as BaseCommand
 from fragile.commands.interactive.display import show_startup
 from fragile.models import SessionState
 from fragile.models.constants import CommandResult
-from fragile.models.history import ConversationHistory, _database_path, _ensure_schema
+from fragile.models.history import ConversationHistory, _database_path
 
 
 class HistoryCommand(BaseCommand):
@@ -40,7 +40,6 @@ async def list_history() -> list[tuple[UUID, str]]:
     if not path.exists():
         return []
     engine = create_engine(f"sqlite:///{path}")
-    _ensure_schema(engine)
     with Session(engine) as session:
         conversations = session.scalars(select(ConversationHistory).order_by(ConversationHistory.thread_id)).all()
     engine.dispose()

@@ -47,18 +47,3 @@ class TestHistory:
             session.add(ConversationHistory(thread_id=str(thread_id), title="旧标题"))
             session.commit()
         engine.dispose()
-
-    def test_register_migrates_legacy_table(self, tmp_path, monkeypatch) -> None:
-        database_path = tmp_path / "history.db"
-        monkeypatch.setattr("fragile.models.history.settings.CHECKPOINT.sqlite.path", database_path)
-        engine = create_engine(f"sqlite:///{database_path}")
-        with engine.begin() as connection:
-            connection.exec_driver_sql(
-                "CREATE TABLE fragile_conversation_history (thread_id TEXT PRIMARY KEY, title TEXT NOT NULL)"
-            )
-            connection.exec_driver_sql(
-                "INSERT INTO fragile_conversation_history "
-                "(thread_id, title) VALUES ('00000000-0000-0000-0000-000000000003', '旧标题')"
-            )
-        engine.dispose()
-        register_conversation(UUID(int=2), "新标题")

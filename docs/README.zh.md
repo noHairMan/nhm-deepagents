@@ -210,7 +210,7 @@ Fragile 的其他交互行为通过命令行选项和内置斜线命令控制。
 
 - `src/main.py`: Rainy API 服务的主入口点。设置环境并启动 Uvicorn 服务器。
 - `src/fragile/`: 命令行客户端包目录。
-  - `cli.py`: 定义 `fragile` 命令行入口。
+  - `app.py`: 定义 `fragile` 命令行入口。
   - `commands/interactive/`: 交互式会话实现，支持会话恢复、新建会话、命令补全和多行输入。
     - `agent.py`: 管理与 Tomorrow 智能体的交互。
     - `commands/`: 交互式斜线命令实现和命令注册表。
