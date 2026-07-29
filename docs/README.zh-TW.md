@@ -6,15 +6,15 @@
 
 ![Fragile banner](/docs/images/fragile.png)
 
-一个使用现代 LLM 框架构建和运行“深度智能体”（Deep Agents）的 Python 项目。
+一個使用現代 LLM 框架建構和運行「深度智能體」（Deep Agents）的 Python 專案。
 
 ## 🌟 專案概覽
 
-`nhm-deepagents`是一~~~~個專注於深度智能體的專業 Python 專案。它利用現代 Python 特性 (3.14+) 和強大的工具，為 AI 智能體研究和應用提供高品質的開發體驗。
+`nhm-deepagents`是一個專注於深度智能體的專業 Python 專案。它利用現代 Python 特性 (3.14+) 和強大的工具，為 AI 智能體研究和應用提供高品質的開發體驗。
 
 專案內部包含三個主要模組：
 
--   **`tomorrow`**: 核心智能體模組。代號取自遊戲《死亡擱淺 2：冥灘之上》（Death Stranding 2: On the Beach）中的角色**明天**（艾莉·範甯飾演）。在劇情中，她是主角山姆布里吉斯（Sam Bridges）的女兒，也被揭露為前作中的**大樓** (BB-28)。
+-   **`tomorrow`**: 核心智能體模組。代號取自遊戲《死亡擱淺 2：冥灘之上》（Death Stranding 2: On the Beach）中的角色**明天**（艾莉·範甯飾演）。在劇情中，她是主角山姆布里吉斯（Sam Bridges）的女兒，也被揭露為前作中的**大樓**(BB-28)。
 -   **`rainy`**: 基於 FastAPI 的 API 服務模組。代號同樣取自《死亡擱淺 2》中的角色**下雨天**（由忽那汐裡飾演）。在遊戲中，她擁有引發「時間雨」（Timefall）和具有治癒能力的「核心雨」（Corefall）的神奇力量，被描述為既能傷害也能治癒的「藥（Pharmakon）」。
 -   **`fragile`**: 基於 Typer 的命令列客戶端，用於直接向 Tomorrow 智能體提問或啟動互動式會話。其名稱取自同一作品中的角色**脆弱的**。 Fragile 是 Fragile Express 的創辦人和快遞員，因接觸時間雨而快速衰老，卻始終在危險環境中為他人運送重要物資；這種「脆弱」外表下仍堅持承擔連接與傳遞使命的形象，正是該客戶端名稱的背景。
 
@@ -111,7 +111,7 @@ uv run langgraph dev
 
 CLI 會讀取根目錄的`langgraph.json`，並暴露名為`tomorrow`的 graph。
 
-Rainy API 的请求体包含必填的 `message`字段和可選的會話`thread_id`。同步介面返回智能體的最終回覆：
+Rainy API 的請求體包含必填的`message`字段和可選的會話`thread_id`。同步介面返回智能體的最終回覆：
 
 ```bash
 curl -X POST http://localhost:8000/api/chat \
@@ -151,7 +151,7 @@ uv run fragile
 | `TOMORROW_MODEL`           | 模型配置，支援 OLLAMA、HUGGINGFACE 和 ANTHROPIC | 目前`.env`使用`anthropic`/`deepseek-v4-flash` |
 | `TOMORROW_CHECKPOINT`      | 檢查點配置，支援 MEMORY 和 SQLITE               | `{"type":"memory"}`                       |
 | `TOMORROW_BACKEND`         | 後端配置，支援 FILESYSTEM 和 LOCAL_SHELL       | `{"type":"filesystem"}`                   |
-| `TOMORROW_STORE`           | 儲存配置，支援 MEMORY 和 SQLITE                | `{"type":"sqlite"}`                       |
+| `TOMORROW_STORE`           | 存储配置，支持 MEMORY 和 SQLITE                | `{"type":"sqlite"}`                       |
 | `TOMORROW_SKILLS`          | 技能目錄列表                                 | `["skills/"]`                             |
 | `TOMORROW_SUBAGENTS`       | 子代理配置列表                                | `[]`                                      |
 | `TOMORROW_RECURSION_LIMIT` | 智能體遞歸調用上限                              | `100`                                     |
@@ -229,7 +229,7 @@ Fragile 的其他互動行為透過命令列選項和內建斜線命令控制。
     -   `models/constants/command.py`: 定義指令處理結果常數。
     -   `settings.py`: CLI 模組預設配置。
 -   `src/tomorrow/`: 核心智能體包目錄。
-    -   `graph.py`:`langgraph-cli` 使用的 graph 入口。
+    -   `graph.py`:`langgraph-cli`使用的 graph 入口。
     -   `core/agent.py`: 定義深度智能體及其指令，提供`AgentManager`進行生命週期管理。
     -   `core/backend/`: 統一後端載入邏輯，支持`FILESYSTEM`和`LOCAL_SHELL`。
     -   `core/checkpoint/`: 檢查點實現，支持`MEMORY`和`SQLITE`。
