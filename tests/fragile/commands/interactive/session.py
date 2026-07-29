@@ -63,7 +63,7 @@ class TestSession:
                 new_callable=AsyncMock,
                 return_value=[(first, "第一次对话")],
             ),
-            patch("fragile.commands.interactive.commands.history.choice", return_value=first),
+            patch("fragile.commands.interactive.commands.history.select_history", return_value=first),
             patch("fragile.commands.interactive.session.prompt", side_effect=["/history", "/quit"]),
             patch("fragile.commands.interactive.commands.history.show_startup") as show_startup,
         ):
@@ -79,7 +79,7 @@ class TestSession:
                 new_callable=AsyncMock,
                 return_value=[(first, "第一次对话")],
             ),
-            patch("fragile.commands.interactive.commands.history.choice", return_value=first) as selector,
+            patch("fragile.commands.interactive.commands.history.select_history", return_value=first) as selector,
             patch("fragile.commands.interactive.session.prompt", side_effect=["/history", "/quit"]),
         ):
             interactive(None)

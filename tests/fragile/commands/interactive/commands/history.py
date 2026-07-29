@@ -4,15 +4,39 @@ from uuid import UUID
 
 import pytest
 import typer
+from prompt_toolkit.key_binding import KeyBindings
+from prompt_toolkit.widgets import RadioList
 from sqlalchemy import create_engine
 from sqlalchemy.orm import Session
 
-from fragile.commands.interactive.commands.history import HistoryCommand, choose_history, list_history
+from fragile.commands.interactive.commands.history import (
+    HISTORY_STYLE,
+    HistoryCommand,
+    choose_history,
+    format_elapsed_time,
+    list_history,
+    select_history,
+)
 from fragile.models import Base, ConversationHistory, SessionState
 from fragile.models.constants import CommandResult
 
 
 class TestHistoryCommand:
+    def test_select_history_hides_numbers(self) -> None:
+        first = UUID(int=1)
+        application = MagicMock()
+        application.run.return_value = first
+        with (
+            patch(
+                "fragile.commands.interactive.commands.history.RadioList",
+                wraps=RadioList,
+            ) as radio_list_factory,
+            patch("fragile.commands.interactive.commands.history.Application", return_value=application),
+        ):
+            assert select_history("Select:", [(first, "对话")], KeyBindings(), HISTORY_STYLE, "", True) == first
+        assert radio_list_factory.call_args.kwargs["show_numbers"] is False
+        assert HISTORY_STYLE.get_attrs_for_style_str("class:selected-option").color == "ansigreen"
+
     def test_history_command_handles_prompt_directly(self) -> None:
         state = SessionState(thread_id=UUID(int=1), prompt_session=object())
         with (
@@ -34,6 +58,8 @@ class TestHistoryCommand:
             "Select a conversation:",
             options=[(first, "第一次对话")],
             key_bindings=selector.call_args.kwargs["key_bindings"],
+            style=selector.call_args.kwargs["style"],
+            symbol="",
             enable_interrupt=False,
         )
 
@@ -69,7 +95,7 @@ class TestHistoryCommand:
 
         monkeypatch.setattr("fragile.models.history.engine", engine)
         ConversationHistory.register_conversation(first, "第一次对话")
-        assert await list_history() == [(first, "第一次对话")]
+        assert await list_history() == [(first, "第一次对话    just now")]
 
     @pytest.mark.asyncio
     async def test_list_history_returns_newest_conversations_first(self, tmp_path, monkeypatch) -> None:
@@ -79,15 +105,15 @@ class TestHistoryCommand:
         older = ConversationHistory(thread_id=str(UUID(int=1)), title="较早对话")
         newer = ConversationHistory(thread_id=str(UUID(int=2)), title="较新对话")
         created_at = datetime.now()
-        older.create_time = created_at
-        newer.create_time = created_at + timedelta(seconds=1)
+        older.update_time = created_at - timedelta(days=1)
+        newer.update_time = created_at
         with Session(engine) as session:
             session.add_all([older, newer])
             session.commit()
 
         assert await list_history() == [
-            (UUID(int=2), "较新对话"),
-            (UUID(int=1), "较早对话"),
+            (UUID(int=2), "较新对话    just now"),
+            (UUID(int=1), "较早对话    1 day ago"),
         ]
 
     @pytest.mark.asyncio
@@ -107,7 +133,20 @@ class TestHistoryCommand:
             session.add(ConversationHistory(thread_id=str(UUID(int=3)), title="已有对话"))
             session.commit()
         engine.dispose()
-        assert await list_history() == [(UUID(int=3), "已有对话")]
+        assert await list_history() == [(UUID(int=3), "已有对话    just now")]
+
+    @pytest.mark.parametrize(
+        ("elapsed", "expected"),
+        [
+            (timedelta(seconds=30), "just now"),
+            (timedelta(minutes=1), "1 minute ago"),
+            (timedelta(hours=2), "2 hours ago"),
+            (timedelta(days=3), "3 days ago"),
+        ],
+    )
+    def test_format_elapsed_time(self, elapsed: timedelta, expected: str) -> None:
+        now = datetime(2026, 1, 1)
+        assert format_elapsed_time(now - elapsed, now) == expected
 
     def test_history_command_keeps_state_when_selection_is_cancelled(self) -> None:
         state = SessionState(thread_id=UUID(int=1), prompt_session=object())

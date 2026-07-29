@@ -1,5 +1,6 @@
 """Conversation history models and persistence helpers."""
 
+from datetime import datetime
 from uuid import UUID
 
 from sqlalchemy import String, select
@@ -19,10 +20,12 @@ class ConversationHistory(Base):
 
     @classmethod
     def register_conversation(cls, thread_id: UUID, title: str) -> None:
-        """Persist the first title for a conversation."""
+        """Persist a conversation title and refresh its activity time."""
         thread_id_hex = to_hex(thread_id)
         with Session(engine) as session:
             conversation = session.scalar(select(cls).where(cls.thread_id == thread_id_hex))
             if conversation is None:
                 session.add(cls(thread_id=thread_id_hex, title=title))
-                session.commit()
+            else:
+                conversation.update_time = datetime.now()
+            session.commit()
