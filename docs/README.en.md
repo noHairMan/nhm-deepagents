@@ -10,13 +10,13 @@ A Python project to build and run Deep Agents using a modern LLM framework.
 
 ## 🌟 Project Overview
 
-`nhm-deepagents`is one~~~~A professional Python project focusing on deep agents. It leverages modern Python features (3.14+) and powerful tools to provide a high-quality development experience for AI agent research and applications.
+`nhm-deepagents`is a professional Python project focusing on deep agents. It leverages modern Python features (3.14+) and powerful tools to provide a high-quality development experience for AI agent research and applications.
 
 The project contains three main modules:
 
 -   **`tomorrow`**: Core agent module. The codename is taken from a character in the game "Death Stranding 2: On the Beach"**Tomorrow**(played by Elle Fanning). In the plot, she is the daughter of protagonist Sam Bridges, who was also revealed to be a character in the previous game.**Lou**(BB-28)。
 -   **`rainy`**: API service module based on FastAPI. The codename is also taken from a character in Death Stranding 2**Rainy**(played by Shiori Kutsuna). In the game, she has the magical power to cause "Timefall" and the healing "Corefall", and is described as a "Pharmakon" that can both hurt and heal.
--   **`fragile`**: A Typer-based command line client for asking questions directly to the Tomorrow agent or starting interactive sessions. Its name is taken from a character in the same work**Fragile**. Fragile is the founder and courier of Fragile Express. He has aged rapidly due to exposure to the rain of time, but he has always delivered important supplies to others in dangerous environments. This image of a "fragile" appearance that still insists on the mission of connection and delivery is the background of the name of this client.
+-   **`fragile`**: A Typer-based command line client for asking questions directly to the Tomorrow agent or starting interactive sessions. Its name is taken from a character in the same work**Fragile**. Fragile is the founder and courier of Fragile Express. He has aged rapidly due to exposure to the rain of time, but he has always delivered important supplies to others in dangerous environments. This image of "fragility" that still insists on the mission of connecting and delivering is the background of the name of this client.
 
 This project provides a general smart assistant agent that utilizes`deepagents`The framework analyzes user input and passes`rainy`The module provides external synchronization (`/api/chat`)and**streaming (`/api/chat/stream`）**API interface.
 
