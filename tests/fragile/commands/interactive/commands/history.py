@@ -1,3 +1,4 @@
+from datetime import datetime, timedelta
 from unittest.mock import AsyncMock, MagicMock, patch
 from uuid import UUID
 
@@ -65,11 +66,29 @@ class TestHistoryCommand:
         engine = create_engine(f"sqlite:///{database_path}")
         Base.metadata.create_all(engine)
         monkeypatch.setattr("fragile.commands.interactive.commands.history.engine", engine)
-        from fragile.models.history import register_conversation
 
         monkeypatch.setattr("fragile.models.history.engine", engine)
-        register_conversation(first, "第一次对话")
+        ConversationHistory.register_conversation(first, "第一次对话")
         assert await list_history() == [(first, "第一次对话")]
+
+    @pytest.mark.asyncio
+    async def test_list_history_returns_newest_conversations_first(self, tmp_path, monkeypatch) -> None:
+        engine = create_engine(f"sqlite:///{tmp_path / 'history.db'}")
+        Base.metadata.create_all(engine)
+        monkeypatch.setattr("fragile.commands.interactive.commands.history.engine", engine)
+        older = ConversationHistory(thread_id=str(UUID(int=1)), title="较早对话")
+        newer = ConversationHistory(thread_id=str(UUID(int=2)), title="较新对话")
+        created_at = datetime.now()
+        older.create_time = created_at
+        newer.create_time = created_at + timedelta(seconds=1)
+        with Session(engine) as session:
+            session.add_all([older, newer])
+            session.commit()
+
+        assert await list_history() == [
+            (UUID(int=2), "较新对话"),
+            (UUID(int=1), "较早对话"),
+        ]
 
     @pytest.mark.asyncio
     async def test_list_history_returns_empty_for_empty_database(self, tmp_path, monkeypatch) -> None:

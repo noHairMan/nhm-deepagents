@@ -38,7 +38,9 @@ class HistoryCommand(BaseCommand):
 async def list_history() -> list[tuple[UUID, str]]:
     """Return conversations from the persistent title index."""
     with Session(engine) as session:
-        conversations = session.scalars(select(ConversationHistory).order_by(ConversationHistory.thread_id)).all()
+        conversations = session.scalars(
+            select(ConversationHistory).order_by(ConversationHistory.create_time.desc())
+        ).all()
     return [(UUID(conversation.thread_id), conversation.title) for conversation in conversations]
 
 

@@ -5,7 +5,6 @@ from sqlalchemy.orm import Session
 
 import fragile.models.history as history_module
 from fragile.models import Base, ConversationHistory
-from fragile.models.history import register_conversation
 
 
 class TestHistory:
@@ -15,7 +14,7 @@ class TestHistory:
         Base.metadata.create_all(engine)
         monkeypatch.setattr(history_module, "engine", engine)
         thread_id = UUID("12345678-1234-5678-1234-567812345678")
-        register_conversation(thread_id, "标题")
+        ConversationHistory.register_conversation(thread_id, "标题")
         engine = create_engine(f"sqlite:///{database_path}")
         with Session(engine) as session:
             stored = session.scalar(select(ConversationHistory.thread_id))
@@ -39,8 +38,8 @@ class TestHistory:
         Base.metadata.create_all(engine)
         monkeypatch.setattr(history_module, "engine", engine)
         thread_id = UUID(int=1)
-        register_conversation(thread_id, "第一次对话")
-        register_conversation(thread_id, "后续消息")
+        ConversationHistory.register_conversation(thread_id, "第一次对话")
+        ConversationHistory.register_conversation(thread_id, "后续消息")
 
     def test_list_normalizes_existing_uuid_thread_id(self, tmp_path, monkeypatch) -> None:
         database_path = tmp_path / "history.db"

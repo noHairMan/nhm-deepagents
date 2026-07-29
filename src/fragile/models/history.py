@@ -17,12 +17,12 @@ class ConversationHistory(Base):
     thread_id: Mapped[str] = mapped_column(String(32), unique=True, nullable=False)
     title: Mapped[str] = mapped_column(String, nullable=False)
 
-
-def register_conversation(thread_id: UUID, title: str) -> None:
-    """Persist the first title for a conversation."""
-    thread_id_hex = to_hex(thread_id)
-    with Session(engine) as session:
-        conversation = session.scalar(select(ConversationHistory).where(ConversationHistory.thread_id == thread_id_hex))
-        if conversation is None:
-            session.add(ConversationHistory(thread_id=thread_id_hex, title=title))
-            session.commit()
+    @classmethod
+    def register_conversation(cls, thread_id: UUID, title: str) -> None:
+        """Persist the first title for a conversation."""
+        thread_id_hex = to_hex(thread_id)
+        with Session(engine) as session:
+            conversation = session.scalar(select(cls).where(cls.thread_id == thread_id_hex))
+            if conversation is None:
+                session.add(cls(thread_id=thread_id_hex, title=title))
+                session.commit()

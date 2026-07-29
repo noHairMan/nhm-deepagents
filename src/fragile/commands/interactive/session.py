@@ -17,9 +17,8 @@ from fragile.commands.interactive.display import (
 from fragile.commands.interactive.input import create_prompt_session, prompt
 from fragile.conf import settings
 from fragile.exceptions import InvalidThreadIdError
-from fragile.models import SessionState
+from fragile.models import ConversationHistory, SessionState
 from fragile.models.constants import CommandResult
-from fragile.models.history import register_conversation
 
 
 def parse_thread_id(value: str | None) -> UUID:
@@ -64,7 +63,7 @@ def interactive(
             if result is CommandResult.CONTINUE:
                 continue
             if input_prompt.strip():
-                register_conversation(state.thread_id, input_prompt)
+                ConversationHistory.register_conversation(state.thread_id, input_prompt)
                 asyncio.run(chat(input_prompt, state.thread_id, print_stream))
     finally:
         leave_fullscreen()
