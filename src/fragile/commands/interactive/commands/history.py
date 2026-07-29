@@ -7,14 +7,15 @@ from uuid import UUID
 import typer
 from prompt_toolkit.key_binding import KeyBindings
 from prompt_toolkit.shortcuts import choice
-from sqlalchemy import create_engine, select
+from sqlalchemy import select
 from sqlalchemy.orm import Session
 
 from fragile.commands.interactive.commands.base import Command as BaseCommand
 from fragile.commands.interactive.display import show_startup
 from fragile.models import SessionState
+from fragile.models.base import engine
 from fragile.models.constants import CommandResult
-from fragile.models.history import ConversationHistory, _database_path
+from fragile.models.history import ConversationHistory
 
 
 class HistoryCommand(BaseCommand):
@@ -36,13 +37,8 @@ class HistoryCommand(BaseCommand):
 
 async def list_history() -> list[tuple[UUID, str]]:
     """Return conversations from the persistent title index."""
-    path = _database_path()
-    if not path.exists():
-        return []
-    engine = create_engine(f"sqlite:///{path}")
     with Session(engine) as session:
         conversations = session.scalars(select(ConversationHistory).order_by(ConversationHistory.thread_id)).all()
-    engine.dispose()
     return [(UUID(conversation.thread_id), conversation.title) for conversation in conversations]
 
 

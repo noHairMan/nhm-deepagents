@@ -25,7 +25,7 @@ requires = ["hatchling"]
 build-backend = "hatchling.build"
 
 [project.scripts]
-fragile = "fragile.app:app"
+fragile = "fragile.__main__:main"
 
 [tool.hatch.build.targets.wheel]
 packages = ["src/fragile", "src/tomorrow", "src/rainy"]

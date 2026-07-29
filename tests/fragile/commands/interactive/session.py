@@ -3,6 +3,7 @@ from uuid import UUID
 
 import pytest
 import typer
+from sqlalchemy import create_engine
 from typer.testing import CliRunner
 
 from fragile.app import app
@@ -11,13 +12,20 @@ from fragile.commands.interactive.commands.base import extract_prompt
 from fragile.commands.interactive.commands.quit import QuitCommand
 from fragile.commands.interactive.session import interactive, parse_thread_id
 from fragile.exceptions import FragileError, InvalidThreadIdError
-from fragile.models import SessionState
+from fragile.models import Base, SessionState
 from fragile.models.constants import CommandResult
 
 runner = CliRunner()
 
 
 class TestSession:
+    @pytest.fixture(autouse=True)
+    def database(self, tmp_path, monkeypatch) -> None:
+        engine = create_engine(f"sqlite:///{tmp_path / 'history.db'}")
+        Base.metadata.create_all(engine)
+        monkeypatch.setattr("fragile.models.history.engine", engine)
+        monkeypatch.setattr("fragile.commands.interactive.commands.history.engine", engine)
+
     def test_command_registry_rejects_non_command_registration(self) -> None:
         with pytest.raises(TypeError, match="command must be a Command instance"):
             CommandRegistry().register(object())

@@ -3,6 +3,7 @@ from uuid import UUID
 from sqlalchemy import create_engine, select
 from sqlalchemy.orm import Session
 
+import fragile.models.history as history_module
 from fragile.models import Base, ConversationHistory
 from fragile.models.history import register_conversation
 
@@ -10,7 +11,9 @@ from fragile.models.history import register_conversation
 class TestHistory:
     def test_register_stores_hex_thread_id(self, tmp_path, monkeypatch) -> None:
         database_path = tmp_path / "history.db"
-        monkeypatch.setattr("fragile.models.history.settings.CHECKPOINT.sqlite.path", database_path)
+        engine = create_engine(f"sqlite:///{database_path}")
+        Base.metadata.create_all(engine)
+        monkeypatch.setattr(history_module, "engine", engine)
         thread_id = UUID("12345678-1234-5678-1234-567812345678")
         register_conversation(thread_id, "标题")
         engine = create_engine(f"sqlite:///{database_path}")
@@ -19,7 +22,7 @@ class TestHistory:
         engine.dispose()
         assert stored == thread_id.hex
 
-    def test_base_fields_are_popated(self, tmp_path) -> None:
+    def test_base_fields_are_populated(self, tmp_path) -> None:
         engine = create_engine(f"sqlite:///{tmp_path / 'history.db'}")
         Base.metadata.create_all(engine)
         with Session(engine) as session:
@@ -32,14 +35,16 @@ class TestHistory:
         engine.dispose()
 
     def test_register_keeps_first_title(self, tmp_path, monkeypatch) -> None:
-        monkeypatch.setattr("fragile.models.history.settings.CHECKPOINT.sqlite.path", tmp_path / "history.db")
+        engine = create_engine(f"sqlite:///{tmp_path / 'history.db'}")
+        Base.metadata.create_all(engine)
+        monkeypatch.setattr(history_module, "engine", engine)
         thread_id = UUID(int=1)
         register_conversation(thread_id, "第一次对话")
         register_conversation(thread_id, "后续消息")
 
     def test_list_normalizes_existing_uuid_thread_id(self, tmp_path, monkeypatch) -> None:
         database_path = tmp_path / "history.db"
-        monkeypatch.setattr("fragile.models.history.settings.CHECKPOINT.sqlite.path", database_path)
+        monkeypatch.setattr("fragile.models.base.settings.CHECKPOINT.sqlite.path", database_path)
         engine = create_engine(f"sqlite:///{database_path}")
         Base.metadata.create_all(engine)
         thread_id = UUID("00000000-0000-0000-0000-000000000003")

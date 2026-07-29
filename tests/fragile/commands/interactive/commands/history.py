@@ -61,23 +61,29 @@ class TestHistoryCommand:
     @pytest.mark.asyncio
     async def test_list_history_returns_titles(self, tmp_path, monkeypatch) -> None:
         first = UUID(int=1)
-        monkeypatch.setattr("fragile.models.history.settings.CHECKPOINT.sqlite.path", tmp_path / "history.db")
+        database_path = tmp_path / "history.db"
+        engine = create_engine(f"sqlite:///{database_path}")
+        Base.metadata.create_all(engine)
+        monkeypatch.setattr("fragile.commands.interactive.commands.history.engine", engine)
         from fragile.models.history import register_conversation
 
+        monkeypatch.setattr("fragile.models.history.engine", engine)
         register_conversation(first, "第一次对话")
         assert await list_history() == [(first, "第一次对话")]
 
     @pytest.mark.asyncio
-    async def test_list_history_returns_empty_for_missing_database(self, tmp_path, monkeypatch) -> None:
-        monkeypatch.setattr("fragile.models.history.settings.CHECKPOINT.sqlite.path", tmp_path / "missing.db")
+    async def test_list_history_returns_empty_for_empty_database(self, tmp_path, monkeypatch) -> None:
+        engine = create_engine(f"sqlite:///{tmp_path / 'history.db'}")
+        Base.metadata.create_all(engine)
+        monkeypatch.setattr("fragile.commands.interactive.commands.history.engine", engine)
         assert await list_history() == []
 
     @pytest.mark.asyncio
     async def test_list_history_reads_existing_schema(self, tmp_path, monkeypatch) -> None:
         database_path = tmp_path / "history.db"
-        monkeypatch.setattr("fragile.models.history.settings.CHECKPOINT.sqlite.path", database_path)
         engine = create_engine(f"sqlite:///{database_path}")
         Base.metadata.create_all(engine)
+        monkeypatch.setattr("fragile.commands.interactive.commands.history.engine", engine)
         with Session(engine) as session:
             session.add(ConversationHistory(thread_id=str(UUID(int=3)), title="已有对话"))
             session.commit()
