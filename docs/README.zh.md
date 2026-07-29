@@ -84,18 +84,12 @@
    uv sync
    ```
 
-4. **安装 pre-commit 钩子**:
+4. **安装 `fragile` 命令**:
    ```bash
-   uv run pre-commit install
+   uv tool install .
    ```
 
-5. **配置 LLM**:
-   ```bash
-   export TOMORROW_MODEL__TYPE="anthropic"
-   export TOMORROW_MODEL__ANTHROPIC__BASE_URL="https://www.llmgateway.cn"
-   export TOMORROW_MODEL__ANTHROPIC__MODEL="deepseek-v4-flash"
-   export TOMORROW_MODEL__ANTHROPIC__API_KEY="your-api-key"
-   ```
+   安装完成后，可以直接使用 `fragile` 命令启动命令行客户端。
 
 ### 运行应用
 
@@ -128,6 +122,11 @@ curl -X POST http://localhost:8000/api/chat \
 需要逐步接收回复时，可调用 `/api/chat/stream` 获取 SSE 数据流；`/api/chat/stream/event` 会返回更完整的 LangGraph 事件流。健康检查接口为 `GET /api/health`。
 
 使用 `fragile` 命令行客户端启动交互式会话：
+```bash
+fragile
+```
+
+如果尚未使用 `uv tool install .` 安装命令，也可以在项目环境中运行：
 ```bash
 uv run fragile
 ```
