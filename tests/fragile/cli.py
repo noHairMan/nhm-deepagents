@@ -3,6 +3,8 @@ from unittest.mock import patch
 from typer.testing import CliRunner
 
 from fragile.cli import app
+from tomorrow.conf import settings
+from tomorrow.models.constants import CheckpointType
 
 runner = CliRunner()
 
@@ -27,3 +29,4 @@ class TestCli:
         with patch("fragile.cli.interactive") as interactive:
             main(None)
         interactive.assert_called_once_with(None)
+        assert settings.CHECKPOINT.type == CheckpointType.SQLITE

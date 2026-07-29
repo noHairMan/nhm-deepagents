@@ -7,12 +7,14 @@ from uuid import UUID
 import typer
 from prompt_toolkit.key_binding import KeyBindings
 from prompt_toolkit.shortcuts import choice
+from sqlalchemy import create_engine, select
+from sqlalchemy.orm import Session
 
 from fragile.commands.interactive.commands.base import Command as BaseCommand
 from fragile.commands.interactive.display import show_startup
 from fragile.models import SessionState
 from fragile.models.constants import CommandResult
-from tomorrow.core.checkpoint import get_checkpointer_context
+from fragile.models.history import ConversationHistory, _database_path, _ensure_schema
 
 
 class HistoryCommand(BaseCommand):
@@ -32,45 +34,17 @@ class HistoryCommand(BaseCommand):
         return CommandResult.CONTINUE
 
 
-def _message_title(message: Any) -> str | None:  # pragma: no cover - defensive format compatibility
-    """Extract a user message's content from checkpoint data."""
-    if isinstance(message, list):
-        for nested in message:
-            title = _message_title(nested)
-            if title is not None:
-                return title
-        return None
-    message_type = (
-        message.type if hasattr(message, "type") else message.get("type") if isinstance(message, dict) else None
-    )
-    if message_type not in {"human", "user"}:
-        return None
-    content = message.content if hasattr(message, "content") else message.get("content", "")
-    return str(content)
-
-
-async def list_history(
-    checkpointer_context: Callable[[], object] = get_checkpointer_context,
-) -> list[tuple[UUID, str]]:
-    """Return distinct persisted threads with their conversation titles."""
-    histories: dict[UUID, str] = {}
-    async with checkpointer_context() as checkpointer:  # pragma: no branch
-        if checkpointer is None:  # pragma: no cover - unavailable persistence backend
-            return []
-        async for checkpoint in checkpointer.alist(None):
-            config = checkpoint.config.get("configurable", {})
-            value = config.get("thread_id")
-            if value is None:  # pragma: no cover - malformed checkpoint compatibility
-                continue
-            thread_id = UUID(str(value))
-            checkpoint_data: dict[str, Any] = checkpoint.checkpoint
-            messages = checkpoint_data.get("channel_values", {}).get("messages", [])
-            title = next(
-                (title for message in messages if (title := _message_title(message)) is not None),
-                "Untitled conversation",  # pragma: no cover - malformed checkpoint compatibility
-            )
-            histories[thread_id] = title
-    return sorted(histories.items(), key=lambda item: str(item[0]))
+async def list_history() -> list[tuple[UUID, str]]:
+    """Return conversations from the persistent title index."""
+    path = _database_path()
+    if not path.exists():
+        return []
+    engine = create_engine(f"sqlite:///{path}")
+    _ensure_schema(engine)
+    with Session(engine) as session:
+        conversations = session.scalars(select(ConversationHistory).order_by(ConversationHistory.thread_id)).all()
+    engine.dispose()
+    return [(UUID(conversation.thread_id), conversation.title) for conversation in conversations]
 
 
 def choose_history(

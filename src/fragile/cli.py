@@ -1,6 +1,8 @@
 import typer
 
 from fragile.commands.interactive import interactive
+from tomorrow.conf import settings
+from tomorrow.models.constants import CheckpointType
 
 app = typer.Typer(help="Fragile CLI for interacting with the Tomorrow agent.")
 
@@ -10,6 +12,7 @@ def main(
     thread: str | None = typer.Option(None, "--thread", "-t", help="Thread UUID to resume a conversation."),
 ) -> None:
     """Start an interactive session. Enter /quit to exit."""
+    settings.CHECKPOINT.type = CheckpointType.SQLITE
     interactive(thread)
 
 

@@ -3,9 +3,11 @@ from uuid import UUID
 
 import pytest
 import typer
+from sqlalchemy import create_engine
+from sqlalchemy.orm import Session
 
 from fragile.commands.interactive.commands.history import HistoryCommand, choose_history, list_history
-from fragile.models import SessionState
+from fragile.models import Base, ConversationHistory, SessionState
 from fragile.models.constants import CommandResult
 
 
@@ -57,25 +59,30 @@ class TestHistoryCommand:
         assert choose_history([(first, "第一次对话")], selector) is None
 
     @pytest.mark.asyncio
-    async def test_list_history_returns_titles(self) -> None:
+    async def test_list_history_returns_titles(self, tmp_path, monkeypatch) -> None:
         first = UUID(int=1)
-        checkpoint = type(
-            "Checkpoint",
-            (),
-            {
-                "config": {"configurable": {"thread_id": str(first)}},
-                "checkpoint": {"channel_values": {"messages": [{"type": "human", "content": "第一次对话"}]}},
-            },
-        )()
+        monkeypatch.setattr("fragile.models.history.settings.CHECKPOINT.sqlite.path", tmp_path / "history.db")
+        from fragile.models.history import register_conversation
 
-        async def alist(self: object, config: object) -> object:
-            yield checkpoint
+        register_conversation(first, "第一次对话")
+        assert await list_history() == [(first, "第一次对话")]
 
-        checkpointer = type("Checkpointer", (), {"alist": alist})()
-        context = MagicMock()
-        context.return_value.__aenter__ = AsyncMock(return_value=checkpointer)
-        context.return_value.__aexit__ = AsyncMock(return_value=None)
-        assert await list_history(context) == [(first, "第一次对话")]
+    @pytest.mark.asyncio
+    async def test_list_history_returns_empty_for_missing_database(self, tmp_path, monkeypatch) -> None:
+        monkeypatch.setattr("fragile.models.history.settings.CHECKPOINT.sqlite.path", tmp_path / "missing.db")
+        assert await list_history() == []
+
+    @pytest.mark.asyncio
+    async def test_list_history_reads_existing_schema(self, tmp_path, monkeypatch) -> None:
+        database_path = tmp_path / "history.db"
+        monkeypatch.setattr("fragile.models.history.settings.CHECKPOINT.sqlite.path", database_path)
+        engine = create_engine(f"sqlite:///{database_path}")
+        Base.metadata.create_all(engine)
+        with Session(engine) as session:
+            session.add(ConversationHistory(thread_id=str(UUID(int=3)), title="已有对话"))
+            session.commit()
+        engine.dispose()
+        assert await list_history() == [(UUID(int=3), "已有对话")]
 
     def test_history_command_keeps_state_when_selection_is_cancelled(self) -> None:
         state = SessionState(thread_id=UUID(int=1), prompt_session=object())
