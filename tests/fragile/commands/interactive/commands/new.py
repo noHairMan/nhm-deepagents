@@ -1,4 +1,4 @@
-from unittest.mock import AsyncMock, patch
+from unittest.mock import patch
 from uuid import UUID
 
 import pytest
@@ -10,13 +10,9 @@ from fragile.models.constants import CommandResult
 
 class TestNewCommand:
     @pytest.mark.asyncio
-    async def test_new_command_registers_history(self) -> None:
+    async def test_new_command_does_not_register_history(self) -> None:
         state = SessionState(thread_id=UUID(int=1), prompt_session=object())
-        with patch(
-            "fragile.commands.interactive.commands.new.ConversationHistory.register_conversation",
-            new_callable=AsyncMock,
-        ) as register:
+        with patch("fragile.commands.interactive.commands.new.show_startup"):
             result = await NewCommand().handle("新对话", state)
 
         assert result is CommandResult.CONTINUE
-        register.assert_awaited_once_with(state.thread_id, "新对话")

@@ -17,7 +17,7 @@ from sqlalchemy.orm import Session
 from fragile.commands.interactive.commands.base import Command as BaseCommand
 from fragile.commands.interactive.display import show_startup
 from fragile.models import SessionState
-from fragile.models.base import engine, get_initialized_async_session_factory
+from fragile.models.base import engine, get_initialized_session_factory
 from fragile.models.constants import CommandResult
 from fragile.models.history import ConversationHistory
 
@@ -112,7 +112,7 @@ async def list_history() -> list[tuple[UUID, str]]:
                 select(ConversationHistory).order_by(ConversationHistory.update_time.desc())
             ).all()
     else:
-        session_factory = await get_initialized_async_session_factory()
+        session_factory = await get_initialized_session_factory()
         async with session_factory() as session:
             conversations = (
                 await session.scalars(select(ConversationHistory).order_by(ConversationHistory.update_time.desc()))

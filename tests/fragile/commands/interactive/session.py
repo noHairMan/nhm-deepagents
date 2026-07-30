@@ -37,6 +37,12 @@ class TestSession:
         assert await COMMAND_REGISTRY.handle("ordinary prompt", state) is CommandResult.NOT_HANDLED
 
     @pytest.mark.asyncio
+    async def test_new_command_does_not_create_history_before_chat(self) -> None:
+        with patch("fragile.commands.interactive.commands.new.show_startup"):
+            state = SessionState(thread_id=UUID(int=1), prompt_session=object())
+            assert await COMMAND_REGISTRY.handle("/new", state) is CommandResult.CONTINUE
+
+    @pytest.mark.asyncio
     async def test_command_registry_handles_only_the_indexed_handler(self) -> None:
         state = SessionState(thread_id=UUID(int=1), prompt_session=object())
         with patch.dict(COMMAND_REGISTRY._handlers, {"quit": QuitCommand()}, clear=True):
@@ -67,7 +73,7 @@ class TestSession:
             ),
             patch("fragile.commands.interactive.commands.history.select_history", return_value=first),
             patch(
-                "fragile.commands.interactive.session.prompt_async",
+                "fragile.commands.interactive.session.prompt",
                 new_callable=AsyncMock,
                 side_effect=["/history", "/quit"],
             ),
@@ -92,7 +98,7 @@ class TestSession:
                 return_value=first,
             ) as selector,
             patch(
-                "fragile.commands.interactive.session.prompt_async",
+                "fragile.commands.interactive.session.prompt",
                 new_callable=AsyncMock,
                 side_effect=["/history", "/quit"],
             ),
@@ -115,7 +121,7 @@ class TestSession:
         with (
             patch("fragile.commands.interactive.session.enter_fullscreen"),
             patch("fragile.commands.interactive.session.leave_fullscreen") as leave_fullscreen,
-            patch("fragile.commands.interactive.session.prompt_async", new_callable=AsyncMock, return_value="/quit"),
+            patch("fragile.commands.interactive.session.prompt", new_callable=AsyncMock, return_value="/quit"),
         ):
             await interactive(None)
         leave_fullscreen.assert_called_once_with()

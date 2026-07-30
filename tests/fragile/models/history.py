@@ -5,10 +5,16 @@ from sqlalchemy import create_engine, select
 from sqlalchemy.orm import Session
 
 from fragile.models import Base, ConversationHistory
-from fragile.models.base import create_tables_async, get_async_engine
+from fragile.models.base import create_tables, get_engine
 
 
 class TestHistory:
+    def test_format_title_truncates_long_titles(self) -> None:
+        assert ConversationHistory._format_title("一二三四五六七八九十百千万") == "一二三四五六七八九十百千..."
+
+    def test_format_title_keeps_short_titles(self) -> None:
+        assert ConversationHistory._format_title("短标题") == "短标题"
+
     def test_base_fields_are_populated(self, tmp_path) -> None:
         engine = create_engine(f"sqlite:///{tmp_path / 'history.db'}")
         Base.metadata.create_all(engine)
@@ -36,8 +42,9 @@ class TestHistory:
     async def test_register_conversation_stores_and_updates(self, tmp_path, monkeypatch) -> None:
         database_path = tmp_path / "history.db"
         monkeypatch.setattr("fragile.models.base.settings.CHECKPOINT.sqlite.path", database_path)
-        async_engine = get_async_engine()
-        await create_tables_async(async_engine)
+        async_engine = get_engine()
+        monkeypatch.setattr("fragile.models.base.engine", async_engine)
+        await create_tables(async_engine)
         thread_id = UUID(int=2)
         await ConversationHistory.register_conversation(thread_id, "异步对话")
         await ConversationHistory.register_conversation(thread_id, "后续消息")
@@ -51,9 +58,27 @@ class TestHistory:
         assert stored.title == "异步对话"
 
     @pytest.mark.asyncio
+    async def test_register_conversation_truncates_title(self, tmp_path, monkeypatch) -> None:
+        database_path = tmp_path / "long-history.db"
+        monkeypatch.setattr("fragile.models.base.settings.CHECKPOINT.sqlite.path", database_path)
+        async_engine = get_engine()
+        monkeypatch.setattr("fragile.models.base.engine", async_engine)
+        await create_tables(async_engine)
+
+        await ConversationHistory.register_conversation(UUID(int=4), "1234567890123")
+        await async_engine.dispose()
+        engine = create_engine(f"sqlite:///{database_path}")
+        with Session(engine) as session:
+            stored = session.scalar(select(ConversationHistory))
+        engine.dispose()
+        assert stored is not None
+        assert stored.title == "123456789012..."
+
+    @pytest.mark.asyncio
     async def test_register_conversation_initializes_missing_table(self, tmp_path, monkeypatch) -> None:
         database_path = tmp_path / "new-history.db"
         monkeypatch.setattr("fragile.models.base.settings.CHECKPOINT.sqlite.path", database_path)
+        monkeypatch.setattr("fragile.models.base.engine", get_engine())
 
         await ConversationHistory.register_conversation(UUID(int=3), "新对话")
 

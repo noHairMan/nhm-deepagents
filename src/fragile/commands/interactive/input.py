@@ -49,11 +49,6 @@ def create_prompt_session() -> PromptSession[str]:
     )
 
 
-def prompt(session: PromptSession[str]) -> str:
-    """读取一条支持历史、补全和多行编辑的用户输入。"""
-    return session.prompt("> ")
-
-
-async def prompt_async(session: PromptSession[str]) -> str:
+async def prompt(session: PromptSession[str]) -> str:
     """Asynchronously read a prompt while preserving prompt-toolkit behavior."""
     return await session.prompt_async("> ")

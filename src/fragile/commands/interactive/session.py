@@ -13,7 +13,7 @@ from fragile.commands.interactive.display import (
     print_stream,
     show_startup,
 )
-from fragile.commands.interactive.input import create_prompt_session, prompt_async
+from fragile.commands.interactive.input import create_prompt_session, prompt
 from fragile.conf import settings
 from fragile.exceptions import InvalidThreadIdError
 from fragile.models import ConversationHistory, SessionState
@@ -42,7 +42,7 @@ async def interactive(
         last_keyboard_interrupt: float | None = None
         while True:
             try:
-                input_prompt = await prompt_async(prompt_session)
+                input_prompt = await prompt(prompt_session)
             except KeyboardInterrupt, typer.Abort:
                 typer.echo()
                 now = time.monotonic()
@@ -55,14 +55,16 @@ async def interactive(
                 continue
             except EOFError:
                 continue
+            input_prompt = input_prompt.strip()
             last_keyboard_interrupt = None
             result = await COMMAND_REGISTRY.handle(input_prompt, state)
             if result is CommandResult.EXIT:
                 break
             if result is CommandResult.CONTINUE:
                 continue
-            if input_prompt.strip():
-                await ConversationHistory.register_conversation(state.thread_id, input_prompt)
-                await chat(input_prompt, state.thread_id, print_stream)
+            if not input_prompt:
+                continue
+            await ConversationHistory.register_conversation(state.thread_id, input_prompt)
+            await chat(input_prompt, state.thread_id, print_stream)
     finally:
         leave_fullscreen()
