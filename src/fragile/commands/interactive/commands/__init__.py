@@ -20,17 +20,7 @@ class CommandRegistry:
             raise TypeError("command must be a Command instance")
         self._handlers[command.name] = command
 
-    def handle(self, prompt: str, state: SessionState) -> CommandResult:
-        """Dispatch a prompt to its registered command handler in constant time."""
-        parsed_prompt = extract_prompt(prompt)
-        if parsed_prompt.command is None:
-            return CommandResult.NOT_HANDLED
-        handler = self._handlers.get(parsed_prompt.command)
-        if handler is None:
-            return CommandResult.NOT_HANDLED
-        return handler.handle(parsed_prompt.prompt, state)
-
-    async def handle_async(self, prompt: str, state: SessionState) -> CommandResult:
+    async def handle(self, prompt: str, state: SessionState) -> CommandResult:
         """Dispatch a prompt without blocking the active event loop."""
         parsed_prompt = extract_prompt(prompt)
         if parsed_prompt.command is None:
@@ -38,7 +28,7 @@ class CommandRegistry:
         handler = self._handlers.get(parsed_prompt.command)
         if handler is None:
             return CommandResult.NOT_HANDLED
-        return await handler.handle_async(parsed_prompt.prompt, state)
+        return await handler.handle(parsed_prompt.prompt, state)
 
 
 def _load_command(path: str) -> Command:

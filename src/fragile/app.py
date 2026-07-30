@@ -3,11 +3,10 @@ import inspect
 
 import typer
 
-from fragile.commands.interactive.session import interactive_async
+from fragile.commands.interactive.session import interactive
 from fragile.commands.purge import purge_sessions
 
 app = typer.Typer(help="Fragile CLI for interacting with the Tomorrow agent.")
-interactive = interactive_async
 
 
 @app.callback(invoke_without_command=True)

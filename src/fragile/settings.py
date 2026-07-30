@@ -2,16 +2,8 @@ import os
 from pathlib import Path
 from typing import ClassVar
 
-from pydantic import BaseModel, Field
+from pydantic import Field
 from pydantic_settings import BaseSettings, SettingsConfigDict
-
-
-class BaseConfigModel(BaseModel):
-    def get(self, key, default=None):
-        return self.model_dump(by_alias=True).get(key, default)
-
-    def __getitem__(self, key):
-        return self.model_dump(by_alias=True)[key]
 
 
 class FragileSettings(BaseSettings):

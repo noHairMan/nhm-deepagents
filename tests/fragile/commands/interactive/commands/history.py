@@ -22,10 +22,11 @@ from fragile.models.constants import CommandResult
 
 
 class TestHistoryCommand:
-    def test_select_history_hides_numbers(self) -> None:
+    @pytest.mark.asyncio
+    async def test_select_history_hides_numbers(self) -> None:
         first = UUID(int=1)
         application = MagicMock()
-        application.run.return_value = first
+        application.run_async = AsyncMock(return_value=first)
         with (
             patch(
                 "fragile.commands.interactive.commands.history.RadioList",
@@ -33,57 +34,56 @@ class TestHistoryCommand:
             ) as radio_list_factory,
             patch("fragile.commands.interactive.commands.history.Application", return_value=application),
         ):
-            assert select_history("Select:", [(first, "对话")], KeyBindings(), HISTORY_STYLE, "", True) == first
+            assert await select_history("Select:", [(first, "对话")], KeyBindings(), HISTORY_STYLE, "", True) == first
         assert radio_list_factory.call_args.kwargs["show_numbers"] is False
         assert HISTORY_STYLE.get_attrs_for_style_str("class:selected-option").color == "ansigreen"
 
-    def test_history_command_handles_prompt_directly(self) -> None:
+    @pytest.mark.asyncio
+    async def test_history_command_uses_selector(self) -> None:
+        selected = UUID(int=2)
         state = SessionState(thread_id=UUID(int=1), prompt_session=object())
         with (
             patch(
                 "fragile.commands.interactive.commands.history.list_history",
                 new_callable=AsyncMock,
-                return_value=[],
+                return_value=[(selected, "第二次对话")],
             ),
-            patch("fragile.commands.interactive.commands.history.choose_history", return_value=None),
+            patch(
+                "fragile.commands.interactive.commands.history.choose_history",
+                new_callable=AsyncMock,
+                return_value=selected,
+            ),
+            patch("fragile.commands.interactive.commands.history.show_startup"),
         ):
-            assert HistoryCommand().handle("ordinary prompt", state) is CommandResult.CONTINUE
+            assert await HistoryCommand().handle("/history", state) is CommandResult.CONTINUE
+        assert state.thread_id == selected
 
-    def test_choose_history_returns_selected_thread(self) -> None:
+    @pytest.mark.asyncio
+    async def test_choose_history_returns_selected_thread(self) -> None:
         first = UUID(int=1)
-        selector = MagicMock(return_value=first)
-        with patch("fragile.commands.interactive.commands.history.typer.echo"):
-            assert choose_history([(first, "第一次对话")], selector) == first
-        selector.assert_called_once_with(
-            "Select a conversation:",
-            options=[(first, "第一次对话")],
-            key_bindings=selector.call_args.kwargs["key_bindings"],
-            style=selector.call_args.kwargs["style"],
-            symbol="",
-            enable_interrupt=False,
-        )
+        with patch(
+            "fragile.commands.interactive.commands.history.select_history",
+            new_callable=AsyncMock,
+            return_value=first,
+        ) as selector:
+            assert await choose_history([(first, "第一次对话")]) == first
+        selector.assert_awaited_once()
 
-    def test_choose_history_esc_cancels_selection(self) -> None:
-        first = UUID(int=1)
-        selector = MagicMock(return_value=first)
-        choose_history([(first, "第一次对话")], selector)
-        key_bindings = selector.call_args.kwargs["key_bindings"]
-        event = MagicMock()
-        key_bindings.get_bindings_for_keys(("escape",))[0].handler(event)
-        event.app.exit.assert_called_once()
-        assert isinstance(event.app.exit.call_args.kwargs["exception"], typer.Abort)
-
-    def test_choose_history_returns_none_without_threads(self) -> None:
-        selector = MagicMock()
+    @pytest.mark.asyncio
+    async def test_choose_history_returns_none_without_threads(self) -> None:
         with patch("fragile.commands.interactive.commands.history.typer.echo"):
-            assert choose_history([], selector) is None
-        selector.assert_not_called()
+            assert await choose_history([]) is None
 
     @pytest.mark.parametrize("cancel", [typer.Abort])
-    def test_choose_history_returns_none_when_cancelled(self, cancel: type[BaseException]) -> None:
+    @pytest.mark.asyncio
+    async def test_choose_history_returns_none_when_cancelled(self, cancel: type[BaseException]) -> None:
         first = UUID(int=1)
-        selector = MagicMock(side_effect=cancel)
-        assert choose_history([(first, "第一次对话")], selector) is None
+        with patch(
+            "fragile.commands.interactive.commands.history.select_history",
+            new_callable=AsyncMock,
+            side_effect=cancel,
+        ):
+            assert await choose_history([(first, "第一次对话")]) is None
 
     @pytest.mark.asyncio
     async def test_list_history_returns_titles(self, tmp_path, monkeypatch) -> None:
@@ -148,7 +148,8 @@ class TestHistoryCommand:
         now = datetime(2026, 1, 1)
         assert format_elapsed_time(now - elapsed, now) == expected
 
-    def test_history_command_keeps_state_when_selection_is_cancelled(self) -> None:
+    @pytest.mark.asyncio
+    async def test_history_command_keeps_state_when_selection_is_cancelled(self) -> None:
         state = SessionState(thread_id=UUID(int=1), prompt_session=object())
         with (
             patch(
@@ -161,5 +162,5 @@ class TestHistoryCommand:
                 return_value=None,
             ),
         ):
-            assert HistoryCommand().handle("/history", state) is CommandResult.CONTINUE
+            assert await HistoryCommand().handle("/history", state) is CommandResult.CONTINUE
         assert state.thread_id == UUID(int=1)

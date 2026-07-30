@@ -38,11 +38,6 @@ def get_async_engine() -> AsyncEngine:
     return create_async_engine(f"sqlite+aiosqlite:///{path}")
 
 
-def get_async_session_factory() -> async_sessionmaker[AsyncSession]:
-    """Return a factory for asynchronous ORM sessions."""
-    return async_sessionmaker(get_async_engine(), expire_on_commit=False)
-
-
 async def create_tables_async(async_engine: AsyncEngine) -> None:
     """Create Fragile tables using an asynchronous engine."""
     async with async_engine.begin() as connection:

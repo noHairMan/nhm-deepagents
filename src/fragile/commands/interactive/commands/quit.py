@@ -12,6 +12,6 @@ class QuitCommand(BaseCommand):
 
     name = "quit"
 
-    def handle(self, prompt: Optional[str], state: SessionState) -> CommandResult:
+    async def handle(self, prompt: Optional[str], state: SessionState) -> CommandResult:
         """Handle the exit command."""
         return CommandResult.EXIT

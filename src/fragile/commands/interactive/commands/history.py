@@ -1,6 +1,5 @@
 """History command handling."""
 
-from collections.abc import Callable
 from datetime import datetime, timedelta
 from typing import Any, Optional
 from uuid import UUID
@@ -25,7 +24,7 @@ from fragile.models.history import ConversationHistory
 HISTORY_STYLE = Style.from_dict({"selected-option": "fg:ansigreen bold"})
 
 
-def select_history(
+async def select_history(
     message: str,
     options: list[tuple[UUID, str]],
     key_bindings: KeyBindings,
@@ -33,7 +32,20 @@ def select_history(
     symbol: str,
     enable_interrupt: bool,
 ) -> UUID:
-    """Select a history item without displaying option numbers."""
+    """Select a history item without starting a nested event loop."""
+    application, _ = _build_history_application(message, options, key_bindings, style, symbol, enable_interrupt)
+    return await application.run_async()
+
+
+def _build_history_application(
+    message: str,
+    options: list[tuple[UUID, str]],
+    key_bindings: KeyBindings,
+    style: Style,
+    symbol: str,
+    enable_interrupt: bool,
+) -> tuple[Application, RadioList]:
+    """Build the history selector application."""
     radio_list = RadioList(
         values=options,
         select_on_focus=True,
@@ -74,7 +86,7 @@ def select_history(
         key_bindings=merge_key_bindings([bindings, key_bindings]),
         style=style,
     )
-    return application.run()
+    return application, radio_list
 
 
 class HistoryCommand(BaseCommand):
@@ -82,21 +94,10 @@ class HistoryCommand(BaseCommand):
 
     name = "history"
 
-    def handle(self, prompt: Optional[str], state: SessionState) -> CommandResult:
-        """Handle the history selection command."""
-        from asyncio import run
-
-        histories = run(list_history())
-        selected_thread = choose_history(histories)
-        if selected_thread is not None:
-            state.thread_id = selected_thread
-            show_startup(state.thread_id, True)
-        return CommandResult.CONTINUE
-
-    async def handle_async(self, prompt: Optional[str], state: SessionState) -> CommandResult:
+    async def handle(self, prompt: Optional[str], state: SessionState) -> CommandResult:
         """Handle history selection within the active event loop."""
         histories = await list_history()
-        selected_thread = choose_history(histories)
+        selected_thread = await choose_history(histories)
         if selected_thread is not None:
             state.thread_id = selected_thread
             show_startup(state.thread_id, True)
@@ -153,16 +154,11 @@ def format_elapsed_time(updated_at: datetime, now: datetime | None = None) -> st
     return f"{days} day{'s' if days != 1 else ''} ago"
 
 
-def choose_history(
-    histories: list[tuple[UUID, str]],
-    selector: Callable[..., UUID] | None = None,
-) -> UUID | None:
-    """Display persisted threads and return the user's selected thread."""
+async def choose_history(histories: list[tuple[UUID, str]]) -> UUID | None:
+    """Display persisted threads using the active event loop."""
     if not histories:
         typer.echo("No conversation history available.")
         return None
-    if selector is None:
-        selector = select_history
     key_bindings = KeyBindings()
 
     @key_bindings.add("escape", eager=True)
@@ -170,7 +166,7 @@ def choose_history(
         event.app.exit(exception=typer.Abort())
 
     try:
-        return selector(
+        return await select_history(
             "Select a conversation:",
             options=histories,
             key_bindings=key_bindings,
