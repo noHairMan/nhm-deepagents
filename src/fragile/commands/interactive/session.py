@@ -62,7 +62,7 @@ async def interactive(
             if result is CommandResult.CONTINUE:
                 continue
             if input_prompt.strip():
-                await ConversationHistory.register_conversation_async(state.thread_id, input_prompt)
+                await ConversationHistory.register_conversation(state.thread_id, input_prompt)
                 await chat(input_prompt, state.thread_id, print_stream)
     finally:
         leave_fullscreen()

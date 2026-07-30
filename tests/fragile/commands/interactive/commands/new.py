@@ -13,7 +13,7 @@ class TestNewCommand:
     async def test_new_command_registers_history(self) -> None:
         state = SessionState(thread_id=UUID(int=1), prompt_session=object())
         with patch(
-            "fragile.commands.interactive.commands.new.ConversationHistory.register_conversation_async",
+            "fragile.commands.interactive.commands.new.ConversationHistory.register_conversation",
             new_callable=AsyncMock,
         ) as register:
             result = await NewCommand().handle("新对话", state)

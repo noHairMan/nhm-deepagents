@@ -22,7 +22,6 @@ class TestSession:
     def database(self, tmp_path, monkeypatch) -> None:
         engine = create_engine(f"sqlite:///{tmp_path / 'history.db'}")
         Base.metadata.create_all(engine)
-        monkeypatch.setattr("fragile.models.history.engine", engine)
         monkeypatch.setattr("fragile.commands.interactive.commands.history.engine", engine)
 
     def test_command_registry_rejects_non_command_registration(self) -> None:

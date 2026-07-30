@@ -17,6 +17,6 @@ class NewCommand(BaseCommand):
     async def handle(self, prompt: Optional[str], state: SessionState) -> CommandResult:
         """Handle a new conversation without blocking the event loop."""
         state.thread_id = uuid4()
-        await ConversationHistory.register_conversation_async(state.thread_id, prompt or "New conversation")
+        await ConversationHistory.register_conversation(state.thread_id, prompt or "New conversation")
         show_startup(state.thread_id, False)
         return CommandResult.CONTINUE

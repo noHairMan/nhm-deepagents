@@ -4,25 +4,11 @@ import pytest
 from sqlalchemy import create_engine, select
 from sqlalchemy.orm import Session
 
-import fragile.models.history as history_module
 from fragile.models import Base, ConversationHistory
 from fragile.models.base import create_tables_async, get_async_engine
 
 
 class TestHistory:
-    def test_register_stores_hex_thread_id(self, tmp_path, monkeypatch) -> None:
-        database_path = tmp_path / "history.db"
-        engine = create_engine(f"sqlite:///{database_path}")
-        Base.metadata.create_all(engine)
-        monkeypatch.setattr(history_module, "engine", engine)
-        thread_id = UUID("12345678-1234-5678-1234-567812345678")
-        ConversationHistory.register_conversation(thread_id, "标题")
-        engine = create_engine(f"sqlite:///{database_path}")
-        with Session(engine) as session:
-            stored = session.scalar(select(ConversationHistory.thread_id))
-        engine.dispose()
-        assert stored == thread_id.hex
-
     def test_base_fields_are_populated(self, tmp_path) -> None:
         engine = create_engine(f"sqlite:///{tmp_path / 'history.db'}")
         Base.metadata.create_all(engine)
@@ -34,14 +20,6 @@ class TestHistory:
             assert conversation.create_time is not None
             assert conversation.update_time is not None
         engine.dispose()
-
-    def test_register_keeps_first_title(self, tmp_path, monkeypatch) -> None:
-        engine = create_engine(f"sqlite:///{tmp_path / 'history.db'}")
-        Base.metadata.create_all(engine)
-        monkeypatch.setattr(history_module, "engine", engine)
-        thread_id = UUID(int=1)
-        ConversationHistory.register_conversation(thread_id, "第一次对话")
-        ConversationHistory.register_conversation(thread_id, "后续消息")
 
     def test_list_normalizes_existing_uuid_thread_id(self, tmp_path, monkeypatch) -> None:
         database_path = tmp_path / "history.db"
@@ -55,14 +33,14 @@ class TestHistory:
         engine.dispose()
 
     @pytest.mark.asyncio
-    async def test_register_conversation_async_stores_and_updates(self, tmp_path, monkeypatch) -> None:
+    async def test_register_conversation_stores_and_updates(self, tmp_path, monkeypatch) -> None:
         database_path = tmp_path / "history.db"
         monkeypatch.setattr("fragile.models.base.settings.CHECKPOINT.sqlite.path", database_path)
         async_engine = get_async_engine()
         await create_tables_async(async_engine)
         thread_id = UUID(int=2)
-        await ConversationHistory.register_conversation_async(thread_id, "异步对话")
-        await ConversationHistory.register_conversation_async(thread_id, "后续消息")
+        await ConversationHistory.register_conversation(thread_id, "异步对话")
+        await ConversationHistory.register_conversation(thread_id, "后续消息")
         await async_engine.dispose()
         engine = create_engine(f"sqlite:///{database_path}")
         with Session(engine) as session:
@@ -73,11 +51,11 @@ class TestHistory:
         assert stored.title == "异步对话"
 
     @pytest.mark.asyncio
-    async def test_register_conversation_async_initializes_missing_table(self, tmp_path, monkeypatch) -> None:
+    async def test_register_conversation_initializes_missing_table(self, tmp_path, monkeypatch) -> None:
         database_path = tmp_path / "new-history.db"
         monkeypatch.setattr("fragile.models.base.settings.CHECKPOINT.sqlite.path", database_path)
 
-        await ConversationHistory.register_conversation_async(UUID(int=3), "新对话")
+        await ConversationHistory.register_conversation(UUID(int=3), "新对话")
 
         engine = create_engine(f"sqlite:///{database_path}")
         with Session(engine) as session:

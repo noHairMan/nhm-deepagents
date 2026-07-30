@@ -93,8 +93,9 @@ class TestHistoryCommand:
         Base.metadata.create_all(engine)
         monkeypatch.setattr("fragile.commands.interactive.commands.history.engine", engine)
 
-        monkeypatch.setattr("fragile.models.history.engine", engine)
-        ConversationHistory.register_conversation(first, "第一次对话")
+        with Session(engine) as session:
+            session.add(ConversationHistory(thread_id=str(first), title="第一次对话"))
+            session.commit()
         assert await list_history() == [(first, "第一次对话    just now")]
 
     @pytest.mark.asyncio
