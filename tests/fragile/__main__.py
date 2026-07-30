@@ -1,3 +1,5 @@
+import runpy
+from pathlib import Path
 from unittest.mock import patch
 
 from fragile.__main__ import configure_checkpoint, main
@@ -6,6 +8,10 @@ from tomorrow.models.constants import CheckpointType
 
 
 class TestMain:
+    def test_module_entrypoint_calls_main(self) -> None:
+        with patch("fragile.app.app"):
+            runpy.run_path(str(Path(__file__).parents[2] / "src/fragile/__main__.py"), run_name="__main__")
+
     def test_sqlite_checkpoint_path_is_current_directory(self, tmp_path, monkeypatch) -> None:
         monkeypatch.chdir(tmp_path)
         configure_checkpoint()

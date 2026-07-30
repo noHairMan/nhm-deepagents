@@ -120,6 +120,21 @@ class TestHistoryCommand:
             assert await choose_history([(first, "第一次对话")]) is None
 
     @pytest.mark.asyncio
+    async def test_choose_history_escape_binding_cancels_selection(self) -> None:
+        event = MagicMock()
+        event.app = MagicMock()
+
+        with patch(
+            "fragile.commands.interactive.commands.history.select_history",
+            new_callable=AsyncMock,
+        ) as selector:
+            selector.side_effect = lambda *args, **kwargs: kwargs["key_bindings"].bindings[0].handler(event)
+            assert await choose_history([(UUID(int=1), "对话")]) is None
+
+        exception = event.app.exit.call_args.kwargs["exception"]
+        assert isinstance(exception, typer.Abort)
+
+    @pytest.mark.asyncio
     async def test_list_history_returns_titles(self, tmp_path, monkeypatch) -> None:
         first = UUID(int=1)
         database_path = tmp_path / "history.db"
@@ -169,6 +184,24 @@ class TestHistoryCommand:
             session.commit()
         engine.dispose()
         assert await list_history() == [(UUID(int=3), "已有对话    just now")]
+
+    @pytest.mark.asyncio
+    async def test_list_history_uses_async_session_factory(self, monkeypatch) -> None:
+        conversation = MagicMock(thread_id=str(UUID(int=4)), title="异步对话", update_time=datetime.now())
+        result = MagicMock()
+        result.all.return_value = [conversation]
+        session = AsyncMock()
+        session.scalars.return_value = result
+        session_factory = MagicMock()
+        session_factory.return_value.__aenter__ = AsyncMock(return_value=session)
+        session_factory.return_value.__aexit__ = AsyncMock(return_value=None)
+        monkeypatch.setattr("fragile.commands.interactive.commands.history.engine", object())
+        with patch(
+            "fragile.commands.interactive.commands.history.get_initialized_session_factory",
+            new_callable=AsyncMock,
+            return_value=session_factory,
+        ):
+            assert await list_history() == [(UUID(int=4), "异步对话    just now")]
 
     @pytest.mark.parametrize(
         ("elapsed", "expected"),

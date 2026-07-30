@@ -33,7 +33,7 @@
   TOMORROW_APP=tomorrow \
   RAINY_APP=rainy \
   FRAGILE_APP=fragile \
-  uv run coverage run --rcfile=pyproject.toml -m pytest
+  uv run coverage run --rcfile=pyproject.toml -m pytest -q && uv run coverage report --rcfile=pyproject.toml
   ```
 
 ## 3. 编码规范
