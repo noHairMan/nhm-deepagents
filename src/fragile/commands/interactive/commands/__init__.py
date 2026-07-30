@@ -30,6 +30,16 @@ class CommandRegistry:
             return CommandResult.NOT_HANDLED
         return handler.handle(parsed_prompt.prompt, state)
 
+    async def handle_async(self, prompt: str, state: SessionState) -> CommandResult:
+        """Dispatch a prompt without blocking the active event loop."""
+        parsed_prompt = extract_prompt(prompt)
+        if parsed_prompt.command is None:
+            return CommandResult.NOT_HANDLED
+        handler = self._handlers.get(parsed_prompt.command)
+        if handler is None:
+            return CommandResult.NOT_HANDLED
+        return await handler.handle_async(parsed_prompt.prompt, state)
+
 
 def _load_command(path: str) -> Command:
     """Dynamically import and instantiate a command class."""

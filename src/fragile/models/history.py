@@ -6,7 +6,7 @@ from uuid import UUID
 from sqlalchemy import String, select
 from sqlalchemy.orm import Mapped, Session, mapped_column
 
-from fragile.models.base import Base, engine
+from fragile.models.base import Base, engine, get_initialized_async_session_factory
 from fragile.utils.uid import to_hex
 
 
@@ -29,3 +29,16 @@ class ConversationHistory(Base):
             else:
                 conversation.update_time = datetime.now()
             session.commit()
+
+    @classmethod
+    async def register_conversation_async(cls, thread_id: UUID, title: str) -> None:
+        """Persist a conversation title without blocking the event loop."""
+        thread_id_hex = to_hex(thread_id)
+        session_factory = await get_initialized_async_session_factory()
+        async with session_factory() as session:
+            conversation = await session.scalar(select(cls).where(cls.thread_id == thread_id_hex))
+            if conversation is None:
+                session.add(cls(thread_id=thread_id_hex, title=title))
+            else:
+                conversation.update_time = datetime.now()
+            await session.commit()

@@ -36,3 +36,7 @@ class Command(ABC):
     @abstractmethod
     def handle(self, prompt: Optional[str], state: SessionState) -> CommandResult:
         """Handle a prompt and return the resulting session action."""
+
+    async def handle_async(self, prompt: Optional[str], state: SessionState) -> CommandResult:
+        """Handle a prompt from the asynchronous interactive session."""
+        return self.handle(prompt, state)
