@@ -12,6 +12,7 @@ from sqlalchemy.orm import Session
 from fragile.commands.interactive.commands.history import (
     HISTORY_STYLE,
     HistoryCommand,
+    _build_history_application,
     choose_history,
     format_elapsed_time,
     list_history,
@@ -22,6 +23,39 @@ from fragile.models.constants import CommandResult
 
 
 class TestHistoryCommand:
+    def test_history_application_accepts_selection(self) -> None:
+        first = UUID(int=1)
+        application, radio_list = _build_history_application(
+            "Select:", [(first, "对话")], KeyBindings(), HISTORY_STYLE, "", False
+        )
+        event = MagicMock()
+        event.app = MagicMock()
+        radio_list.current_value = first
+
+        binding = next(
+            binding for binding in application.key_bindings.bindings if binding.handler.__name__ == "accept_selection"
+        )
+        binding.handler(event)
+
+        event.app.exit.assert_called_once_with(result=first)
+
+    def test_history_application_interrupts_when_enabled(self) -> None:
+        application, _ = _build_history_application(
+            "Select:", [(UUID(int=1), "对话")], KeyBindings(), HISTORY_STYLE, "", True
+        )
+        event = MagicMock()
+        event.app = MagicMock()
+
+        binding = next(
+            binding
+            for binding in application.key_bindings.bindings
+            if binding.handler.__name__ == "interrupt_selection"
+        )
+        binding.handler(event)
+
+        exception = event.app.exit.call_args.kwargs["exception"]
+        assert isinstance(exception, typer.Abort)
+
     @pytest.mark.asyncio
     async def test_select_history_hides_numbers(self) -> None:
         first = UUID(int=1)

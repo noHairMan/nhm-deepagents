@@ -1,19 +1,19 @@
 from pathlib import Path
 
-from fragile.app import app  # pragma: no cover
-from tomorrow.conf import settings  # pragma: no cover
-from tomorrow.models.constants import CheckpointType  # pragma: no cover
+from fragile.app import app
+from tomorrow.conf import settings
+from tomorrow.models.constants import CheckpointType
 
 
-def configure_checkpoint() -> None:  # pragma: no cover
+def configure_checkpoint() -> None:
     settings.CHECKPOINT.type = CheckpointType.SQLITE
     settings.CHECKPOINT.sqlite.path = Path.cwd() / "fragile.db"
 
 
-def main() -> None:  # pragma: no cover
+def main() -> None:
     configure_checkpoint()
     app()
 
 
-if __name__ == "__main__":  # pragma: no cover
+if __name__ == "__main__":
     main()

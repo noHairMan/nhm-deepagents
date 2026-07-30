@@ -63,13 +63,13 @@ def _build_history_application(
     )
     bindings = KeyBindings()
 
-    @bindings.add("enter", eager=True)  # pragma: no cover
+    @bindings.add("enter", eager=True)
     def accept_selection(event: Any) -> None:
         event.app.exit(result=radio_list.current_value)
 
-    if enable_interrupt:  # pragma: no cover
+    if enable_interrupt:
 
-        @bindings.add("c-c", eager=True)  # pragma: no cover
+        @bindings.add("c-c", eager=True)
         def interrupt_selection(event: Any) -> None:
             event.app.exit(exception=typer.Abort())
 
