@@ -14,6 +14,8 @@
 
 一个使用现代 LLM 框架构建和运行“深度智能体”（Deep Agents）的 Python 项目。
 
+开发环境、项目结构、代码规范和测试方法请参阅[贡献指南](CONTRIBUTING.zh.md)。
+
 ## 🌟 项目概览
 
 `nhm-deepagents` 是一个专注于深度智能体的专业 Python 项目。它利用现代 Python 特性 (3.14+) 和强大的工具，为 AI 智能体研究和应用提供高质量的开发体验。
@@ -67,7 +69,7 @@
 
 2. **克隆仓库**:
    ```bash
-   git clone <repository-url>
+   git clone https://github.com/noHairMan/nhm-deepagents.git
    cd nhm-deepagents
    ```
 
@@ -191,4 +193,4 @@ Fragile 的其他交互行为通过命令行选项和内置斜线命令控制。
 
 ## 📄 许可证
 
-本项目采用 **Apache License 2.0** 许可证。详情请参阅 [LICENSE](LICENSE) 文件。
+本项目采用 **Apache License 2.0** 许可证。详情请参阅 [LICENSE](/LICENSE) 文件。
