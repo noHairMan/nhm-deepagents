@@ -1,1 +1,1 @@
-docs/CONTRIBUTING.zh.md
+docs/CONTRIBUTING.en.md
