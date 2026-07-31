@@ -14,8 +14,16 @@ class TestFragileSettings:
         settings = FragileSettings(_env_file="/non/existent/path")
 
         assert settings.APP == "fragile"
+        assert settings.AGENT == "tomorrow.core.agent.AgentManager.create_agent"
         assert settings.ENABLED_COMMANDS == (
             "fragile.commands.interactive.commands.quit.QuitCommand",
             "fragile.commands.interactive.commands.new.NewCommand",
             "fragile.commands.interactive.commands.history.HistoryCommand",
         )
+
+    def test_agent_setting(self, monkeypatch):
+        monkeypatch.setenv("FRAGILE_AGENT", "custom.module.create_agent")
+
+        settings = FragileSettings(_env_file="/non/existent/path")
+
+        assert settings.AGENT == "custom.module.create_agent"

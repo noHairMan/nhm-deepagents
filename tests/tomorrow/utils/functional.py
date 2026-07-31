@@ -81,7 +81,7 @@ class TestFunctional:
                 self.value = 42
 
         class MyLazyObject(LazyObject):
-            def _setup(self):
+            def setup(self):
                 self._wrapped = RealObject()
 
         lazy_obj = MyLazyObject()
@@ -147,9 +147,9 @@ class TestFunctional:
         assert lazy_fmt % "world" == "hello world"
 
     def test_lazy_proxy_unpickle(self):
-        from tomorrow.utils.functional import _lazy_proxy_unpickle
+        from tomorrow.utils.functional import lazy_proxy_unpickle
 
-        res = _lazy_proxy_unpickle(lambda x: x, (5,), {})
+        res = lazy_proxy_unpickle(lambda x: x, (5,), {})
         assert res == 5
 
     def test_simple_lazy_object_deepcopy(self):
@@ -159,7 +159,7 @@ class TestFunctional:
 
     def test_lazy_object_copy_uninitialized(self):
         class MyLazyObject(LazyObject):
-            def _setup(self):
+            def setup(self):
                 self._wrapped = "initialized"
 
         lazy_obj = MyLazyObject()
@@ -297,7 +297,7 @@ class TestFunctional:
 
     def test_lazy_object_reduce_uninitialized(self):
         class MyLazyObject(LazyObject):
-            def _setup(self):
+            def setup(self):
                 self._wrapped = "init_from_reduce"
 
         lo = MyLazyObject()
@@ -315,7 +315,7 @@ class TestFunctional:
 
     def test_lazy_object_reduce_initialized(self):
         class MyLazyObject(LazyObject):
-            def _setup(self):
+            def setup(self):
                 self._wrapped = "init"
 
         lo = MyLazyObject()
@@ -354,7 +354,7 @@ class TestFunctional:
 
     def test_lazy_object_deepcopy_uninitialized(self):
         class MyLazyObject(LazyObject):
-            def _setup(self):
+            def setup(self):
                 self._wrapped = "init"
 
         lo = MyLazyObject()
@@ -426,7 +426,7 @@ class TestFunctional:
 
     def test_lazy_object_getattr_mask(self):
         class MyLazyObject(LazyObject):
-            def _setup(self):
+            def setup(self):
                 self._wrapped = 1
 
         # We need a proxy method that has _mask_wrapped = False
@@ -441,7 +441,7 @@ class TestFunctional:
 
     def test_lazy_object_setattr_uninitialized(self):
         class MyLazyObject(LazyObject):
-            def _setup(self):
+            def setup(self):
                 self._wrapped = type("Obj", (), {"attr": 0})()
 
         lo = MyLazyObject()
@@ -454,7 +454,7 @@ class TestFunctional:
                 self.attr = 0
 
         class MyLazyObject(LazyObject):
-            def _setup(self):
+            def setup(self):
                 self._wrapped = Obj()
 
         lo = MyLazyObject()
@@ -464,7 +464,7 @@ class TestFunctional:
 
     def test_lazy_object_copy_initialized(self):
         class MyLazyObject(LazyObject):
-            def _setup(self):
+            def setup(self):
                 self._wrapped = [1, 2]
 
         lo = MyLazyObject()
@@ -475,7 +475,7 @@ class TestFunctional:
 
     def test_lazy_object_deepcopy_initialized(self):
         class MyLazyObject(LazyObject):
-            def _setup(self):
+            def setup(self):
                 self._wrapped = {"a": 1}
 
         lo = MyLazyObject()

@@ -96,7 +96,7 @@ def lazy(func, *resultclasses):
 
         def __reduce__(self):
             return (
-                _lazy_proxy_unpickle,
+                lazy_proxy_unpickle,
                 (func, self._args, self._kw) + resultclasses,
             )
 
@@ -198,7 +198,7 @@ def lazy(func, *resultclasses):
     return __wrapper__
 
 
-def _lazy_proxy_unpickle(func, args, kwargs, *resultclasses):
+def lazy_proxy_unpickle(func, args, kwargs, *resultclasses):
     return lazy(func, *resultclasses)(*args, **kwargs)
 
 
@@ -246,7 +246,7 @@ empty = object()
 def new_method_proxy(func):
     def inner(self, *args):
         if (_wrapped := self._wrapped) is empty:
-            self._setup()
+            self.setup()
             _wrapped = self._wrapped
         return func(_wrapped, *args)
 
@@ -290,21 +290,21 @@ class LazyObject:
             self.__dict__["_wrapped"] = value
         else:
             if self._wrapped is empty:
-                self._setup()
+                self.setup()
             setattr(self._wrapped, name, value)
 
     def __delattr__(self, name):
         if name == "_wrapped":
             raise TypeError("can't delete _wrapped.")
         if self._wrapped is empty:
-            self._setup()
+            self.setup()
         delattr(self._wrapped, name)
 
-    def _setup(self):
+    def setup(self):
         """
         Must be implemented by subclasses to initialize the wrapped object.
         """
-        raise NotImplementedError("subclasses of LazyObject must provide a _setup() method")
+        raise NotImplementedError("subclasses of LazyObject must provide a setup() method")
 
     # Because we have messed with __class__ below, we confuse pickle as to what
     # class we are pickling. We're going to have to initialize the wrapped
@@ -322,7 +322,7 @@ class LazyObject:
     # argument.
     def __reduce__(self):
         if self._wrapped is empty:
-            self._setup()
+            self.setup()
         return (unpickle_lazyobject, (self._wrapped,))
 
     def __copy__(self):
@@ -396,7 +396,7 @@ class SimpleLazyObject(LazyObject):
         self.__dict__["_setupfunc"] = func
         super().__init__()
 
-    def _setup(self):
+    def setup(self):
         self._wrapped = self._setupfunc()
 
     # Return a meaningful representation of the lazy object for debugging

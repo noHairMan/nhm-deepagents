@@ -4,6 +4,7 @@ from importlib import import_module
 
 from fragile.commands.interactive.commands.base import Command, extract_prompt
 from fragile.conf import settings
+from fragile.exceptions import InvalidCommandError
 from fragile.models import SessionState
 from fragile.models.constants import CommandResult
 
@@ -17,7 +18,7 @@ class CommandRegistry:
     def register(self, command: Command) -> None:
         """Register a command instance."""
         if not isinstance(command, Command):
-            raise TypeError("command must be a Command instance")
+            raise InvalidCommandError("command must be a Command instance")
         self._handlers[command.name] = command
 
     @property
@@ -36,18 +37,18 @@ class CommandRegistry:
         return await handler.handle(parsed_prompt.prompt, state)
 
 
-def _load_command(path: str) -> Command:
+def load_command(path: str) -> Command:
     """Dynamically import and instantiate a command class."""
     module_name, class_name = path.rsplit(".", 1)
     command_class = getattr(import_module(module_name), class_name)
     return command_class()
 
 
-def _create_command_registry() -> CommandRegistry:
+def create_command_registry() -> CommandRegistry:
     registry = CommandRegistry()
     for path in settings.ENABLED_COMMANDS:
-        registry.register(_load_command(path))
+        registry.register(load_command(path))
     return registry
 
 
-command_registry = _create_command_registry()
+command_registry = create_command_registry()

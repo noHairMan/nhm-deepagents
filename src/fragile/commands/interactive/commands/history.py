@@ -33,11 +33,11 @@ async def select_history(
     enable_interrupt: bool,
 ) -> UUID:
     """Select a history item without starting a nested event loop."""
-    application, _ = _build_history_application(message, options, key_bindings, style, symbol, enable_interrupt)
+    application, _ = build_history_application(message, options, key_bindings, style, symbol, enable_interrupt)
     return await application.run_async()
 
 
-def _build_history_application(
+def build_history_application(
     message: str,
     options: list[tuple[UUID, str]],
     key_bindings: KeyBindings,

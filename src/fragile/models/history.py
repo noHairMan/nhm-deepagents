@@ -19,7 +19,7 @@ class ConversationHistory(Base):
     title: Mapped[str] = mapped_column(String, nullable=False)
 
     @staticmethod
-    def _format_title(title: str) -> str:
+    def format_title(title: str) -> str:
         """Keep persisted titles concise while preserving their beginning."""
         return f"{title[:12]}..." if len(title) > 12 else title
 
@@ -27,7 +27,7 @@ class ConversationHistory(Base):
     async def register_conversation(cls, thread_id: UUID, title: str) -> None:
         """Persist a conversation title without blocking the event loop."""
         thread_id_hex = to_hex(thread_id)
-        formatted_title = cls._format_title(title)
+        formatted_title = cls.format_title(title)
         session_factory = await get_initialized_session_factory()
         async with session_factory() as session:
             conversation = await session.scalar(select(cls).where(cls.thread_id == thread_id_hex))

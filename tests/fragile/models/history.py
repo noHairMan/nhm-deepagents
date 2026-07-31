@@ -10,10 +10,10 @@ from fragile.models.base import create_tables, get_engine
 
 class TestHistory:
     def test_format_title_truncates_long_titles(self) -> None:
-        assert ConversationHistory._format_title("一二三四五六七八九十百千万") == "一二三四五六七八九十百千..."
+        assert ConversationHistory.format_title("一二三四五六七八九十百千万") == "一二三四五六七八九十百千..."
 
     def test_format_title_keeps_short_titles(self) -> None:
-        assert ConversationHistory._format_title("短标题") == "短标题"
+        assert ConversationHistory.format_title("短标题") == "短标题"
 
     def test_base_fields_are_populated(self, tmp_path) -> None:
         engine = create_engine(f"sqlite:///{tmp_path / 'history.db'}")

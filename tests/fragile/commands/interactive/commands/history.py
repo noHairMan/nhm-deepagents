@@ -12,7 +12,7 @@ from sqlalchemy.orm import Session
 from fragile.commands.interactive.commands.history import (
     HISTORY_STYLE,
     HistoryCommand,
-    _build_history_application,
+    build_history_application,
     choose_history,
     format_elapsed_time,
     list_history,
@@ -25,7 +25,7 @@ from fragile.models.constants import CommandResult
 class TestHistoryCommand:
     def test_history_application_accepts_selection(self) -> None:
         first = UUID(int=1)
-        application, radio_list = _build_history_application(
+        application, radio_list = build_history_application(
             "Select:", [(first, "对话")], KeyBindings(), HISTORY_STYLE, "", False
         )
         event = MagicMock()
@@ -40,7 +40,7 @@ class TestHistoryCommand:
         event.app.exit.assert_called_once_with(result=first)
 
     def test_history_application_interrupts_when_enabled(self) -> None:
-        application, _ = _build_history_application(
+        application, _ = build_history_application(
             "Select:", [(UUID(int=1), "对话")], KeyBindings(), HISTORY_STYLE, "", True
         )
         event = MagicMock()

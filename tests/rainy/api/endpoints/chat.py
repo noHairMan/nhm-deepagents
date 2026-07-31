@@ -13,7 +13,7 @@ from rainy.app import app
 from tomorrow.core.agent import AgentManager
 
 
-def _make_event(content):
+def make_event(content):
     return {
         "event": "on_chat_model_stream",
         "data": {"chunk": AIMessageChunk(content=content)},
@@ -149,7 +149,7 @@ class TestChat:
 
     def test_chat_stream_no_thread_id(self):
         """验证流式接口未传递 thread_id 时自动生成。"""
-        events = [_make_event("test")]
+        events = [make_event("test")]
         fake_agent = FakeAgent(events=events)
         AgentManager.set_agent(fake_agent)
         try:
