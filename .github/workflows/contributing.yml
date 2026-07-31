@@ -1,12 +1,12 @@
-name: Translate Development Guide
+name: Translate CONTRIBUTING
 
 on:
   push:
     branches:
       - "main"
     paths:
-      - "docs/DEVELOPMENT.zh.md"
-      - ".github/workflows/development.yml"
+      - "docs/CONTRIBUTING.zh.md"
+      - ".github/workflows/contributing.yml"
 
 jobs:
   build:
@@ -23,23 +23,23 @@ jobs:
         with:
           node-version: 18.x
 
-      - name: Adding DEVELOPMENT - Chinese Traditional
+      - name: Adding CONTRIBUTING - Chinese Traditional
         uses: noHairMan/translate-readme@main
         with:
           LANG: zh-TW
-          README_PATH: "docs/DEVELOPMENT.zh.md"
+          README_PATH: "docs/CONTRIBUTING.zh.md"
           OUTPUT_DIR: "docs"
 
-      - name: Adding DEVELOPMENT - English
+      - name: Adding CONTRIBUTING - English
         uses: noHairMan/translate-readme@main
         with:
           LANG: en
-          README_PATH: "docs/DEVELOPMENT.zh.md"
+          README_PATH: "docs/CONTRIBUTING.zh.md"
           OUTPUT_DIR: "docs"
 
-      - name: Adding DEVELOPMENT - Japanese
+      - name: Adding CONTRIBUTING - Japanese
         uses: noHairMan/translate-readme@main
         with:
           LANG: ja
-          README_PATH: "docs/DEVELOPMENT.zh.md"
+          README_PATH: "docs/CONTRIBUTING.zh.md"
           OUTPUT_DIR: "docs"

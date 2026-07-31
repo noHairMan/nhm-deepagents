@@ -1,6 +1,6 @@
-# 开发指南
+# 贡献指南
 
-[简体中文](/docs/DEVELOPMENT.zh.md) | [English](/docs/DEVELOPMENT.en.md) | [日本語](/docs/DEVELOPMENT.ja.md) | [繁体中文](/docs/DEVELOPMENT.zh-TW.md)
+[简体中文](/docs/CONTRIBUTING.zh.md) | [English](/docs/CONTRIBUTING.en.md) | [日本語](/docs/CONTRIBUTING.ja.md) | [繁体中文](/docs/CONTRIBUTING.zh-TW.md)
 
 本文档面向项目开发者和贡献者，介绍开发环境、代码结构、质量检查与测试方法。项目的背景、安装、运行和配置说明请参阅 [README](README.zh.md)。
 
@@ -23,7 +23,7 @@
 项目集成了 GitHub Actions 工作流，包括：
 
 - **测试与覆盖率**: 自动运行测试并检查代码覆盖率。
-- **文档翻译**: 自动将 `README.zh.md` 和 `DEVELOPMENT.zh.md` 翻译为 English、日本語和繁体中文。
+- **文档翻译**: 自动将 `README.zh.md` 和 `CONTRIBUTING.zh.md` 翻译为 English、日本語和繁体中文。
 - **代码规范**: 自动执行 `ruff` 检查与格式化，确保代码风格统一。
 - **CI 流程优化**: 根据相关代码或配置变更触发构建，减少不必要的构建任务。
 
