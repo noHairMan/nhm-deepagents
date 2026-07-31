@@ -2,7 +2,7 @@
 
 [![Build Status](https://github.com/noHairMan/nhm-deepagents/actions/workflows/build.yml/badge.svg)](https://github.com/noHairMan/nhm-deepagents/actions/workflows/build.yml)[![Coverage badge](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/noHairMan/nhm-deepagents/python-coverage-comment-action-data/endpoint.json)](https://htmlpreview.github.io/?https://github.com/noHairMan/nhm-deepagents/blob/python-coverage-comment-action-data/htmlcov/index.html)[![Lint: Ruff](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/astral-sh/ruff/main/assets/badge/v2.json)](https://github.com/astral-sh/ruff)[![Python Version](https://img.shields.io/badge/python-3.14+-blue.svg)](https://www.python.org/downloads/release/python-3140/)[![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)[![Repo Size](https://img.shields.io/github/repo-size/noHairMan/nhm-deepagents)](https://github.com/noHairMan/nhm-deepagents)[![Last Commit](https://img.shields.io/github/last-commit/noHairMan/nhm-deepagents)](https://github.com/noHairMan/nhm-deepagents)
 
-[Simplified Chinese](/docs/README.zh.md)\|[English](/docs/README.en.md)\|[Japanese](/docs/README.ja.md)\|[Traditional Chinese](/docs/README.zh-TW.md)\|[Development Guide](DEVELOPMENT.zh.md)
+[Simplified Chinese](/docs/README.zh.md)\|[English](/docs/README.en.md)\|[Japanese](/docs/README.ja.md)\|[Traditional Chinese](/docs/README.zh-TW.md)
 
 ![Fragile banner](/docs/images/fragile.png)
 
@@ -74,7 +74,7 @@ This project provides a general smart assistant agent that utilizes`deepagents`T
     uv sync
     ```
 
-4.  **Install`fragile`Order**:
+4.  **Install`fragile` 命令**:
 
     ```bash
     uv tool install .
@@ -176,7 +176,7 @@ export TOMORROW_SUBAGENTS='[{"name":"researcher","description":"负责资料检�
 
 | variable                              | describe                                               | default value                               |
 | ------------------------------------- | ------------------------------------------------------ | ------------------------------------------- |
-| `RAINY_HOST`                          | API service listening address                          | `localhost`                                 |
+| `RAINY_HOST`                          | API 服务监听地址                                             | `localhost`                                 |
 | `RAINY_PORT`                          | API service port                                       | `8000`                                      |
 | `RAINY_APP`                           | Application name (used as environment variable prefix) | `rainy`                                     |
 | `RAINY_MIDDLEWARE`                    | List of enabled middlewares                            | Unified response format and processing time |
