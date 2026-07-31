@@ -14,9 +14,9 @@ A Python project to build and run Deep Agents using a modern LLM framework.
 
 The project contains three main modules:
 
--   **`tomorrow`**: Core agent module. The codename is taken from a character in the game "Death Stranding 2: On the Beach"**Tomorrow**(played by Elle Fanning). In the plot, she is the daughter of protagonist Sam Bridges, who was also revealed to be a character in the previous game.**Lou**(BB-28)。
+-   **`tomorrow`**: Core agent module. The code name is taken from a character in the game "Death Stranding 2: On the Beach"**Tomorrow**(played by Elle Fanning). In the plot, she is the daughter of protagonist Sam Bridges, who was also revealed to be a character in the previous game.**Lou**(BB-28)。
 -   **`rainy`**: API service module based on FastAPI. The codename is also taken from a character in Death Stranding 2**Rainy**(played by Shiori Kutsuna). In the game, she has the magical power to cause "Timefall" and the healing "Corefall", and is described as a "Pharmakon" that can both hurt and heal.
--   **`fragile`**: A Typer-based command line client for asking questions directly to the Tomorrow agent or starting interactive sessions. Its name is taken from a character in the same work**Fragile**. Fragile is the founder and courier of Fragile Express. He has aged rapidly due to exposure to the rain of time, but he has always delivered important supplies to others in dangerous environments. This image of "fragility" that still insists on the mission of connecting and delivering is the background of the name of this client.
+-   **`fragile`**: based on`asyncclick`An asynchronous command line client for asking questions directly to the Tomorrow agent or starting interactive sessions. Its name is taken from a character in the same work**Fragile**. Fragile is the founder and courier of Fragile Express. He has aged rapidly due to exposure to the rain of time, but he has always delivered important supplies to others in dangerous environments. This image of "fragility" that still insists on the mission of connecting and delivering is the background of the name of this client.
 
 This project provides a general smart assistant agent that utilizes`deepagents`The framework analyzes user input and passes`rainy`The module provides external synchronization (`/api/chat`)and**streaming (`/api/chat/stream`）**API interface.
 
@@ -50,7 +50,7 @@ The project integrates GitHub Actions workflows, including:
 -   **agent framework**:[deepagents](https://github.com/zongxuheng/deepagents)(Based on LangGraph/LangChain)
 -   **LLM provider**:[To be](https://ollama.com/)、[HuggingFace](https://huggingface.co/)and[Anthropic](https://www.anthropic.com/)
 -   **code execution**:[langchain-quickjs](https://github.com/langchain-ai/langchainjs)QuickJS middleware provided
--   **Terminal interaction**:[prompt-toolkit](https://github.com/prompt-toolkit/python-prompt-toolkit)Provides input history, command completion and multi-line editing,[Rich](https://github.com/Textualize/rich)Provides terminal output styles.
+-   **Terminal interaction**:[asyncclick](https://github.com/python-trio/asyncclick)Provide asynchronous CLI commands, parameter parsing and help information;[prompt-toolkit](https://github.com/prompt-toolkit/python-prompt-toolkit)Provides asynchronous input, input history, command completion and multi-line editing;[Rich](https://github.com/Textualize/rich)Provides terminal output styles.
 -   **Configuration management**:[Pydantic Settings](https://docs.pydantic.dev/latest/usage/settings/)
 -   **Exception handling**: Custom exception system (`TomorrowError`and its subclasses), covering model, backend, storage, and checkpoint errors.
 -   **Code quality**:[Ruff](https://github.com/astral-sh/ruff)(replaces Black and Isort),`pre-commit`, Strict Type Hinting
@@ -135,6 +135,12 @@ uv run fragile
 
 pass`--thread`or`-t`Passing in the UUID can restore an existing session; if not passed in, a new thread will be automatically created. Input during interaction`/new`To clear the screen and start a new session, enter`/history`To view saved sessions and switch by number or UUID, enter`/quit`Exit; you can also press twice in succession`Ctrl+C`To exit a session in a short time, press`Esc`Press Enter to insert a line feed.
 
+`fragile`CLI entry and`purge`Subcommands all use asynchronous command functions to avoid nested calls in already running event loops`asyncio.run()`. Clean up persisted session records:
+
+```bash
+fragile purge
+```
+
 ## ⚙️ Configuration
 
 This project uses**Pydantic Settings**Perform configuration management. The settings are respectively defined in`src/tomorrow/settings.py`(Tomorrow)、`src/rainy/settings.py`(Rainy) and`src/fragile/settings.py`(Fragile), you can use environment variables or`.env`file is overwritten. Environment variables have the highest priority and are used by the three modules respectively.`TOMORROW_`、`RAINY_`and`FRAGILE_`prefix; can also be passed`TOMORROW_ENV_FILE`、`RAINY_ENV_FILE`or`FRAGILE_ENV_FILE`Specify the configuration file path.
@@ -213,7 +219,7 @@ Commonly used development scripts:
 
 -   `src/main.py`: The main entry point of the Rainy API service. Set up the environment and start the Uvicorn server.
 -   `src/fragile/`: Command line client package directory.
-    -   `cli.py`: definition`fragile`Command line entry.
+    -   `app.py`: use`asyncclick`Define async`fragile`command line entry and`purge`Child command.
     -   `commands/interactive/`: Interactive session implementation, supporting session recovery, new session, command completion and multi-line input.
         -   `agent.py`: Manages interactions with the Tomorrow agent.
         -   `commands/`: Interactive slash command implementation and command registry.
