@@ -1,5 +1,4 @@
 import asyncio
-import inspect
 
 import typer
 
@@ -15,14 +14,13 @@ def main(
     thread: str | None = typer.Option(None, "--thread", "-t", help="Thread UUID to resume a conversation."),
 ) -> None:
     """Start an interactive session. Enter /quit to exit."""
-    if ctx is None or ctx.invoked_subcommand is None:
-        result = interactive(thread)
-        if inspect.isawaitable(result):
-            asyncio.run(result)
+    if ctx and ctx.invoked_subcommand:
+        return
+    asyncio.run(interactive(thread))
 
 
 @app.command("purge")
 def purge() -> None:
     """Clear all persisted session information."""
-    deleted = purge_sessions()
+    deleted = asyncio.run(purge_sessions())
     typer.echo(f"Cleared {deleted} session records.")

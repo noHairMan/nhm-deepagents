@@ -48,14 +48,13 @@ class TestCli:
 
         context = type("Context", (), {"invoked_subcommand": None})()
         with (
-            patch("fragile.app.interactive", return_value=object()) as interactive,
-            patch("fragile.app.inspect.isawaitable", return_value=False),
+            patch("fragile.app.interactive", new_callable=AsyncMock) as interactive,
         ):
             main(context, "thread-id")
         interactive.assert_called_once_with("thread-id")
 
     def test_purge_command(self) -> None:
-        with patch("fragile.app.purge_sessions", return_value=3) as purge_sessions:
+        with patch("fragile.app.purge_sessions", new_callable=AsyncMock, return_value=3) as purge_sessions:
             result = runner.invoke(app, ["purge"])
         assert result.exit_code == 0
         assert result.stdout == "Cleared 3 session records.\n"

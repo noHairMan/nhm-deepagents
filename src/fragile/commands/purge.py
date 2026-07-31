@@ -1,18 +1,21 @@
 """Purge persisted Fragile session data."""
 
 from sqlalchemy import delete, inspect
-from sqlalchemy.orm import Session
+from sqlalchemy.ext.asyncio import AsyncSession
 
 from fragile.models.base import engine
 from fragile.models.history import ConversationHistory
 
 
-def purge_sessions() -> int:
+async def purge_sessions() -> int:
     """Delete rows from the conversation history table."""
     table = ConversationHistory.__table__
-    if not inspect(engine).has_table(table.name):
+    async with engine.connect() as connection:
+        has_table = await connection.run_sync(lambda sync_connection: inspect(sync_connection).has_table(table.name))
+    if not has_table:
         return 0
-    with Session(engine) as session:
-        deleted = session.execute(delete(table)).rowcount
-        session.commit()
+    async with AsyncSession(engine) as session:
+        result = await session.execute(delete(table))
+        deleted = result.rowcount or 0
+        await session.commit()
     return deleted
