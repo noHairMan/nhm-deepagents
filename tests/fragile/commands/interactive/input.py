@@ -1,21 +1,12 @@
-from unittest.mock import AsyncMock, MagicMock, patch
+from unittest.mock import MagicMock, patch
 
-import pytest
 from prompt_toolkit.document import Document
 from prompt_toolkit.keys import Keys
 
-from fragile.commands.interactive.input import CommandCompleter, create_prompt_session, prompt
+from fragile.commands.interactive.input import CommandCompleter, create_prompt_session
 
 
 class TestInput:
-    @pytest.mark.asyncio
-    async def test_prompt(self) -> None:
-        session = MagicMock()
-        session.prompt_async = AsyncMock(return_value="answer")
-
-        assert await prompt(session) == "answer"
-        session.prompt_async.assert_called_once_with("> ")
-
     def testprompt_session_configuresinteractive_features(self) -> None:
 
         session = create_prompt_session()

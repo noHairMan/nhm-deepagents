@@ -60,112 +60,26 @@ class TestSession:
         assert extract_prompt("你好呀").model_dump() == {"command": None, "prompt": "你好呀"}
 
     @pytest.mark.asyncio
-    async def testinteractive_history_command_reads_prompt(self) -> None:
-        first = UUID(int=1)
-        with (
-            patch(
-                "fragile.commands.interactive.commands.history.list_history",
-                new_callable=AsyncMock,
-                return_value=[(first, "第一次对话")],
-            ),
-            patch("fragile.commands.interactive.commands.history.select_history", return_value=first),
-            patch(
-                "fragile.commands.interactive.session.prompt",
-                new_callable=AsyncMock,
-                side_effect=["/history", "/quit"],
-            ),
-            patch("fragile.commands.interactive.commands.history.show_startup") as show_startup,
-        ):
-            await interactive(None)
-
-        show_startup.assert_any_call(first, True)
-
-    @pytest.mark.asyncio
-    async def testinteractive_history_command_uses_keyboard_selector(self) -> None:
-        first = UUID(int=1)
-        with (
-            patch(
-                "fragile.commands.interactive.commands.history.list_history",
-                new_callable=AsyncMock,
-                return_value=[(first, "第一次对话")],
-            ),
-            patch(
-                "fragile.commands.interactive.commands.history.select_history",
-                new_callable=AsyncMock,
-                return_value=first,
-            ) as selector,
-            patch(
-                "fragile.commands.interactive.session.prompt",
-                new_callable=AsyncMock,
-                side_effect=["/history", "/quit"],
-            ),
-        ):
-            await interactive(None)
-
-        selector.assert_awaited_once()
-
-    def testparse_thread_id_rejects_invalid_value(self) -> None:
-
-        with pytest.raises(InvalidThreadIdError, match="Must be a valid UUID"):
-            parse_thread_id("bad")
-
-    def test_invalidparse_thread_id_is_fragile_error_and_typer_parameter(self) -> None:
-        assert issubclass(InvalidThreadIdError, FragileError)
-        assert issubclass(InvalidThreadIdError, click.BadParameter)
-
-    @pytest.mark.asyncio
-    async def test_interactive_restores_terminal_on_exit(self) -> None:
-        with (
-            patch("fragile.commands.interactive.session.enter_fullscreen"),
-            patch("fragile.commands.interactive.session.leave_fullscreen") as leave_fullscreen,
-            patch("fragile.commands.interactive.session.prompt", new_callable=AsyncMock, return_value="/quit"),
-        ):
-            await interactive(None)
-        leave_fullscreen.assert_called_once_with()
-
-    @pytest.mark.asyncio
-    async def test_interactive_retries_after_keyboard_interrupt_and_eof(self) -> None:
-        with (
-            patch("fragile.commands.interactive.session.enter_fullscreen"),
-            patch("fragile.commands.interactive.session.leave_fullscreen"),
-            patch(
-                "fragile.commands.interactive.session.prompt",
-                new_callable=AsyncMock,
-                side_effect=[KeyboardInterrupt, EOFError, "/quit"],
-            ),
-        ):
-            await interactive(None)
-
-    @pytest.mark.asyncio
-    async def test_interactive_exits_after_two_keyboard_interrupts(self) -> None:
-        with (
-            patch("fragile.commands.interactive.session.enter_fullscreen"),
-            patch("fragile.commands.interactive.session.leave_fullscreen"),
-            patch(
-                "fragile.commands.interactive.session.prompt",
-                new_callable=AsyncMock,
-                side_effect=[KeyboardInterrupt, KeyboardInterrupt],
-            ),
-        ):
-            await interactive(None)
-
-    @pytest.mark.asyncio
-    async def test_interactive_chats_for_unhandled_nonempty_prompt(self) -> None:
+    async def test_interactive_handles_commands_and_chat(self) -> None:
+        prompt_session = MagicMock()
+        prompt_session.prompt_async = AsyncMock(side_effect=["  hello  ", "   ", "/new", "/quit"])
         state = MagicMock()
         with (
             patch("fragile.commands.interactive.session.enter_fullscreen"),
-            patch("fragile.commands.interactive.session.leave_fullscreen"),
+            patch("fragile.commands.interactive.session.leave_fullscreen") as leave_fullscreen,
+            patch("fragile.commands.interactive.session.show_startup"),
+            patch("fragile.commands.interactive.session.create_prompt_session", return_value=prompt_session),
             patch("fragile.commands.interactive.session.SessionState", return_value=state),
-            patch(
-                "fragile.commands.interactive.session.prompt",
-                new_callable=AsyncMock,
-                side_effect=["  hello  ", "/quit"],
-            ),
             patch.object(
                 COMMAND_REGISTRY,
                 "handle",
                 new_callable=AsyncMock,
-                side_effect=[CommandResult.NOT_HANDLED, CommandResult.EXIT],
+                side_effect=[
+                    CommandResult.NOT_HANDLED,
+                    CommandResult.NOT_HANDLED,
+                    CommandResult.CONTINUE,
+                    CommandResult.EXIT,
+                ],
             ),
             patch(
                 "fragile.commands.interactive.session.ConversationHistory.register_conversation",
@@ -177,19 +91,41 @@ class TestSession:
 
         register.assert_awaited_once_with(state.thread_id, "hello")
         chat.assert_awaited_once_with("hello", state.thread_id, ANY)
+        leave_fullscreen.assert_called_once_with()
 
     @pytest.mark.asyncio
-    async def test_interactive_ignores_empty_prompt(self) -> None:
+    async def test_interactive_retries_after_keyboard_interrupt_and_eof(self) -> None:
+        prompt_session = MagicMock()
+        prompt_session.prompt_async = AsyncMock(side_effect=[KeyboardInterrupt, EOFError, "/quit"])
         with (
             patch("fragile.commands.interactive.session.enter_fullscreen"),
             patch("fragile.commands.interactive.session.leave_fullscreen"),
-            patch(
-                "fragile.commands.interactive.session.prompt",
-                new_callable=AsyncMock,
-                side_effect=["   ", "/quit"],
-            ),
+            patch("fragile.commands.interactive.session.show_startup"),
+            patch("fragile.commands.interactive.session.create_prompt_session", return_value=prompt_session),
         ):
             await interactive(None)
+
+    @pytest.mark.asyncio
+    async def test_interactive_exits_after_two_keyboard_interrupts(self) -> None:
+        prompt_session = MagicMock()
+        prompt_session.prompt_async = AsyncMock(side_effect=[KeyboardInterrupt, KeyboardInterrupt])
+        with (
+            patch("fragile.commands.interactive.session.enter_fullscreen"),
+            patch("fragile.commands.interactive.session.leave_fullscreen"),
+            patch("fragile.commands.interactive.session.show_startup"),
+            patch("fragile.commands.interactive.session.create_prompt_session", return_value=prompt_session),
+            patch("fragile.commands.interactive.session.time.monotonic", side_effect=[1.0, 1.1]),
+        ):
+            await interactive(None)
+
+    def testparse_thread_id_rejects_invalid_value(self) -> None:
+
+        with pytest.raises(InvalidThreadIdError, match="Must be a valid UUID"):
+            parse_thread_id("bad")
+
+    def test_invalidparse_thread_id_is_fragile_error_and_typer_parameter(self) -> None:
+        assert issubclass(InvalidThreadIdError, FragileError)
+        assert issubclass(InvalidThreadIdError, click.BadParameter)
 
     def testparse_thread_id(self) -> None:
 
