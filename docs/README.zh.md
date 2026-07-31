@@ -8,7 +8,7 @@
 [![Repo Size](https://img.shields.io/github/repo-size/noHairMan/nhm-deepagents)](https://github.com/noHairMan/nhm-deepagents)
 [![Last Commit](https://img.shields.io/github/last-commit/noHairMan/nhm-deepagents)](https://github.com/noHairMan/nhm-deepagents)
 
-[简体中文](/docs/README.zh.md) | [English](/docs/README.en.md) | [日本語](/docs/README.ja.md) | [繁体中文](/docs/README.zh-TW.md)
+[简体中文](/docs/README.zh.md) | [English](/docs/README.en.md) | [日本語](/docs/README.ja.md) | [繁体中文](/docs/README.zh-TW.md) | [开发指南](DEVELOPMENT.zh.md)
 
 ![Fragile banner](/docs/images/fragile.png)
 
@@ -35,14 +35,6 @@
 - **高性能 API**: 基于 FastAPI 构建，支持同步响应与 Server-Sent Events (SSE) 流式输出。
 - **交互式 CLI**: `fragile` 支持 `/new` 创建新会话、`/history` 浏览并切换已持久化的历史会话、`/quit` 退出、会话恢复、输入历史、斜线命令补全和多行编辑。
 - **可靠性保障**: 强制类型提示、Ruff 静态检查、100% 测试覆盖率要求。
-
-## ⚙️ CI/CD
-
-项目集成了 GitHub Actions 工作流，包括：
-- **测试与覆盖率**: 自动运行测试并检查代码覆盖率。
-- **文档翻译**: 自动将 `README.zh.md` 翻译为多种语言（English, 日本語, 繁体中文）。
-- **代码规范**: 自动执行 `ruff` 检查与格式化，确保代码风格统一且高质量。
-- **CI 流程优化**: 增强了工作流触发路径规则，仅在相关代码或配置变动时触发构建，提升效率。
 
 ## 🛠️ 技术栈
 
@@ -196,103 +188,6 @@ export TOMORROW_SUBAGENTS='[{"name":"researcher","description":"负责资料检�
 | `FRAGILE_ENABLED_COMMANDS` | 启用的交互式命令类路径列表 | `quit`、`new`、`history` |
 
 Fragile 的其他交互行为通过命令行选项和内置斜线命令控制。命令通过注册表统一发现和处理，可使用 `FRAGILE_ENABLED_COMMANDS` 调整启用的命令。
-
-## 📜 脚本
-
-常用的开发脚本：
-
-- **检查与格式化代码**:
-  ```bash
-  uv run ruff check . --fix
-  uv run ruff format .
-  ```
-
-- **手动运行 pre-commit 钩子**:
-  ```bash
-  uv run pre-commit run --all-files
-  ```
-
-## 📂 项目结构
-
-- `src/main.py`: Rainy API 服务的主入口点。设置环境并启动 Uvicorn 服务器。
-- `src/fragile/`: 命令行客户端包目录。
-  - `app.py`: 使用 `asyncclick` 定义异步 `fragile` 命令行入口和 `purge` 子命令。
-  - `commands/interactive/`: 交互式会话实现，支持会话恢复、新建会话、命令补全和多行输入。
-    - `agent.py`: 管理与 Tomorrow 智能体的交互。
-    - `commands/`: 交互式斜线命令实现和命令注册表。
-      - `base.py`: 定义交互式命令的基础接口和处理结果。
-      - `history.py`: 查询并选择已持久化的历史会话。
-      - `new.py`: 创建新会话。
-      - `quit.py`: 退出交互式会话。
-    - `display.py`: 管理终端显示。
-    - `input.py`: 管理输入历史、命令补全和多行编辑。
-    - `session.py`: 管理交互式会话流程。
-  - `conf/config.py`: 提供延迟加载的 CLI 全局配置。
-  - `models/session.py`: 定义交互式会话状态模型。
-  - `models/constants/command.py`: 定义命令处理结果常量。
-  - `settings.py`: CLI 模块默认配置。
-- `src/tomorrow/`: 核心智能体包目录。
-  - `graph.py`: `langgraph-cli` 使用的 graph 入口。
-  - `core/agent.py`: 定义深度智能体及其指令，提供 `AgentManager` 进行生命周期管理。
-  - `core/backend/`: 统一后端加载逻辑，支持 `FILESYSTEM` 和 `LOCAL_SHELL`。
-  - `core/checkpoint/`: 检查点实现，支持 `MEMORY` 和 `SQLITE`。
-  - `core/model/`: 模型加载实现，支持 `OLLAMA`、`HUGGINGFACE` 和 `ANTHROPIC`。
-  - `core/store/`: 存储实现，支持 `MEMORY` 和 `SQLITE`。
-  - `exceptions.py`: 定义应用特定的异常类体系。
-  - `models/constants/`: 定义各类常量（Backend, Checkpoint, Model, Store）。
-  - `settings.py`: 默认配置值。
-  - `utils/functional.py`: 功能实用程序。
-- `src/rainy/`: API 服务包目录。
-  - `app.py`: FastAPI 应用定义，集成生命周期管理与路由。
-  - `lifespan.py`: 处理应用的启动与关闭逻辑，管理智能体实例生命周期。
-  - `api/endpoints/`: API 路由定义。
-    - `chat.py`: 同步及流式聊天接口，集成了深度智能体模块（响应由中间件统一包装）。
-      - `POST /api/chat`: 同步聊天响应。
-      - `POST /api/chat/stream`: SSE 流式响应。
-      - `POST /api/chat/stream/event`: 事件流响应。
-    - `health.py`: 健康检查接口 (`GET /api/health`)。
-    - `urls.py`: 统一路由挂载。
-  - `middleware/`: 自定义中间件（处理时间、统一响应格式）。
-  - `settings.py`: API 模块默认配置。
-- `tests/`: 测试目录，结构与 `src` 保持一致。
-- `docs/`: 多语言文档。
-- `pyproject.toml`: 项目元数据、依赖项和工具配置。
-- `langgraph.json`: `langgraph-cli` 的 graph 与环境配置。
-- `uv.lock`: 锁定依赖版本。
-- `LICENSE`: Apache License 2.0。
-
-## 🧪 测试
-
-项目使用 `pytest` 进行测试，并要求 **100%** 的测试覆盖率。
-
-### 运行测试
-
-- **运行 Tomorrow 测试**:
-  ```bash
-  PYTHONPATH=src TOMORROW_APP=tomorrow uv run pytest tests/tomorrow
-  ```
-
-- **运行 Rainy 测试**:
-  ```bash
-  PYTHONPATH=src RAINY_APP=rainy uv run pytest tests/rainy
-  ```
-
-- **运行 Fragile 测试**:
-  ```bash
-  PYTHONPATH=src FRAGILE_APP=fragile uv run pytest tests/fragile
-  ```
-
-### 运行覆盖率测试
-
-要求测试覆盖率必须达到 **100%**。
-
-```bash
-PYTHONPATH=src \
-TOMORROW_APP=tomorrow \
-RAINY_APP=rainy \
-FRAGILE_APP=fragile \
-uv run coverage run --rcfile=pyproject.toml -m pytest && uv run coverage report --rcfile=pyproject.toml
-```
 
 ## 📄 许可证
 

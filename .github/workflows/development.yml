@@ -1,0 +1,45 @@
+name: Translate Development Guide
+
+on:
+  push:
+    branches:
+      - "main"
+    paths:
+      - "docs/DEVELOPMENT.zh.md"
+      - ".github/workflows/development.yml"
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v6
+        with:
+          node-version: 18.x
+
+      - name: Adding DEVELOPMENT - Chinese Traditional
+        uses: noHairMan/translate-readme@main
+        with:
+          LANG: zh-TW
+          README_PATH: "docs/DEVELOPMENT.zh.md"
+          OUTPUT_DIR: "docs"
+
+      - name: Adding DEVELOPMENT - English
+        uses: noHairMan/translate-readme@main
+        with:
+          LANG: en
+          README_PATH: "docs/DEVELOPMENT.zh.md"
+          OUTPUT_DIR: "docs"
+
+      - name: Adding DEVELOPMENT - Japanese
+        uses: noHairMan/translate-readme@main
+        with:
+          LANG: ja
+          README_PATH: "docs/DEVELOPMENT.zh.md"
+          OUTPUT_DIR: "docs"
