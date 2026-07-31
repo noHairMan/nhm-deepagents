@@ -3,7 +3,7 @@
 import time
 from uuid import UUID, uuid4
 
-import typer
+import asyncclick as click
 
 from fragile.commands.interactive.agent import chat
 from fragile.commands.interactive.commands import COMMAND_REGISTRY
@@ -13,7 +13,7 @@ from fragile.commands.interactive.display import (
     print_stream,
     show_startup,
 )
-from fragile.commands.interactive.input import create_prompt_session, prompt
+from fragile.commands.interactive.input import create_prompt_session
 from fragile.conf import settings
 from fragile.exceptions import InvalidThreadIdError
 from fragile.models import ConversationHistory, SessionState
@@ -30,7 +30,7 @@ def parse_thread_id(value: str | None) -> UUID:
 
 
 async def interactive(
-    thread: str | None = typer.Option(None, "--thread", "-t", help="Thread UUID to resume a conversation."),
+    thread: str | None,
 ) -> None:
     """Start an interactive session. Enter /quit to exit."""
     thread_id = parse_thread_id(thread)
@@ -42,9 +42,9 @@ async def interactive(
         last_keyboard_interrupt: float | None = None
         while True:
             try:
-                input_prompt = await prompt(prompt_session)
-            except KeyboardInterrupt, typer.Abort:
-                typer.echo()
+                input_prompt = await prompt_session.prompt_async("> ")
+            except KeyboardInterrupt, click.Abort:
+                click.echo()
                 now = time.monotonic()
                 if (
                     last_keyboard_interrupt is not None

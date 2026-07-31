@@ -1,10 +1,9 @@
 from unittest.mock import ANY, AsyncMock, MagicMock, patch
 from uuid import UUID
 
+import asyncclick as click
 import pytest
-import typer
 from sqlalchemy import create_engine
-from typer.testing import CliRunner
 
 from fragile.commands.interactive.commands import COMMAND_REGISTRY, CommandRegistry
 from fragile.commands.interactive.commands.base import extract_prompt
@@ -13,8 +12,6 @@ from fragile.commands.interactive.session import interactive, parse_thread_id
 from fragile.exceptions import FragileError, InvalidThreadIdError
 from fragile.models import Base, SessionState
 from fragile.models.constants import CommandResult
-
-runner = CliRunner()
 
 
 class TestSession:
@@ -114,7 +111,7 @@ class TestSession:
 
     def test_invalidparse_thread_id_is_fragile_error_and_typer_parameter(self) -> None:
         assert issubclass(InvalidThreadIdError, FragileError)
-        assert issubclass(InvalidThreadIdError, typer.BadParameter)
+        assert issubclass(InvalidThreadIdError, click.BadParameter)
 
     @pytest.mark.asyncio
     async def test_interactive_restores_terminal_on_exit(self) -> None:

@@ -47,8 +47,3 @@ def create_prompt_session() -> PromptSession[str]:
         enable_suspend=True,
         key_bindings=key_bindings,
     )
-
-
-async def prompt(session: PromptSession[str]) -> str:
-    """Asynchronously read a prompt while preserving prompt-toolkit behavior."""
-    return await session.prompt_async("> ")

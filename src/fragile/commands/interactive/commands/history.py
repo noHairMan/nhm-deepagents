@@ -4,7 +4,7 @@ from datetime import datetime, timedelta
 from typing import Any, Optional
 from uuid import UUID
 
-import typer
+import asyncclick as click
 from prompt_toolkit.application import Application
 from prompt_toolkit.key_binding import KeyBindings, merge_key_bindings
 from prompt_toolkit.layout import HSplit, Layout
@@ -71,7 +71,7 @@ def _build_history_application(
 
         @bindings.add("c-c", eager=True)
         def interrupt_selection(event: Any) -> None:
-            event.app.exit(exception=typer.Abort())
+            event.app.exit(exception=click.Abort())
 
     application = Application(
         layout=Layout(
@@ -157,13 +157,13 @@ def format_elapsed_time(updated_at: datetime, now: datetime | None = None) -> st
 async def choose_history(histories: list[tuple[UUID, str]]) -> UUID | None:
     """Display persisted threads using the active event loop."""
     if not histories:
-        typer.echo("No conversation history available.")
+        click.echo("No conversation history available.")
         return None
     key_bindings = KeyBindings()
 
     @key_bindings.add("escape", eager=True)
     def cancel_selection(event: Any) -> None:
-        event.app.exit(exception=typer.Abort())
+        event.app.exit(exception=click.Abort())
 
     try:
         return await select_history(
@@ -174,5 +174,5 @@ async def choose_history(histories: list[tuple[UUID, str]]) -> UUID | None:
             symbol="",
             enable_interrupt=False,
         )
-    except typer.Abort:
+    except click.Abort:
         return None

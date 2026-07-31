@@ -1,11 +1,11 @@
 """Exceptions raised by the Fragile command-line application."""
 
-import typer
+import asyncclick as click
 
 
 class FragileError(Exception):
     """Base class for all Fragile-specific exceptions."""
 
 
-class InvalidThreadIdError(FragileError, typer.BadParameter):
+class InvalidThreadIdError(FragileError, click.BadParameter):
     """Raised when a thread identifier is not a valid UUID."""

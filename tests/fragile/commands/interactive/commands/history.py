@@ -2,8 +2,8 @@ from datetime import datetime, timedelta
 from unittest.mock import AsyncMock, MagicMock, patch
 from uuid import UUID
 
+import asyncclick as click
 import pytest
-import typer
 from prompt_toolkit.key_binding import KeyBindings
 from prompt_toolkit.widgets import RadioList
 from sqlalchemy import create_engine
@@ -54,7 +54,7 @@ class TestHistoryCommand:
         binding.handler(event)
 
         exception = event.app.exit.call_args.kwargs["exception"]
-        assert isinstance(exception, typer.Abort)
+        assert isinstance(exception, click.Abort)
 
     @pytest.mark.asyncio
     async def test_select_history_hides_numbers(self) -> None:
@@ -105,10 +105,10 @@ class TestHistoryCommand:
 
     @pytest.mark.asyncio
     async def test_choose_history_returns_none_without_threads(self) -> None:
-        with patch("fragile.commands.interactive.commands.history.typer.echo"):
+        with patch("fragile.commands.interactive.commands.history.click.echo"):
             assert await choose_history([]) is None
 
-    @pytest.mark.parametrize("cancel", [typer.Abort])
+    @pytest.mark.parametrize("cancel", [click.Abort])
     @pytest.mark.asyncio
     async def test_choose_history_returns_none_when_cancelled(self, cancel: type[BaseException]) -> None:
         first = UUID(int=1)
@@ -132,7 +132,7 @@ class TestHistoryCommand:
             assert await choose_history([(UUID(int=1), "对话")]) is None
 
         exception = event.app.exit.call_args.kwargs["exception"]
-        assert isinstance(exception, typer.Abort)
+        assert isinstance(exception, click.Abort)
 
     @pytest.mark.asyncio
     async def test_list_history_returns_titles(self, tmp_path, monkeypatch) -> None:

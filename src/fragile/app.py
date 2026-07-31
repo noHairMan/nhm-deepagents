@@ -1,26 +1,23 @@
-import asyncio
-
-import typer
+import asyncclick as click
 
 from fragile.commands.interactive.session import interactive
 from fragile.commands.purge import purge_sessions
 
-app = typer.Typer(help="Fragile CLI for interacting with the Tomorrow agent.")
 
-
-@app.callback(invoke_without_command=True)
-def main(
-    ctx: typer.Context,
-    thread: str | None = typer.Option(None, "--thread", "-t", help="Thread UUID to resume a conversation."),
-) -> None:
+async def main(ctx: click.Context, thread: str | None) -> None:
     """Start an interactive session. Enter /quit to exit."""
     if ctx and ctx.invoked_subcommand:
         return
-    asyncio.run(interactive(thread))
+    await interactive(thread)
+
+
+app = click.group(invoke_without_command=True, help="Fragile CLI for interacting with the Tomorrow agent.")(
+    click.pass_context(click.option("--thread", "-t", default=None, help="Thread UUID to resume a conversation.")(main))
+)
 
 
 @app.command("purge")
-def purge() -> None:
+async def purge() -> None:
     """Clear all persisted session information."""
-    deleted = asyncio.run(purge_sessions())
-    typer.echo(f"Cleared {deleted} session records.")
+    deleted = await purge_sessions()
+    click.echo(f"Cleared {deleted} session records.")

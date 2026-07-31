@@ -2,7 +2,7 @@
 
 from uuid import UUID
 
-import typer
+import asyncclick as click
 from rich.console import Console
 from rich.panel import Panel
 from rich.text import Text
@@ -20,12 +20,12 @@ console = Console()
 
 def enter_fullscreen() -> None:
     """Switch to a terminal screen isolated from the main scrollback buffer."""
-    typer.echo("\033[?1049h", nl=False, color=True)
+    click.echo("\033[?1049h", nl=False, color=True)
 
 
 def leave_fullscreen() -> None:
     """Restore the terminal's main screen and its scrollback buffer."""
-    typer.echo("\033[?1049l", nl=False, color=True)
+    click.echo("\033[?1049l", nl=False, color=True)
 
 
 def print_stream(content: str) -> None:
