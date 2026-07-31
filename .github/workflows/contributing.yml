@@ -29,6 +29,7 @@ jobs:
           LANG: zh-TW
           README_PATH: "docs/CONTRIBUTING.zh.md"
           OUTPUT_DIR: "docs"
+          OUTPUT_FILE: "CONTRIBUTING.${lang}.md"
 
       - name: Adding CONTRIBUTING - English
         uses: noHairMan/translate-readme@main
@@ -36,6 +37,7 @@ jobs:
           LANG: en
           README_PATH: "docs/CONTRIBUTING.zh.md"
           OUTPUT_DIR: "docs"
+          OUTPUT_FILE: "CONTRIBUTING.${lang}.md"
 
       - name: Adding CONTRIBUTING - Japanese
         uses: noHairMan/translate-readme@main
@@ -43,3 +45,4 @@ jobs:
           LANG: ja
           README_PATH: "docs/CONTRIBUTING.zh.md"
           OUTPUT_DIR: "docs"
+          OUTPUT_FILE: "CONTRIBUTING.${lang}.md"
