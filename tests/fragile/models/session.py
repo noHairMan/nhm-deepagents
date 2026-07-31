@@ -5,14 +5,13 @@ from fragile.models import SessionState
 
 class TestSessionState:
     def test_session_state(self) -> None:
-        prompt_session = object()
-        state = SessionState(thread_id=UUID(int=1), prompt_session=prompt_session)
+        state = SessionState(thread_id=UUID(int=1))
 
         assert state.thread_id == UUID(int=1)
-        assert state.prompt_session is prompt_session
+        assert "prompt_session" not in SessionState.model_fields
 
     def test_session_state_is_mutable(self) -> None:
-        state = SessionState(thread_id=UUID(int=1), prompt_session=object())
+        state = SessionState(thread_id=UUID(int=1))
         thread_id = UUID(int=2)
 
         state.thread_id = thread_id

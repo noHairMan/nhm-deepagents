@@ -75,7 +75,7 @@ class TestHistoryCommand:
     @pytest.mark.asyncio
     async def test_history_command_uses_selector(self) -> None:
         selected = UUID(int=2)
-        state = SessionState(thread_id=UUID(int=1), prompt_session=object())
+        state = SessionState(thread_id=UUID(int=1))
         with (
             patch(
                 "fragile.commands.interactive.commands.history.list_history",
@@ -218,7 +218,7 @@ class TestHistoryCommand:
 
     @pytest.mark.asyncio
     async def test_history_command_keeps_state_when_selection_is_cancelled(self) -> None:
-        state = SessionState(thread_id=UUID(int=1), prompt_session=object())
+        state = SessionState(thread_id=UUID(int=1))
         with (
             patch(
                 "fragile.commands.interactive.commands.history.list_history",

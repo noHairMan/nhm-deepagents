@@ -27,7 +27,7 @@ class TestSession:
 
     @pytest.mark.asyncio
     async def test_command_registry_handles_registered_commands(self) -> None:
-        state = SessionState(thread_id=UUID(int=1), prompt_session=object())
+        state = SessionState(thread_id=UUID(int=1))
 
         assert await command_registry.handle("/quit", state) is CommandResult.EXIT
         assert await command_registry.handle("/new", state) is CommandResult.CONTINUE
@@ -36,18 +36,18 @@ class TestSession:
     @pytest.mark.asyncio
     async def test_new_command_does_not_create_history_before_chat(self) -> None:
         with patch("fragile.commands.interactive.commands.new.show_startup"):
-            state = SessionState(thread_id=UUID(int=1), prompt_session=object())
+            state = SessionState(thread_id=UUID(int=1))
             assert await command_registry.handle("/new", state) is CommandResult.CONTINUE
 
     @pytest.mark.asyncio
     async def test_command_registry_handles_only_the_indexed_handler(self) -> None:
-        state = SessionState(thread_id=UUID(int=1), prompt_session=object())
+        state = SessionState(thread_id=UUID(int=1))
         with patch.dict(command_registry._handlers, {"quit": QuitCommand()}, clear=True):
             assert await command_registry.handle("  /QUIT  ", state) is CommandResult.EXIT
 
     @pytest.mark.asyncio
     async def test_command_registry_does_not_call_handlers_for_unknown_command(self) -> None:
-        state = SessionState(thread_id=UUID(int=1), prompt_session=object())
+        state = SessionState(thread_id=UUID(int=1))
         handler = patch("fragile.commands.interactive.commands.quit.QuitCommand.handle")
         with handler as mocked_handler:
             assert await command_registry.handle("/unknown", state) is CommandResult.NOT_HANDLED

@@ -37,12 +37,12 @@ async def interactive(
     enter_fullscreen()
     try:
         show_startup(thread_id, thread is not None)
-        prompt_session = create_prompt_session()
-        state = SessionState(thread_id=thread_id, prompt_session=prompt_session)
+        session = create_prompt_session()
+        state = SessionState(thread_id=thread_id)
         last_keyboard_interrupt: float | None = None
         while True:
             try:
-                input_prompt = await prompt_session.prompt_async("> ")
+                input_prompt = await session.prompt_async("> ")
             except KeyboardInterrupt, click.Abort:
                 click.echo()
                 now = time.monotonic()

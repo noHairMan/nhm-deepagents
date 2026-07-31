@@ -9,4 +9,3 @@ class SessionState(BaseModel):
     """Mutable state shared by interactive command handlers."""
 
     thread_id: UUID
-    prompt_session: object
