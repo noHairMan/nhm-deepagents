@@ -6,7 +6,7 @@ from uuid import UUID, uuid4
 import asyncclick as click
 
 from fragile.commands.interactive.agent import chat
-from fragile.commands.interactive.commands import COMMAND_REGISTRY
+from fragile.commands.interactive.commands import command_registry
 from fragile.commands.interactive.display import (
     enter_fullscreen,
     leave_fullscreen,
@@ -57,7 +57,7 @@ async def interactive(
                 continue
             input_prompt = input_prompt.strip()
             last_keyboard_interrupt = None
-            result = await COMMAND_REGISTRY.handle(input_prompt, state)
+            result = await command_registry.handle(input_prompt, state)
             if result is CommandResult.EXIT:
                 break
             if result is CommandResult.CONTINUE:

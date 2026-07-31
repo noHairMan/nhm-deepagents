@@ -1,3 +1,4 @@
+from types import SimpleNamespace
 from unittest.mock import MagicMock, patch
 
 from prompt_toolkit.document import Document
@@ -39,3 +40,18 @@ class TestInput:
         assert [completion.text for completion in completions] == ["/quit"]
         assert list(completer.get_completions(Document("hello"), None)) == []
         assert list(completer.get_completions(Document("/new arg"), None)) == []
+
+    def test_command_completer_handles_missing_text_and_unknown_command(self) -> None:
+        completer = CommandCompleter()
+
+        assert list(completer.get_completions(SimpleNamespace(), None)) == []
+        assert list(completer.get_completions(Document("/unknown"), None)) == []
+
+    def test_command_completer_sets_replacement_position(self) -> None:
+        completer = CommandCompleter()
+
+        completions = list(completer.get_completions(Document("/qu"), None))
+
+        assert len(completions) == 1
+        assert completions[0].text == "/quit"
+        assert completions[0].start_position == -3

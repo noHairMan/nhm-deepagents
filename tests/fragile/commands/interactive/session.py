@@ -5,7 +5,7 @@ import asyncclick as click
 import pytest
 from sqlalchemy import create_engine
 
-from fragile.commands.interactive.commands import COMMAND_REGISTRY, CommandRegistry
+from fragile.commands.interactive.commands import CommandRegistry, command_registry
 from fragile.commands.interactive.commands.base import extract_prompt
 from fragile.commands.interactive.commands.quit import QuitCommand
 from fragile.commands.interactive.session import interactive, parse_thread_id
@@ -29,28 +29,28 @@ class TestSession:
     async def test_command_registry_handles_registered_commands(self) -> None:
         state = SessionState(thread_id=UUID(int=1), prompt_session=object())
 
-        assert await COMMAND_REGISTRY.handle("/quit", state) is CommandResult.EXIT
-        assert await COMMAND_REGISTRY.handle("/new", state) is CommandResult.CONTINUE
-        assert await COMMAND_REGISTRY.handle("ordinary prompt", state) is CommandResult.NOT_HANDLED
+        assert await command_registry.handle("/quit", state) is CommandResult.EXIT
+        assert await command_registry.handle("/new", state) is CommandResult.CONTINUE
+        assert await command_registry.handle("ordinary prompt", state) is CommandResult.NOT_HANDLED
 
     @pytest.mark.asyncio
     async def test_new_command_does_not_create_history_before_chat(self) -> None:
         with patch("fragile.commands.interactive.commands.new.show_startup"):
             state = SessionState(thread_id=UUID(int=1), prompt_session=object())
-            assert await COMMAND_REGISTRY.handle("/new", state) is CommandResult.CONTINUE
+            assert await command_registry.handle("/new", state) is CommandResult.CONTINUE
 
     @pytest.mark.asyncio
     async def test_command_registry_handles_only_the_indexed_handler(self) -> None:
         state = SessionState(thread_id=UUID(int=1), prompt_session=object())
-        with patch.dict(COMMAND_REGISTRY._handlers, {"quit": QuitCommand()}, clear=True):
-            assert await COMMAND_REGISTRY.handle("  /QUIT  ", state) is CommandResult.EXIT
+        with patch.dict(command_registry._handlers, {"quit": QuitCommand()}, clear=True):
+            assert await command_registry.handle("  /QUIT  ", state) is CommandResult.EXIT
 
     @pytest.mark.asyncio
     async def test_command_registry_does_not_call_handlers_for_unknown_command(self) -> None:
         state = SessionState(thread_id=UUID(int=1), prompt_session=object())
         handler = patch("fragile.commands.interactive.commands.quit.QuitCommand.handle")
         with handler as mocked_handler:
-            assert await COMMAND_REGISTRY.handle("/unknown", state) is CommandResult.NOT_HANDLED
+            assert await command_registry.handle("/unknown", state) is CommandResult.NOT_HANDLED
         mocked_handler.assert_not_called()
 
     def test_extract_command_ignores_case_and_whitespace(self) -> None:
@@ -71,7 +71,7 @@ class TestSession:
             patch("fragile.commands.interactive.session.create_prompt_session", return_value=prompt_session),
             patch("fragile.commands.interactive.session.SessionState", return_value=state),
             patch.object(
-                COMMAND_REGISTRY,
+                command_registry,
                 "handle",
                 new_callable=AsyncMock,
                 side_effect=[

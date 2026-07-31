@@ -20,6 +20,11 @@ class CommandRegistry:
             raise TypeError("command must be a Command instance")
         self._handlers[command.name] = command
 
+    @property
+    def handlers(self) -> tuple[Command]:
+        """Return the registered commands."""
+        return tuple(self._handlers.values())
+
     async def handle(self, prompt: str, state: SessionState) -> CommandResult:
         """Dispatch a prompt without blocking the active event loop."""
         parsed_prompt = extract_prompt(prompt)
@@ -45,4 +50,4 @@ def _create_command_registry() -> CommandRegistry:
     return registry
 
 
-COMMAND_REGISTRY = _create_command_registry()
+command_registry = _create_command_registry()

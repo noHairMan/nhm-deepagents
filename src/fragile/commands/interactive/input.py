@@ -9,11 +9,9 @@ from prompt_toolkit.history import InMemoryHistory
 from prompt_toolkit.key_binding import KeyBindings
 from prompt_toolkit.styles import Style
 
-from fragile.commands.interactive.commands import _load_command
-from fragile.conf import settings
+from fragile.commands.interactive.commands import command_registry
 
 PROMPT_STYLE = Style.from_dict({"prompt": "#00aa00 bold"})
-COMMANDS = tuple(f"/{_load_command(path).name}" for path in settings.ENABLED_COMMANDS)
 
 
 class CommandCompleter(Completer):
@@ -23,7 +21,7 @@ class CommandCompleter(Completer):
         text_before_cursor = getattr(document, "text_before_cursor", "")
         if not text_before_cursor.startswith("/") or " " in text_before_cursor:
             return
-        for command in COMMANDS:
+        for command in (f"/{handler.name}" for handler in command_registry.handlers):
             if command.startswith(text_before_cursor):
                 yield Completion(command, start_position=-len(text_before_cursor))
 
