@@ -1,6 +1,6 @@
-# Development Guide
+# Contribution Guide
 
-[Simplified Chinese](/docs/DEVELOPMENT.zh.md)\|[English](/docs/DEVELOPMENT.en.md)\|[Japanese](/docs/DEVELOPMENT.ja.md)\|[Traditional Chinese](/docs/DEVELOPMENT.zh-TW.md)
+[Simplified Chinese](/docs/CONTRIBUTING.zh.md)\|[English](/docs/CONTRIBUTING.en.md)\|[Japanese](/docs/CONTRIBUTING.ja.md)\|[Traditional Chinese](/docs/CONTRIBUTING.zh-TW.md)
 
 This document is intended for project developers and contributors and introduces the development environment, code structure, quality inspection and testing methods. For project background, installation, operation, and configuration instructions, see[README](README.zh.md)。
 
@@ -23,7 +23,7 @@ This document is intended for project developers and contributors and introduces
 The project integrates GitHub Actions workflows, including:
 
 -   **Testing and Coverage**: Automatically run tests and check code coverage.
--   **Document translation**: automatically`README.zh.md`and`DEVELOPMENT.zh.md`Translated into English, Japanese and Traditional Chinese.
+-   **Document translation**: automatically`README.zh.md`and`CONTRIBUTING.zh.md`Translated into English, Japanese and Traditional Chinese.
 -   **Code specifications**: Automatic execution`ruff`Check and format to ensure consistent code style.
 -   **CI process optimization**: Trigger builds based on relevant code or configuration changes to reduce unnecessary build tasks.
 
