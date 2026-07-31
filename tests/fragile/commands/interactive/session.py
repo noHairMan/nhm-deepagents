@@ -8,10 +8,11 @@ from sqlalchemy import create_engine
 from fragile.commands.interactive.commands import CommandRegistry, command_registry
 from fragile.commands.interactive.commands.base import extract_prompt
 from fragile.commands.interactive.commands.quit import QuitCommand
-from fragile.commands.interactive.session import interactive, parse_thread_id
+from fragile.commands.interactive.session import InteractiveSession, interactive
 from fragile.exceptions import FragileError, InvalidThreadIdError
 from fragile.models import Base, SessionState
 from fragile.models.constants import CommandResult
+from fragile.utils.uid import resolve_thread_id
 
 
 class TestSession:
@@ -24,6 +25,25 @@ class TestSession:
     def test_command_registry_rejects_non_command_registration(self) -> None:
         with pytest.raises(TypeError, match="command must be a Command instance"):
             CommandRegistry().register(object())
+
+    def test_interactive_session_initializes_thread_state(self) -> None:
+        thread_id = UUID(int=1)
+        with patch("fragile.commands.interactive.session.create_prompt_session") as create_session:
+            session = InteractiveSession(str(thread_id))
+
+        assert session.thread_id == thread_id
+        assert session.state.thread_id == thread_id
+        assert session.is_running
+        create_session.assert_called_once_with()
+
+    @pytest.mark.asyncio
+    async def test_interactive_session_stops_on_exit_result(self) -> None:
+        with patch("fragile.commands.interactive.session.create_prompt_session"):
+            session = InteractiveSession(None)
+
+        await session.handle_result(CommandResult.EXIT, "/quit")
+
+        assert not session.is_running
 
     @pytest.mark.asyncio
     async def test_command_registry_handles_registered_commands(self) -> None:
@@ -118,16 +138,16 @@ class TestSession:
         ):
             await interactive(None)
 
-    def testparse_thread_id_rejects_invalid_value(self) -> None:
+    def test_resolve_thread_id_rejects_invalid_value(self) -> None:
 
         with pytest.raises(InvalidThreadIdError, match="Must be a valid UUID"):
-            parse_thread_id("bad")
+            resolve_thread_id("bad")
 
-    def test_invalidparse_thread_id_is_fragile_error(self) -> None:
+    def test_invalid_resolve_thread_id_is_fragile_error(self) -> None:
         assert issubclass(InvalidThreadIdError, FragileError)
         assert issubclass(InvalidThreadIdError, click.BadParameter)
 
-    def testparse_thread_id(self) -> None:
+    def test_resolve_thread_id(self) -> None:
 
         value = UUID("12345678-1234-5678-1234-567812345678")
-        assert parse_thread_id(str(value)) == value
+        assert resolve_thread_id(str(value)) == value

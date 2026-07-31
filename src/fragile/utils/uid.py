@@ -1,4 +1,16 @@
 import uuid
+from uuid import UUID, uuid4
+
+from fragile.exceptions import InvalidThreadIdError
+
+
+def resolve_thread_id(value: str | None) -> UUID:
+    if value is None:
+        return uuid4()
+    try:
+        return UUID(value)
+    except ValueError as error:
+        raise InvalidThreadIdError("Must be a valid UUID") from error
 
 
 def to_hex(num):

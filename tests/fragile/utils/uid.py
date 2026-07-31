@@ -1,6 +1,6 @@
 import uuid
 
-from fragile.utils.uid import is_valid_uuid, to_hex
+from fragile.utils.uid import is_valid_uuid, resolve_thread_id, to_hex
 
 
 class TestUid:
@@ -18,3 +18,9 @@ class TestUid:
     def test_is_valid_uuid(self) -> None:
         assert is_valid_uuid("12345678-1234-5678-1234-567812345678")
         assert not is_valid_uuid("not-a-uuid")
+
+    def test_resolve_thread_id(self) -> None:
+        value = uuid.UUID("12345678-1234-5678-1234-567812345678")
+
+        assert resolve_thread_id(str(value)) == value
+        assert isinstance(resolve_thread_id(None), uuid.UUID)
