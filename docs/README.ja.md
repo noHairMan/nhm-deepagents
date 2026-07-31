@@ -1,6 +1,6 @@
-# 開発ガイド
+# 貢献ガイド
 
-[簡体字中国語](/docs/DEVELOPMENT.zh.md)\|[英語](/docs/DEVELOPMENT.en.md)\|[日本語](/docs/DEVELOPMENT.ja.md)\|[繁体中文](/docs/DEVELOPMENT.zh-TW.md)
+[簡体字中国語](/docs/CONTRIBUTING.zh.md)\|[英語](/docs/CONTRIBUTING.en.md)\|[日本語](/docs/CONTRIBUTING.ja.md)\|[繁体中文](/docs/CONTRIBUTING.zh-TW.md)
 
 このドキュメントはプロジェクト開発者および貢献者を対象としており、開発環境、コード構造、品質検査およびテスト方法を紹介します。プロジェクトの背景、インストール、操作、および構成手順については、を参照してください。[お読みください](README.zh.md)。
 
@@ -23,7 +23,7 @@
 このプロジェクトには、以下を含む GitHub Actions ワークフローが統合されています。
 
 -   **テストと適用範囲**: テストを自動的に実行し、コード カバレッジをチェックします。
--   **文書翻訳**： 自動的に`README.zh.md`そして`DEVELOPMENT.zh.md`英語、日本語、繁体字中国語に翻訳されます。
+-   **文書翻訳**： 自動的に`README.zh.md`そして`CONTRIBUTING.zh.md`英語、日本語、繁体字中国語に翻訳されます。
 -   **コード仕様**：自動実行`ruff`コード スタイルの一貫性を確保するためにチェックしてフォーマットします。
 -   **CIプロセスの最適化**: 関連するコードまたは構成変更に基づいてビルドをトリガーし、不要なビルド タスクを削減します。
 
@@ -52,9 +52,9 @@ uv run pre-commit run --all-files
 
 -   `src/main.py`: Rainy API サービスのメイン エントリ ポイント。
 -   `src/fragile/`: 対話型セッション、スラッシュ コマンド、表示および入力処理を含む非同期コマンド ライン クライアント。
--   `src/tomorrow/`: 核心智能体，实现 graph、模型、后端、检查点、存储和生命周期管理。
+-   `src/tomorrow/`: グラフ、モデル、バックエンド、チェックポイント、ストレージ、ライフサイクル管理を実装するコア エージェント。
 -   `src/rainy/`: アプリケーションのライフサイクル、チャットインターフェイス、ヘルスチェック、ミドルウェアを実装するための API サービス。
--   `tests/`: テストディレクトリ、構造、および`src`保持一致。
+-   `tests/`: 测试目录，结构与 `src`保持一致。
 -   `docs/`: 多言語ドキュメント。
 -   `pyproject.toml`: プロジェクトのメタデータ、依存関係、およびツール構成。
 -   `langgraph.json`:`langgraph-cli`グラフと環境構成。
@@ -82,4 +82,4 @@ FRAGILE_APP=fragile \
 uv run coverage run --rcfile=pyproject.toml -m pytest -q && uv run coverage report --rcfile=pyproject.toml
 ```
 
-テスト文書は次のとおりである必要があります。`src/`モジュールパスは編成され、次のように使用されます。`Test`先頭のテスト クラスはテスト メソッドをラップします。
+测试文件应按照 `src/`モジュールパスは編成され、次のように使用されます。`Test`先頭のテスト クラスはテスト メソッドをラップします。
