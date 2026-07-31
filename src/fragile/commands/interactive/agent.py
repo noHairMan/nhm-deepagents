@@ -6,6 +6,7 @@ from uuid import UUID
 
 from langgraph.graph.state import CompiledStateGraph
 
+from fragile.commands.interactive.display import print_stream
 from tomorrow.conf import settings
 from tomorrow.core.agent import AgentManager
 from tomorrow.core.checkpoint import get_checkpointer_context
@@ -37,9 +38,9 @@ async def stream_events(agent: CompiledStateGraph, prompt: str, thread_id: UUID)
             yield content
 
 
-async def chat(prompt: str, thread_id: UUID, output: Any) -> None:
+async def chat(prompt: str, thread_id: UUID) -> None:
     async with get_checkpointer_context() as checkpointer:
         agent = AgentManager.create_agent(checkpointer)
         async for content in stream_events(agent, prompt, thread_id):
-            output(content)
-    output("\n")
+            print_stream(content)
+    print_stream("\n")

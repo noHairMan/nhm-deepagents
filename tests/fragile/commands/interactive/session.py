@@ -1,4 +1,4 @@
-from unittest.mock import ANY, AsyncMock, MagicMock, patch
+from unittest.mock import AsyncMock, MagicMock, patch
 from uuid import UUID
 
 import asyncclick as click
@@ -90,7 +90,7 @@ class TestSession:
             await interactive(None)
 
         register.assert_awaited_once_with(state.thread_id, "hello")
-        chat.assert_awaited_once_with("hello", state.thread_id, ANY)
+        chat.assert_awaited_once_with("hello", state.thread_id)
         leave_fullscreen.assert_called_once_with()
 
     @pytest.mark.asyncio
@@ -123,7 +123,7 @@ class TestSession:
         with pytest.raises(InvalidThreadIdError, match="Must be a valid UUID"):
             parse_thread_id("bad")
 
-    def test_invalidparse_thread_id_is_fragile_error_and_typer_parameter(self) -> None:
+    def test_invalidparse_thread_id_is_fragile_error(self) -> None:
         assert issubclass(InvalidThreadIdError, FragileError)
         assert issubclass(InvalidThreadIdError, click.BadParameter)
 

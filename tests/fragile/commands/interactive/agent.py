@@ -3,7 +3,7 @@ from uuid import UUID
 
 import pytest
 
-from fragile.commands.interactive.agent import content_text, stream_events
+from fragile.commands.interactive.agent import chat, content_text, stream_events
 
 
 class TestAgent:
@@ -38,17 +38,15 @@ class TestAgent:
         assert content_text(None) == ""
 
     @pytest.mark.asyncio
-    async def test_chat_uses_checkpoint_and_prints(self, capsys) -> None:
+    async def test_chat_uses_checkpoint_and_prints(self) -> None:
         context = MagicMock()
         context.__aenter__ = AsyncMock(return_value="checkpoint")
         context.__aexit__ = AsyncMock(return_value=None)
-        output = MagicMock()
         with (
             patch("fragile.commands.interactive.agent.get_checkpointer_context", return_value=context),
             patch("fragile.commands.interactive.agent.AgentManager.create_agent", return_value=MagicMock()),
             patch("fragile.commands.interactive.agent.stream_events", return_value=self._async_values("answer")),
+            patch("fragile.commands.interactive.agent.print_stream") as output,
         ):
-            from fragile.commands.interactive.agent import chat
-
-            await chat("prompt", UUID(int=1), output)
+            await chat("prompt", UUID(int=1))
         assert output.call_args_list == [(("answer",), {}), (("\n",), {})]

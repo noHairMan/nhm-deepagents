@@ -10,7 +10,6 @@ from fragile.commands.interactive.commands import command_registry
 from fragile.commands.interactive.display import (
     enter_fullscreen,
     leave_fullscreen,
-    print_stream,
     show_startup,
 )
 from fragile.commands.interactive.input import create_prompt_session
@@ -42,29 +41,30 @@ async def interactive(
         last_keyboard_interrupt: float | None = None
         while True:
             try:
-                input_prompt = await session.prompt_async("> ")
-            except KeyboardInterrupt, click.Abort:
+                user_input = await session.prompt_async("> ")
+            except KeyboardInterrupt, EOFError, click.Abort:
                 click.echo()
                 now = time.monotonic()
                 if (
                     last_keyboard_interrupt is not None
                     and now - last_keyboard_interrupt <= settings.INTERRUPT_EXIT_THRESHOLD
                 ):
-                    break
+                    return
                 last_keyboard_interrupt = now
                 continue
-            except EOFError:
-                continue
-            input_prompt = input_prompt.strip()
+
             last_keyboard_interrupt = None
-            result = await command_registry.handle(input_prompt, state)
+            user_input = user_input.strip()
+
+            result = await command_registry.handle(user_input, state)
             if result is CommandResult.EXIT:
-                break
+                return
             if result is CommandResult.CONTINUE:
                 continue
-            if not input_prompt:
+            if not user_input:
                 continue
-            await ConversationHistory.register_conversation(state.thread_id, input_prompt)
-            await chat(input_prompt, state.thread_id, print_stream)
+
+            await ConversationHistory.register_conversation(state.thread_id, user_input)
+            await chat(user_input, state.thread_id)
     finally:
         leave_fullscreen()
