@@ -16,7 +16,7 @@
 
 -   **`tomorrow`**: 核心智能體模組。代號取自遊戲《死亡擱淺 2：冥灘之上》（Death Stranding 2: On the Beach）中的角色**明天**（艾莉·範甯飾演）。在劇情中，她是主角山姆布里吉斯（Sam Bridges）的女兒，也被揭露為前作中的**大樓**(BB-28)。
 -   **`rainy`**: 基於 FastAPI 的 API 服務模組。代號同樣取自《死亡擱淺 2》中的角色**下雨天**（由忽那汐裡飾演）。在遊戲中，她擁有引發「時間雨」（Timefall）和具有治癒能力的「核心雨」（Corefall）的神奇力量，被描述為既能傷害也能治癒的「藥（Pharmakon）」。
--   **`fragile`**: 基於 Typer 的命令列客戶端，用於直接向 Tomorrow 智能體提問或啟動互動式會話。其名稱取自同一作品中的角色**脆弱的**。 Fragile 是 Fragile Express 的創辦人和快遞員，因接觸時間雨而快速衰老，卻始終在危險環境中為他人運送重要物資；這種「脆弱」外表下仍堅持承擔連接與傳遞使命的形象，正是該客戶端名稱的背景。
+-   **`fragile`**: 基於`asyncclick`的非同步命令列客戶端，用於直接向 Tomorrow 智能體提問或啟動互動式會話。其名稱取自同一作品中的角色**脆弱的**。 Fragile 是 Fragile Express 的創辦人和快遞員，因接觸時間雨而快速衰老，卻始終在危險環境中為他人運送重要物資；這種「脆弱」外表下仍堅持承擔連接與傳遞使命的形象，正是該客戶端名稱的背景。
 
 該專案提供了一個通用的智慧助理智能體，利用`deepagents`框架分析使用者輸入，並透過`rainy`模組對外提供同步（`/api/chat`）及**流式（`/api/chat/stream`）**API 介面。
 
@@ -50,7 +50,7 @@
 -   **智能體框架**:[深度代理](https://github.com/zongxuheng/deepagents)(基於 LangGraph/LangChain)
 -   **LLM 提供者**:[成為](https://ollama.com/)、[抱臉](https://huggingface.co/)和[人擇](https://www.anthropic.com/)
 -   **程式碼執行**:[langchain-quickjs](https://github.com/langchain-ai/langchainjs)提供的 QuickJS 中介軟體
--   **終端交互**:[提示工具包](https://github.com/prompt-toolkit/python-prompt-toolkit)提供輸入歷史記錄、命令補全和多行編輯，[富有的](https://github.com/Textualize/rich)提供終端輸出樣式。
+-   **終端交互**:[非同步點擊](https://github.com/python-trio/asyncclick)提供非同步 CLI 命令、參數解析和幫助資訊；[提示工具包](https://github.com/prompt-toolkit/python-prompt-toolkit)提供非同步輸入、輸入歷史記錄、命令補全和多行編輯；[富有的](https://github.com/Textualize/rich)提供終端輸出樣式。
 -   **配置管理**:[懸垂設定](https://docs.pydantic.dev/latest/usage/settings/)
 -   **例外處理**: 自訂異常體系 (`TomorrowError`及其子類)，涵蓋模型、後端、儲存和檢查點錯誤。
 -   **代碼品質**:[拉夫](https://github.com/astral-sh/ruff)(替代 Black 和 Isort)、`pre-commit`、強制型別提示 (Strict Type Hinting)
@@ -135,9 +135,15 @@ uv run fragile
 
 透過`--thread`或`-t`傳入 UUID 可以恢復已有會話；不傳入時會自動建立新的執行緒。互動過程中輸入`/new`可清屏並開始新會話，輸入`/history`可查看已儲存的會話並按編號或 UUID 切換，輸入`/quit`退出；也可以連續兩次按`Ctrl+C`在短時間內退出會話，按`Esc`後回車可插入換行。
 
+`fragile`的 CLI 入口和`purge`子命令均使用非同步命令函數，避免在已運行的事件循環中嵌套調用`asyncio.run()`。清理已持久化的會話記錄：
+
+```bash
+fragile purge
+```
+
 ## ⚙️ 配置
 
-該項目使用**懸垂設定**進行配置管理。設定分別定義在`src/tomorrow/settings.py`（明天），`src/rainy/settings.py`(Rainy) 和`src/fragile/settings.py`(Fragile) 中，可以透過環境變數或`.env`文件進行覆蓋。環境變數優先權最高，三個模組分別使用`TOMORROW_`、`RAINY_`和`FRAGILE_`前綴；也可以透過`TOMORROW_ENV_FILE`、`RAINY_ENV_FILE`或`FRAGILE_ENV_FILE`指定設定檔路徑。
+該項目使用**懸垂設定**進行配置管理。設定分別定義在`src/tomorrow/settings.py` (Tomorrow)、`src/rainy/settings.py`(Rainy) 和`src/fragile/settings.py`(Fragile) 中，可以透過環境變數或`.env`文件進行覆蓋。環境變數優先權最高，三個模組分別使用`TOMORROW_`、`RAINY_`和`FRAGILE_`前綴；也可以透過`TOMORROW_ENV_FILE`、`RAINY_ENV_FILE`或`FRAGILE_ENV_FILE`指定設定檔路徑。
 
 ### 環境變數
 
@@ -151,7 +157,7 @@ uv run fragile
 | `TOMORROW_MODEL`           | 模型配置，支援 OLLAMA、HUGGINGFACE 和 ANTHROPIC | 目前`.env`使用`anthropic`/`deepseek-v4-flash` |
 | `TOMORROW_CHECKPOINT`      | 檢查點配置，支援 MEMORY 和 SQLITE               | `{"type":"memory"}`                       |
 | `TOMORROW_BACKEND`         | 後端配置，支援 FILESYSTEM 和 LOCAL_SHELL       | `{"type":"filesystem"}`                   |
-| `TOMORROW_STORE`           | 存储配置，支持 MEMORY 和 SQLITE                | `{"type":"sqlite"}`                       |
+| `TOMORROW_STORE`           | 儲存配置，支援 MEMORY 和 SQLITE                | `{"type":"sqlite"}`                       |
 | `TOMORROW_SKILLS`          | 技能目錄列表                                 | `["skills/"]`                             |
 | `TOMORROW_SUBAGENTS`       | 子代理配置列表                                | `[]`                                      |
 | `TOMORROW_RECURSION_LIMIT` | 智能體遞歸調用上限                              | `100`                                     |
@@ -213,7 +219,7 @@ Fragile 的其他互動行為透過命令列選項和內建斜線命令控制。
 
 -   `src/main.py`: Rainy API 服務的主入口點。設定環境並啟動 Uvicorn 伺服器。
 -   `src/fragile/`: 命令列客戶端包目錄。
-    -   `cli.py`: 定義`fragile`命令列入口。
+    -   `app.py`: 使用`asyncclick`定義異步`fragile`命令列入口和`purge`子命令。
     -   `commands/interactive/`: 互動式會話實現，支援會話復原、新會話、命令補全和多行輸入。
         -   `agent.py`: 管理與 Tomorrow 智能體的互動。
         -   `commands/`: 互動式斜線命令實作和命令註冊表。
