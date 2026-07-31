@@ -1,6 +1,6 @@
-# 開發指南
+# 貢獻指南
 
-[簡體中文](/docs/DEVELOPMENT.zh.md)\|[英語](/docs/DEVELOPMENT.en.md)\|[日本人](/docs/DEVELOPMENT.ja.md)\|[繁體中文](/docs/DEVELOPMENT.zh-TW.md)
+[簡體中文](/docs/CONTRIBUTING.zh.md)\|[英語](/docs/CONTRIBUTING.en.md)\|[日本人](/docs/CONTRIBUTING.ja.md)\|[繁體中文](/docs/CONTRIBUTING.zh-TW.md)
 
 本文檔針對專案開發者與貢獻者，介紹開發環境、程式碼結構、品質檢查與測試方法。專案的背景、安裝、運作和設定說明請參閱[自述文件](README.zh.md)。
 
@@ -13,7 +13,7 @@
 -   **智能體框架**:[深度代理](https://github.com/zongxuheng/deepagents)（基於 LangGraph/LangChain）
 -   **LLM 提供者**:[成為](https://ollama.com/)、[抱臉](https://huggingface.co/)和[人擇](https://www.anthropic.com/)
 -   **程式碼執行**:[langchain-quickjs](https://github.com/langchain-ai/langchainjs)提供的 QuickJS 中介軟體
--   **终端交互**:`asyncclick`、`prompt-toolkit`和`Rich`
+-   **終端交互**:`asyncclick`、`prompt-toolkit`和`Rich`
 -   **配置管理**:[懸垂設定](https://docs.pydantic.dev/latest/usage/settings/)
 -   **代碼品質**:[拉夫](https://github.com/astral-sh/ruff)、`pre-commit`和強制類型提示
 -   **測試與覆蓋率**:`pytest`、`coverage`
@@ -23,9 +23,9 @@
 專案整合了 GitHub Actions 工作流程，包括：
 
 -   **測試與覆蓋率**: 自動執行測試並檢查程式碼覆蓋率。
--   **文件翻譯**: 自動將`README.zh.md`和`DEVELOPMENT.zh.md`翻译为 English、日本語和繁体中文。
+-   **文件翻譯**: 自動將`README.zh.md`和`CONTRIBUTING.zh.md`翻译为 English、日本語和繁体中文。
 -   **程式碼規範**: 自動執行`ruff`檢查與格式化，確保程式碼風格統一。
--   **CI 流程优化**: 根據相關程式碼或配置變更觸發構建，減少不必要的建置任務。
+-   **CI 流程優化**: 根據相關程式碼或配置變更觸發構建，減少不必要的建置任務。
 
 ## 📜 開發腳本
 
@@ -48,7 +48,7 @@ uv run ruff format .
 uv run pre-commit run --all-files
 ```
 
-## 📂 项目结构
+## 📂 專案結構
 
 -   `src/main.py`: Rainy API 服務的主入口點。
 -   `src/fragile/`: 非同步命令列客戶端，包含互動式會話、斜線命令、顯示和輸入處理。
