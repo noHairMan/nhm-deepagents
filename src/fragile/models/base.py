@@ -3,7 +3,7 @@
 from datetime import datetime
 from pathlib import Path
 
-from sqlalchemy import DateTime
+from sqlalchemy import DateTime, inspect, text
 from sqlalchemy.ext.asyncio import AsyncEngine, AsyncSession, async_sessionmaker, create_async_engine
 from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column
 
@@ -35,6 +35,19 @@ async def create_tables(async_engine: AsyncEngine) -> None:
     """Create Fragile tables using an asynchronous engine."""
     async with async_engine.begin() as connection:
         await connection.run_sync(Base.metadata.create_all)
+        await connection.run_sync(_migrate_account_provider)
+
+
+def _migrate_account_provider(connection: object) -> None:
+    """Add the provider column to databases created before account types existed."""
+    inspector = inspect(connection)
+    if "fragile_account" not in inspector.get_table_names():
+        return
+    columns = {column["name"] for column in inspector.get_columns("fragile_account")}
+    if "provider" not in columns:
+        connection.execute(
+            text("ALTER TABLE fragile_account ADD COLUMN provider VARCHAR(32) NOT NULL DEFAULT 'anthropic'")
+        )
 
 
 async def get_initialized_session_factory() -> async_sessionmaker[AsyncSession]:

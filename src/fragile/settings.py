@@ -15,6 +15,7 @@ class FragileSettings(BaseSettings):
         "fragile.commands.interactive.commands.quit.QuitCommand",
         "fragile.commands.interactive.commands.new.NewCommand",
         "fragile.commands.interactive.commands.history.HistoryCommand",
+        "fragile.commands.interactive.commands.account.AccountCommand",
     )
 
     model_config = SettingsConfigDict(

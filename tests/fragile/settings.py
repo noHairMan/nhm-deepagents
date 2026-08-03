@@ -19,6 +19,7 @@ class TestFragileSettings:
             "fragile.commands.interactive.commands.quit.QuitCommand",
             "fragile.commands.interactive.commands.new.NewCommand",
             "fragile.commands.interactive.commands.history.HistoryCommand",
+            "fragile.commands.interactive.commands.account.AccountCommand",
         )
 
     def test_agent_setting(self, monkeypatch):
