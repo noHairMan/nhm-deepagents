@@ -99,11 +99,70 @@ class TestAccountCommand:
 
         monkeypatch.setattr(AccountCommand, "_select_provider", select_provider)
         monkeypatch.setattr("fragile.commands.interactive.commands.account.PromptSession", FakePromptSession)
+
+        async def get_credentials() -> None:
+            return None
+
+        monkeypatch.setattr("fragile.commands.interactive.commands.account.Account.get_credentials", get_credentials)
         monkeypatch.setattr("fragile.commands.interactive.commands.account.Account.save_credentials", save_credentials)
         result = await AccountCommand().handle(None, SessionState(thread_id=UUID(int=1)))
         assert result is CommandResult.CONTINUE
         assert saved == {"provider": "OpenAI", "api_key": "secret-key", "base_url": "https://api.example.com"}
         assert "secret-key" not in capsys.readouterr().out
+
+    @pytest.mark.asyncio
+    async def test_handle_displays_matching_current_account_with_masked_key(self, monkeypatch, capsys) -> None:
+        async def select_provider(self) -> str:
+            return "OpenAI"
+
+        async def get_credentials() -> tuple[str, str, str]:
+            return "openai", "sk-1234567890-secret", "https://configured.example.com"
+
+        monkeypatch.setattr(AccountCommand, "_select_provider", select_provider)
+        monkeypatch.setattr("fragile.commands.interactive.commands.account.Account.get_credentials", get_credentials)
+
+        class FakePromptSession:
+            async def prompt_async(self, message: str, **kwargs: object) -> str:
+                return "https://new.example.com" if "base URL" in message else "new-key"
+
+        async def save_credentials(provider: str, api_key: str, base_url: str) -> None:
+            return None
+
+        monkeypatch.setattr(account, "PromptSession", FakePromptSession)
+        monkeypatch.setattr(account.Account, "save_credentials", save_credentials)
+        await AccountCommand().handle(None, SessionState(thread_id=UUID(int=1)))
+        output = capsys.readouterr().out
+        assert "https://configured.example.com" in output
+        assert "sk-1" in output
+        assert "cret" in output
+        assert "*" in output
+        assert "sk-1234567890-secret" not in output
+
+    @pytest.mark.asyncio
+    async def test_handle_does_not_display_nonmatching_current_account(self, monkeypatch, capsys) -> None:
+        async def select_provider(self) -> str:
+            return "OpenAI"
+
+        async def get_credentials() -> tuple[str, str, str]:
+            return "anthropic", "anthropic-secret", "https://anthropic.example.com"
+
+        monkeypatch.setattr(AccountCommand, "_select_provider", select_provider)
+        monkeypatch.setattr(account.Account, "get_credentials", get_credentials)
+
+        class FakePromptSession:
+            async def prompt_async(self, message: str, **kwargs: object) -> str:
+                return "https://new.example.com" if "base URL" in message else "new-key"
+
+        async def save_credentials(provider: str, api_key: str, base_url: str) -> None:
+            return None
+
+        monkeypatch.setattr(account, "PromptSession", FakePromptSession)
+        monkeypatch.setattr(account.Account, "save_credentials", save_credentials)
+        await AccountCommand().handle(None, SessionState(thread_id=UUID(int=1)))
+        assert "anthropic.example.com" not in capsys.readouterr().out
+
+    def test_mask_api_key_masks_short_keys(self) -> None:
+        assert AccountCommand._mask_api_key("short") == "********"
 
     @pytest.mark.asyncio
     async def test_handle_does_not_prompt_or_save_when_selection_is_cancelled(self, monkeypatch, capsys) -> None:

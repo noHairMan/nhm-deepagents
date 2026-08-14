@@ -28,6 +28,7 @@ class AccountCommand(BaseCommand):
         provider = await self._select_provider()
         if provider is None:
             return CommandResult.CONTINUE
+        await self._display_current_account(provider)
         session = PromptSession()
         base_url = await session.prompt_async(f"{provider} base URL: ")
         api_key = await session.prompt_async(f"{provider} API key: ", is_password=True)
@@ -38,6 +39,25 @@ class AccountCommand(BaseCommand):
             return CommandResult.CONTINUE
         click.echo("Account settings saved.")
         return CommandResult.CONTINUE
+
+    @staticmethod
+    def _mask_api_key(api_key: str) -> str:
+        """Mask an API key while retaining safe identifying fragments."""
+        if len(api_key) <= 8:
+            return "*" * 8
+        return f"{api_key[:4]}{'*' * (len(api_key) - 8)}{api_key[-4:]}"
+
+    async def _display_current_account(self, provider: ModelType | str) -> None:
+        """Display persisted credentials when they belong to the selected provider."""
+        credentials = await Account.get_credentials()
+        if credentials is None:
+            return
+        saved_provider, api_key, base_url = credentials
+        if saved_provider.lower() != str(provider).lower():
+            return
+        click.echo(f"Current account for {provider}:")
+        click.echo(f"Base URL: {base_url}")
+        click.echo(f"API key: {self._mask_api_key(api_key)}")
 
     async def _select_provider(self) -> ModelType | None:
         """Display the provider selector and return the selected provider."""
