@@ -16,5 +16,9 @@ def get_model() -> BaseChatModel:
             from .anthropic import get_model as get_anthropic_model
 
             return get_anthropic_model()
+        case ModelType.OPENAI:
+            from .openai import get_model as get_openai_model
+
+            return get_openai_model()
         case _:
             raise TomorrowModelError(f"Unsupported model type: {model_type}")

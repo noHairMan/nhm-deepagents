@@ -148,7 +148,7 @@ fragile purge
 | 变量 | 描述 | 默认值 |
 |----------|-------------|---------|
 | `TOMORROW_APP` | 应用名称（用作环境变量前缀） | `tomorrow` |
-| `TOMORROW_MODEL` | 模型配置，支持 OLLAMA 和 ANTHROPIC | 当前 `.env` 使用 `anthropic` / `deepseek-v4-flash` |
+| `TOMORROW_MODEL` | 模型配置，支持 OLLAMA、ANTHROPIC 和 OPENAI | 当前 `.env` 使用 `anthropic` / `deepseek-v4-flash` |
 | `TOMORROW_CHECKPOINT` | 检查点配置，支持 MEMORY 和 SQLITE | `{"type":"memory"}` |
 | `TOMORROW_BACKEND` | 后端配置，支持 FILESYSTEM 和 LOCAL_SHELL | `{"type":"filesystem"}` |
 | `TOMORROW_STORE` | 存储配置，支持 MEMORY 和 SQLITE | `{"type":"sqlite"}` |
@@ -163,6 +163,16 @@ export TOMORROW_MODEL__TYPE="anthropic"
 export TOMORROW_MODEL__ANTHROPIC__BASE_URL="https://www.llmgateway.cn"
 export TOMORROW_MODEL__ANTHROPIC__MODEL="deepseek-v4-flash"
 export TOMORROW_MODEL__ANTHROPIC__API_KEY="your-api-key"
+```
+
+选择 OpenAI 或兼容 OpenAI API 的服务时，可以使用以下嵌套环境变量配置模型名、API Key、可选的 Base URL 和温度：
+
+```bash
+export TOMORROW_MODEL__TYPE="openai"
+export TOMORROW_MODEL__OPENAI__MODEL="gpt-4o-mini"
+export TOMORROW_MODEL__OPENAI__API_KEY="your-api-key"
+export TOMORROW_MODEL__OPENAI__BASE_URL="https://api.openai.com/v1"
+export TOMORROW_MODEL__OPENAI__TEMPERATURE="0"
 ```
 
 具体字段和默认值请参阅 `src/tomorrow/settings.py`。

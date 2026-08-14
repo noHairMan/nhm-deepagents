@@ -34,6 +34,19 @@ class TestModels:
                 get_model()
                 mock_get_model.assert_called_once()
 
+    def test_get_model_openai(self):
+        with patch("tomorrow.core.model.openai.get_model") as mock_get_model:
+            from tomorrow.conf import settings
+            from tomorrow.settings import ModelConfig
+
+            new_model_data = settings.MODEL.model_dump()
+            new_model_data.pop("type")
+            new_model = ModelConfig(type=ModelType.OPENAI, **new_model_data)
+
+            with patch("tomorrow.conf.settings.MODEL", new_model):
+                get_model()
+                mock_get_model.assert_called_once()
+
     def test_get_model_unsupported_type(self):
         from unittest.mock import MagicMock
 

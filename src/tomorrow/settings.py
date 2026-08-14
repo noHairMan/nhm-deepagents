@@ -43,10 +43,18 @@ class AnthropicConfig(BaseConfigModel):
     temperature: float = 0
 
 
+class OpenAIConfig(BaseConfigModel):
+    model: str = "gpt-4o-mini"
+    api_key: str | None = None
+    base_url: str | None = None
+    temperature: float = 0
+
+
 class ModelConfig(BaseConfigModel):
     type: ModelType = ModelType.OLLAMA
     ollama: OllamaConfig = Field(default_factory=OllamaConfig, alias=ModelType.OLLAMA)
     anthropic: AnthropicConfig = Field(default_factory=AnthropicConfig, alias=ModelType.ANTHROPIC)
+    openai: OpenAIConfig = Field(default_factory=OpenAIConfig, alias=ModelType.OPENAI)
 
 
 class FilesystemBackendConfig(BaseConfigModel):
