@@ -28,7 +28,6 @@ class AccountCommand(BaseCommand):
         provider = await self._select_provider()
         if provider is None:
             return CommandResult.CONTINUE
-        await self._display_current_account(provider)
         session = PromptSession()
         base_url = await session.prompt_async(f"{provider} base URL: ")
         api_key = await session.prompt_async(f"{provider} API key: ", is_password=True)
@@ -47,22 +46,19 @@ class AccountCommand(BaseCommand):
             return "*" * 8
         return f"{api_key[:4]}{'*' * (len(api_key) - 8)}{api_key[-4:]}"
 
-    async def _display_current_account(self, provider: ModelType | str) -> None:
-        """Display persisted credentials when they belong to the selected provider."""
+    async def _current_account_text(self) -> str:
+        """Return persisted account details without exposing the full API key."""
         credentials = await Account.get_credentials()
         if credentials is None:
-            return
+            return ""
         saved_provider, api_key, base_url = credentials
-        if saved_provider.lower() != str(provider).lower():
-            return
-        click.echo(f"Current account for {provider}:")
-        click.echo(f"Base URL: {base_url}")
-        click.echo(f"API key: {self._mask_api_key(api_key)}")
+        return f"Current account for {saved_provider}:\nBase URL: {base_url}\nAPI key: {self._mask_api_key(api_key)}"
 
     async def _select_provider(self) -> ModelType | None:
         """Display the provider selector and return the selected provider."""
         values = [(provider, provider.label) for provider in self.providers]
         radio_list = RadioList(values=values, select_on_focus=True, show_numbers=False)
+        current_account = await self._current_account_text()
         bindings = KeyBindings()
 
         @bindings.add("enter", eager=True)
@@ -75,7 +71,10 @@ class AccountCommand(BaseCommand):
 
         application = Application(
             layout=Layout(
-                HSplit([Label("Manage external LLM provider credentials"), radio_list]), focused_element=radio_list
+                HSplit(
+                    [Label("Manage external LLM provider credentials"), radio_list, Label(""), Label(current_account)]
+                ),
+                focused_element=radio_list,
             ),
             key_bindings=bindings,
             style=Style.from_dict({"selected-option": "fg:ansigreen bold"}),

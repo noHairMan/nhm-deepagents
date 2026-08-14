@@ -13,6 +13,7 @@ class TestAccountCommand:
     @pytest.mark.asyncio
     async def test_select_provider_returns_selected_value(self, monkeypatch) -> None:
         callbacks = {}
+        labels: list[str] = []
 
         class FakeKeyBindings:
             def add(self, key: str, **kwargs: object):
@@ -46,10 +47,19 @@ class TestAccountCommand:
         monkeypatch.setattr(account, "Application", FakeApplication)
         monkeypatch.setattr(account, "HSplit", lambda children, **kwargs: children)
         monkeypatch.setattr(account, "Layout", lambda container, **kwargs: container)
-        monkeypatch.setattr(account, "Label", lambda text: text)
+        monkeypatch.setattr(account, "Label", lambda text: labels.append(text) or text)
         monkeypatch.setattr(account.Style, "from_dict", lambda styles: styles)
 
+        async def get_credentials() -> tuple[str, str, str]:
+            return "openai", "sk-1234567890-secret", "https://configured.example.com"
+
+        monkeypatch.setattr(account.Account, "get_credentials", get_credentials)
+
         assert await AccountCommand()._select_provider() is ModelType.OLLAMA
+        assert labels[-2] == ""
+        assert labels[-1] == (
+            "Current account for openai:\nBase URL: https://configured.example.com\nAPI key: sk-1************cret"
+        )
 
     @pytest.mark.asyncio
     async def test_select_provider_returns_none_when_cancelled(self, monkeypatch) -> None:
@@ -130,8 +140,7 @@ class TestAccountCommand:
 
         monkeypatch.setattr(account, "PromptSession", FakePromptSession)
         monkeypatch.setattr(account.Account, "save_credentials", save_credentials)
-        await AccountCommand().handle(None, SessionState(thread_id=UUID(int=1)))
-        output = capsys.readouterr().out
+        output = await AccountCommand()._current_account_text()
         assert "https://configured.example.com" in output
         assert "sk-1" in output
         assert "cret" in output
