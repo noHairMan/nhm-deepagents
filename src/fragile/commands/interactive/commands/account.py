@@ -88,6 +88,7 @@ class AccountCommand(BaseCommand):
             ),
             key_bindings=bindings,
             style=Style.from_dict({"selected-option": "fg:ansigreen bold"}),
+            full_screen=True,
         )
         try:
             return await application.run_async()

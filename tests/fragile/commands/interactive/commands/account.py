@@ -41,6 +41,7 @@ class TestAccountCommand:
 
         class FakeApplication:
             def __init__(self, **kwargs: object) -> None:
+                assert kwargs["full_screen"] is True
                 self.bindings = kwargs["key_bindings"]
 
             async def run_async(self) -> ModelType:

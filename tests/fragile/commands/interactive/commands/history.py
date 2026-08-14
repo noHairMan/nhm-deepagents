@@ -66,10 +66,13 @@ class TestHistoryCommand:
                 "fragile.commands.interactive.commands.history.RadioList",
                 wraps=RadioList,
             ) as radio_list_factory,
-            patch("fragile.commands.interactive.commands.history.Application", return_value=application),
+            patch(
+                "fragile.commands.interactive.commands.history.Application", return_value=application
+            ) as application_factory,
         ):
             assert await select_history("Select:", [(first, "对话")], KeyBindings(), HISTORY_STYLE, "", True) == first
         assert radio_list_factory.call_args.kwargs["show_numbers"] is False
+        assert application_factory.call_args.kwargs["full_screen"] is True
         assert HISTORY_STYLE.get_attrs_for_style_str("class:selected-option").color == "ansigreen"
 
     @pytest.mark.asyncio

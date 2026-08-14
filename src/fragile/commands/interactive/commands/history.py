@@ -85,6 +85,7 @@ def build_history_application(
         ),
         key_bindings=merge_key_bindings([bindings, key_bindings]),
         style=style,
+        full_screen=True,
     )
     return application, radio_list
 
