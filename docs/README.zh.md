@@ -35,7 +35,8 @@
 - **递归控制**: 支持通过 `TOMORROW_RECURSION_LIMIT` 限制智能体递归调用深度。
 - **生命周期管理**: 引入 `AgentManager` 统一管理智能体实例的创建与销毁，确保资源的优雅初始化。
 - **高性能 API**: 基于 FastAPI 构建，支持同步响应与 Server-Sent Events (SSE) 流式输出。
-- **交互式 CLI**: `fragile` 支持 `/new` 创建新会话、`/history` 浏览并切换已持久化的历史会话、`/quit` 退出、会话恢复、输入历史、斜线命令补全和多行编辑。
+- **交互式 CLI**: `fragile` 支持 `/new` 创建新会话、`/history` 浏览并切换已持久化的历史会话、`/account` 配置外部模型账户、`/quit` 退出、会话恢复、输入历史、斜线命令补全和多行编辑。
+- **账户配置持久化**: 支持通过交互式命令保存 OpenAI、Anthropic、Google、xAI 和 OpenRouter 的模型凭据，并在后续会话中自动恢复。
 - **可靠性保障**: 强制类型提示、Ruff 静态检查、100% 测试覆盖率要求。
 
 ## 🛠️ 技术栈
@@ -127,6 +128,8 @@ uv run fragile
 
 通过 `--thread` 或 `-t` 传入 UUID 可以恢复已有会话；不传入时会自动创建新的线程。交互过程中输入 `/new` 可清屏并开始新会话，输入 `/history` 可查看已保存的会话并按编号或 UUID 切换，输入 `/quit` 退出；也可以连续两次按 `Ctrl+C` 在短时间内退出会话，按 `Esc` 后回车可插入换行。
 
+首次使用其他模型提供商时，可在交互会话中输入 `/account`，按提示选择提供商并填写 API Key、Base URL 和模型信息。凭据会持久化到本地数据库，后续启动 `fragile` 时自动恢复；如需修改配置，再次执行 `/account` 即可。
+
 `fragile` 的 CLI 入口和 `purge` 子命令均使用异步命令函数，避免在已运行的事件循环中嵌套调用 `asyncio.run()`。清理已持久化的会话记录：
 
 ```bash
@@ -189,7 +192,7 @@ export TOMORROW_SUBAGENTS='[{"name":"researcher","description":"负责资料检�
 | `FRAGILE_INTERRUPT_EXIT_THRESHOLD` | 两次 `Ctrl+C` 触发退出的最大间隔（秒） | `0.5` |
 | `FRAGILE_ENABLED_COMMANDS` | 启用的交互式命令类路径列表 | `quit`、`new`、`history` |
 
-Fragile 的其他交互行为通过命令行选项和内置斜线命令控制。命令通过注册表统一发现和处理，可使用 `FRAGILE_ENABLED_COMMANDS` 调整启用的命令。
+Fragile 的其他交互行为通过命令行选项和内置斜线命令控制。命令通过注册表统一发现和处理，可使用 `FRAGILE_ENABLED_COMMANDS` 调整启用的命令。账户凭据由 `Account` 模型以单例形式保存于 Fragile 的数据库中，启动交互会话时会恢复到 Tomorrow 的模型配置；环境变量仍可作为配置来源并拥有更高优先级。
 
 ## 📄 许可证
 
