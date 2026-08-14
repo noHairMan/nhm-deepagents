@@ -8,10 +8,10 @@
 
 -   **言語**:[パイソン](https://www.python.org/)>= 3.14
 -   **包管理器**:[紫外線](https://github.com/astral-sh/uv)
--   **APIフレームワーク**:[速い](https://fastapi.tiangolo.com/)
+-   **APIフレームワーク**:[早い](https://fastapi.tiangolo.com/)
 -   **ウェブサーバー**:[ユビコーン](https://www.uvicorn.org/)
 -   **エージェントフレームワーク**:[ディープエージェント](https://github.com/zongxuheng/deepagents)(LangGraph/LangChainに基づく)
--   **LLMプロバイダー**:[であること](https://ollama.com/)、[ハグ顔](https://huggingface.co/)そして[人間的](https://www.anthropic.com/)
+-   **LLMプロバイダー**:[であること](https://ollama.com/)、[人間的](https://www.anthropic.com/)そして[OpenAI](https://openai.com/)
 -   **コードの実行**:[langchain-quickjs](https://github.com/langchain-ai/langchainjs)QuickJSミドルウェア提供
 -   **端末のインタラクション**:`asyncclick`、`prompt-toolkit`そして`Rich`
 -   **配置管理**:[ピダンティックな設定](https://docs.pydantic.dev/latest/usage/settings/)
