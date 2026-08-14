@@ -11,7 +11,7 @@ This document is intended for project developers and contributors and introduces
 -   **API framework**:[speedy](https://fastapi.tiangolo.com/)
 -   **Web server**:[Uvicorn](https://www.uvicorn.org/)
 -   **agent framework**:[deepagents](https://github.com/zongxuheng/deepagents)(Based on LangGraph/LangChain)
--   **LLM provider**:[To be](https://ollama.com/)、[HuggingFace](https://huggingface.co/)and[Anthropic](https://www.anthropic.com/)
+-   **LLM provider**:[To be](https://ollama.com/)、[Anthropic](https://www.anthropic.com/)and[OpenAI](https://openai.com/)
 -   **code execution**:[langchain-quickjs](https://github.com/langchain-ai/langchainjs)QuickJS middleware provided
 -   **Terminal interaction**:`asyncclick`、`prompt-toolkit`and`Rich`
 -   **Configuration management**:[Pydantic Settings](https://docs.pydantic.dev/latest/usage/settings/)
