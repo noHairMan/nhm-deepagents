@@ -29,8 +29,18 @@ class AccountCommand(BaseCommand):
         if provider is None:
             return CommandResult.CONTINUE
         session = PromptSession()
-        base_url = await session.prompt_async(f"{provider} base URL: ")
-        api_key = await session.prompt_async(f"{provider} API key: ", is_password=True)
+        bindings = KeyBindings()
+
+        @bindings.add("escape", eager=True)
+        def cancel_credentials(event: Any) -> None:
+            event.app.exit(exception=click.Abort())
+
+        try:
+            base_url = await session.prompt_async(f"{provider} base URL: ", key_bindings=bindings)
+            api_key = await session.prompt_async(f"{provider} API key: ", is_password=True, key_bindings=bindings)
+        except KeyboardInterrupt, EOFError, click.Abort:
+            click.echo()
+            return CommandResult.CONTINUE
         try:
             await Account.save_credentials(provider, api_key, base_url)
         except (InvalidAccountError, ValueError) as error:

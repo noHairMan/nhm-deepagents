@@ -121,6 +121,56 @@ class TestAccountCommand:
         assert "secret-key" not in capsys.readouterr().out
 
     @pytest.mark.asyncio
+    @pytest.mark.parametrize("cancel_at", ["base URL", "API key"])
+    async def test_handle_returns_to_chat_when_credential_prompt_is_cancelled(
+        self, monkeypatch, cancel_at: str
+    ) -> None:
+        async def select_provider(self) -> str:
+            return "OpenAI"
+
+        class FakePromptSession:
+            async def prompt_async(self, message: str, **kwargs: object) -> str:
+                if cancel_at in message:
+                    raise KeyboardInterrupt
+                return "https://api.example.com"
+
+        async def save_credentials(provider: str, api_key: str, base_url: str) -> None:
+            raise AssertionError("credentials should not be saved")
+
+        monkeypatch.setattr(AccountCommand, "_select_provider", select_provider)
+        monkeypatch.setattr(account, "PromptSession", FakePromptSession)
+        monkeypatch.setattr(account.Account, "save_credentials", save_credentials)
+
+        result = await AccountCommand().handle(None, SessionState(thread_id=UUID(int=1)))
+
+        assert result is CommandResult.CONTINUE
+
+    @pytest.mark.asyncio
+    async def test_handle_binds_escape_to_cancel_credential_prompt(self, monkeypatch) -> None:
+        class FakePromptSession:
+            async def prompt_async(self, message: str, **kwargs: object) -> str:
+                bindings = kwargs["key_bindings"]
+                callback = bindings.get_bindings_for_keys(("escape",))[0].handler
+
+                class FakeApplication:
+                    def exit(self, **kwargs: object) -> None:
+                        raise kwargs["exception"]
+
+                event = type("Event", (), {"app": FakeApplication()})()
+                callback(event)
+                return "unreachable"
+
+        async def select_provider(self) -> str:
+            return "OpenAI"
+
+        monkeypatch.setattr(AccountCommand, "_select_provider", select_provider)
+        monkeypatch.setattr(account, "PromptSession", FakePromptSession)
+
+        result = await AccountCommand().handle(None, SessionState(thread_id=UUID(int=1)))
+
+        assert result is CommandResult.CONTINUE
+
+    @pytest.mark.asyncio
     async def test_handle_displays_matching_current_account_with_masked_key(self, monkeypatch, capsys) -> None:
         async def select_provider(self) -> str:
             return "OpenAI"
