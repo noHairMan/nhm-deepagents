@@ -16,7 +16,7 @@ For development environment, project structure, code specifications and testing 
 
 The project contains three main modules:
 
--   **`tomorrow`**: Core agent module. The codename is taken from a character in the game "Death Stranding 2: On the Beach"**Tomorrow**(played by Elle Fanning). In the plot, she is the daughter of protagonist Sam Bridges, who was also revealed to be a character in the previous game.**Lou**(BB-28)。
+-   **`tomorrow`**: Core agent module. The code name is taken from a character in the game "Death Stranding 2: On the Beach"**Tomorrow**(played by Elle Fanning). In the plot, she is the daughter of protagonist Sam Bridges, who was also revealed to be a character in the previous game.**Lou**(BB-28)。
 -   **`rainy`**: API service module based on FastAPI. The codename is also taken from a character in Death Stranding 2**Rainy**(played by Shiori Kutsuna). In the game, she has the magical power to cause "Timefall" and the healing "Corefall", and is described as a "Pharmakon" that can both hurt and heal.
 -   **`fragile`**: based on`asyncclick`An asynchronous command line client for asking questions directly to the Tomorrow agent or starting interactive sessions. Its name is taken from a character in the same work**Fragile**. Fragile is the founder and courier of Fragile Express. He has aged rapidly due to exposure to the rain of time, but he has always delivered important supplies to others in dangerous environments. This image of "fragility" that still insists on the mission of connecting and delivering is the background of the name of this client.
 
@@ -31,7 +31,8 @@ This project provides a general smart assistant agent that utilizes`deepagents`T
 -   **recursive control**: support through`TOMORROW_RECURSION_LIMIT`Limit the depth of agent recursive calls.
 -   **life cycle management**: introduction`AgentManager`Unified management of the creation and destruction of agent instances ensures graceful initialization of resources.
 -   **High performance API**: Built on FastAPI, supports synchronous responses and Server-Sent Events (SSE) streaming output.
--   **Interactive CLI**:`fragile`support`/new`Create new session,`/history`Browse and switch between persisted historical sessions,`/quit`Exit, session recovery, input history, slash command completion and multi-line editing.
+-   **Interactive CLI**:`fragile`support`/new`Create new session,`/history`Browse and switch between persisted historical sessions,`/account`Configure external model account,`/quit`Exit, session recovery, input history, slash command completion and multi-line editing.
+-   **Account configuration persistence**: Supports saving model credentials for OpenAI, Anthropic, Google, xAI, and OpenRouter via interactive commands and automatically restoring them in subsequent sessions.
 -   **Reliability guaranteed**: Forced type hints, Ruff static checking, 100% test coverage requirement.
 
 ## 🛠️ Technology stack
@@ -74,7 +75,7 @@ This project provides a general smart assistant agent that utilizes`deepagents`T
     uv sync
     ```
 
-4.  **Install`fragile` 命令**:
+4.  **Install`fragile`Order**:
 
     ```bash
     uv tool install .
@@ -128,6 +129,8 @@ uv run fragile
 
 pass`--thread`or`-t`Passing in the UUID can restore an existing session; if not passed in, a new thread will be automatically created. Input during interaction`/new`To clear the screen and start a new session, enter`/history`To view saved sessions and switch by number or UUID, enter`/quit`Exit; you can also press twice in succession`Ctrl+C`To exit a session in a short time, press`Esc`Press Enter to insert a line feed.
 
+When using another model provider for the first time, you can enter it in an interactive session`/account`, follow the prompts to select a provider and fill in the API Key, Base URL and model information. Credentials will be persisted to the local database for subsequent startups`fragile`Automatically restore when configured; if you need to modify the configuration, execute it again`/account`That’s it.
+
 `fragile`CLI entry and`purge`Subcommands all use asynchronous command functions to avoid nested calls in already running event loops`asyncio.run()`. Clean up persisted session records:
 
 ```bash
@@ -176,7 +179,7 @@ export TOMORROW_SUBAGENTS='[{"name":"researcher","description":"负责资料检�
 
 | variable                              | describe                                               | default value                               |
 | ------------------------------------- | ------------------------------------------------------ | ------------------------------------------- |
-| `RAINY_HOST`                          | API 服务监听地址                                             | `localhost`                                 |
+| `RAINY_HOST`                          | API service listening address                          | `localhost`                                 |
 | `RAINY_PORT`                          | API service port                                       | `8000`                                      |
 | `RAINY_APP`                           | Application name (used as environment variable prefix) | `rainy`                                     |
 | `RAINY_MIDDLEWARE`                    | List of enabled middlewares                            | Unified response format and processing time |
@@ -191,7 +194,7 @@ export TOMORROW_SUBAGENTS='[{"name":"researcher","description":"负责资料检�
 | `FRAGILE_INTERRUPT_EXIT_THRESHOLD` | twice`Ctrl+C`Maximum interval between triggering exits (seconds) | `0.5`                  |
 | `FRAGILE_ENABLED_COMMANDS`         | Enabled interactive command classpath list                       | `quit`、`new`、`history` |
 
-Other interactive behavior of Fragile is controlled through command line options and built-in slash commands. Commands are discovered and processed uniformly through the registry, using`FRAGILE_ENABLED_COMMANDS`Adjust enabled commands.
+Other interactive behavior of Fragile is controlled through command line options and built-in slash commands. Commands are discovered and processed uniformly through the registry, using`FRAGILE_ENABLED_COMMANDS`Adjust enabled commands. Account credentials are provided by`Account`The model is saved in Fragile's database as a singleton, and will be restored to Tomorrow's model configuration when an interactive session is started; environment variables can still be used as a configuration source and have higher priority.
 
 ## 📄 License
 
