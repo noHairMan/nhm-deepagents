@@ -28,11 +28,11 @@ This project provides a general smart assistant agent that utilizes`deepagents`T
 -   **Skill module**: support through`TOMORROW_SKILLS`Configure the skills directory to load scalable domain capabilities for the agent.
 -   **subagent**: support through`TOMORROW_SUBAGENTS`Configure dedicated subagents and their models, skills, and system prompts.
 -   **code interpreter**: Integrate QuickJS middleware to provide code execution capabilities for agents.
--   **recursive control**: support through`TOMORROW_RECURSION_LIMIT`Limit the depth of agent recursive calls.
+-   **recursive control**: 支持通过 `TOMORROW_RECURSION_LIMIT`Limit the depth of agent recursive calls.
 -   **life cycle management**: introduction`AgentManager`Unified management of the creation and destruction of agent instances ensures graceful initialization of resources.
 -   **High performance API**: Built on FastAPI, supports synchronous responses and Server-Sent Events (SSE) streaming output.
 -   **Interactive CLI**:`fragile`support`/new`Create new session,`/history`Browse and switch between persisted historical sessions,`/account`Configure external model account,`/quit`Exit, session recovery, input history, slash command completion and multi-line editing.
--   **Account configuration persistence**: Supports saving model credentials for OpenAI, Anthropic, Google, xAI, and OpenRouter via interactive commands and automatically restoring them in subsequent sessions.
+-   **Account configuration persistence**: Supports saving API credentials for Ollama, Anthropic, and OpenAI via interactive commands and automatically restoring them in subsequent sessions.
 -   **Reliability guaranteed**: Forced type hints, Ruff static checking, 100% test coverage requirement.
 
 ## 🛠️ Technology stack
@@ -42,7 +42,7 @@ This project provides a general smart assistant agent that utilizes`deepagents`T
 -   **API framework**:[speedy](https://fastapi.tiangolo.com/)
 -   **Web server**:[Uvicorn](https://www.uvicorn.org/)
 -   **agent framework**:[deepagents](https://github.com/zongxuheng/deepagents)(Based on LangGraph/LangChain)
--   **LLM provider**:[To be](https://ollama.com/)、[HuggingFace](https://huggingface.co/)and[Anthropic](https://www.anthropic.com/)
+-   **LLM provider**:[To be](https://ollama.com/)、[Anthropic](https://www.anthropic.com/)and[OpenAI](https://openai.com/)
 -   **code execution**:[langchain-quickjs](https://github.com/langchain-ai/langchainjs)QuickJS middleware provided
 -   **Terminal interaction**:[asyncclick](https://github.com/python-trio/asyncclick)Provide asynchronous CLI commands, parameter parsing and help information;[prompt-toolkit](https://github.com/prompt-toolkit/python-prompt-toolkit)Provides asynchronous input, input history, command completion and multi-line editing;[Rich](https://github.com/Textualize/rich)Provides terminal output styles.
 -   **Configuration management**:[Pydantic Settings](https://docs.pydantic.dev/latest/usage/settings/)
@@ -54,8 +54,8 @@ This project provides a general smart assistant agent that utilizes`deepagents`T
 
 -   **Python 3.14+**
 -   **uv**: A fast Python package installer and parser.
--   **LLM provider**: current`.env`Using the Anthropic-compatible interface, there is no need to run Ollama.
--   **LLM model**: Current configuration uses`deepseek-v4-flash`;You can also pass`TOMORROW_MODEL`Switch to Ollama or HuggingFace.
+-   **LLM provider**: 当前 `.env`Using the Anthropic-compatible interface, there is no need to run Ollama.
+-   **LLM model**: Current configuration uses`deepseek-v4-flash`;You can also pass`TOMORROW_MODEL`Switch to Ollama.
 
 ## 🚀 Quick Start
 
@@ -129,9 +129,9 @@ uv run fragile
 
 pass`--thread`or`-t`Passing in the UUID can restore an existing session; if not passed in, a new thread will be automatically created. Input during interaction`/new`To clear the screen and start a new session, enter`/history`To view saved sessions and switch by number or UUID, enter`/quit`Exit; you can also press twice in succession`Ctrl+C`To exit a session in a short time, press`Esc`Press Enter to insert a line feed.
 
-When using another model provider for the first time, you can enter it in an interactive session`/account`, follow the prompts to select a provider and fill in the API Key, Base URL and model information. Credentials will be persisted to the local database for subsequent startups`fragile`Automatically restore when configured; if you need to modify the configuration, execute it again`/account`That’s it.
+When using another model provider for the first time, you can enter it in an interactive session`/account`, follow the prompts to select a provider and fill in the Base URL and API Key. Other configurations such as model names still pass`TOMORROW_MODEL`Or the corresponding environment variable settings. Credentials will be persisted to the local database for subsequent startups`fragile`Automatically restore when configured; if you need to modify the configuration, execute it again`/account`That’s it.
 
-`fragile`CLI entry and`purge`Subcommands all use asynchronous command functions to avoid nested calls in already running event loops`asyncio.run()`. Clean up persisted session records:
+`fragile`CLI entry and`purge`Subcommands all use asynchronous command functions to avoid nested calls in already running event loops`asyncio.run()`。清理已持久化的会话记录：
 
 ```bash
 fragile purge
@@ -147,24 +147,34 @@ Environment variables are prefixed by default`TOMORROW_`(core module),`RAINY_`(A
 
 #### Tomorrow configuration (core)
 
-| variable                   | describe                                                        | default value                                   |
-| -------------------------- | --------------------------------------------------------------- | ----------------------------------------------- |
-| `TOMORROW_APP`             | Application name (used as environment variable prefix)          | `tomorrow`                                      |
-| `TOMORROW_MODEL`           | Model configuration, supports OLLAMA, HUGGINGFACE and ANTHROPIC | current`.env`use`anthropic`/`deepseek-v4-flash` |
-| `TOMORROW_CHECKPOINT`      | Checkpoint configuration, supports MEMORY and SQLITE            | `{"type":"memory"}`                             |
-| `TOMORROW_BACKEND`         | Backend configuration, supports FILESYSTEM and LOCAL_SHELL      | `{"type":"filesystem"}`                         |
-| `TOMORROW_STORE`           | Storage configuration, supports MEMORY and SQLITE               | `{"type":"sqlite"}`                             |
-| `TOMORROW_SKILLS`          | Skill Catalog List                                              | `["skills/"]`                                   |
-| `TOMORROW_SUBAGENTS`       | Subagent configuration list                                     | `[]`                                            |
-| `TOMORROW_RECURSION_LIMIT` | The upper limit of agent recursive calls                        | `100`                                           |
+| variable                   | describe                                                   | default value                                   |
+| -------------------------- | ---------------------------------------------------------- | ----------------------------------------------- |
+| `TOMORROW_APP`             | Application name (used as environment variable prefix)     | `tomorrow`                                      |
+| `TOMORROW_MODEL`           | Model configuration, supports OLLAMA, ANTHROPIC and OPENAI | current`.env`use`anthropic`/`deepseek-v4-flash` |
+| `TOMORROW_CHECKPOINT`      | Checkpoint configuration, supports MEMORY and SQLITE       | `{"type":"memory"}`                             |
+| `TOMORROW_BACKEND`         | Backend configuration, supports FILESYSTEM and LOCAL_SHELL | `{"type":"filesystem"}`                         |
+| `TOMORROW_STORE`           | Storage configuration, supports MEMORY and SQLITE          | `{"type":"sqlite"}`                             |
+| `TOMORROW_SKILLS`          | Skill Catalog List                                         | `["skills/"]`                                   |
+| `TOMORROW_SUBAGENTS`       | Subagent configuration list                                | `[]`                                            |
+| `TOMORROW_RECURSION_LIMIT` | The upper limit of agent recursive calls                   | `100`                                           |
 
-Model configuration passed`TOMORROW_MODEL`Or pass in nested environment variables. current`.env`Use Anthropic compatible interfaces and`deepseek-v4-flash`;When using other providers, please configure accordingly`ollama`or`huggingface`object. For example:
+Model configuration passed`TOMORROW_MODEL`Or pass in nested environment variables. current`.env`Use Anthropic compatible interfaces and`deepseek-v4-flash`;When using Ollama, please configure accordingly`ollama`object. For example:
 
 ```bash
 export TOMORROW_MODEL__TYPE="anthropic"
 export TOMORROW_MODEL__ANTHROPIC__BASE_URL="https://www.llmgateway.cn"
 export TOMORROW_MODEL__ANTHROPIC__MODEL="deepseek-v4-flash"
 export TOMORROW_MODEL__ANTHROPIC__API_KEY="your-api-key"
+```
+
+When selecting OpenAI or an OpenAI API-compatible service, you can configure the model name, API Key, optional Base URL, and temperature using the following nested environment variables:
+
+```bash
+export TOMORROW_MODEL__TYPE="openai"
+export TOMORROW_MODEL__OPENAI__MODEL="gpt-4o-mini"
+export TOMORROW_MODEL__OPENAI__API_KEY="your-api-key"
+export TOMORROW_MODEL__OPENAI__BASE_URL="https://api.openai.com/v1"
+export TOMORROW_MODEL__OPENAI__TEMPERATURE="0"
 ```
 
 For specific fields and default values, please refer to`src/tomorrow/settings.py`。
