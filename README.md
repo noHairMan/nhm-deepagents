@@ -11,7 +11,7 @@
 | src/fragile/commands/interactive/\_\_init\_\_.py          |        2 |        0 |        0 |        0 |     100% |           |
 | src/fragile/commands/interactive/agent.py                 |       56 |        0 |       20 |        0 |     100% |           |
 | src/fragile/commands/interactive/commands/\_\_init\_\_.py |       34 |        0 |        8 |        0 |     100% |           |
-| src/fragile/commands/interactive/commands/account.py      |       44 |        0 |        2 |        0 |     100% |           |
+| src/fragile/commands/interactive/commands/account.py      |       45 |        0 |        2 |        0 |     100% |           |
 | src/fragile/commands/interactive/commands/base.py         |       15 |        0 |        2 |        0 |     100% |           |
 | src/fragile/commands/interactive/commands/history.py      |       81 |        0 |       14 |        0 |     100% |           |
 | src/fragile/commands/interactive/commands/new.py          |       12 |        0 |        0 |        0 |     100% |           |
@@ -66,8 +66,8 @@
 | src/tomorrow/core/enums.py                                |       33 |        0 |        6 |        0 |     100% |           |
 | src/tomorrow/core/model/\_\_init\_\_.py                   |       18 |        0 |        6 |        0 |     100% |           |
 | src/tomorrow/core/model/anthropic.py                      |        6 |        0 |        0 |        0 |     100% |           |
-| src/tomorrow/core/model/huggingface.py                    |        7 |        0 |        0 |        0 |     100% |           |
 | src/tomorrow/core/model/ollama.py                         |        6 |        0 |        0 |        0 |     100% |           |
+| src/tomorrow/core/model/openai.py                         |        6 |        0 |        0 |        0 |     100% |           |
 | src/tomorrow/core/store/\_\_init\_\_.py                   |       15 |        0 |        4 |        0 |     100% |           |
 | src/tomorrow/core/store/memory.py                         |        3 |        0 |        0 |        0 |     100% |           |
 | src/tomorrow/core/store/sqlite.py                         |       10 |        0 |        2 |        0 |     100% |           |

@@ -67,7 +67,7 @@
             <a id="nextFileLink" class="nav" href="z_0f8b5f5fc498b500_anthropic_py.html">&#xbb; next</a>
             &nbsp; &nbsp; &nbsp;
             <a class="nav" href="https://coverage.readthedocs.io/en/7.15.4">coverage.py v7.15.4</a>,
-            created at 2026-08-14 02:07 +0000
+            created at 2026-08-14 03:38 +0000
         </p>
         <aside class="hidden">
             <button type="button" class="button_next_chunk" data-shortcut="j"></button>
@@ -96,14 +96,14 @@
     <p class="run"><span class="n"><a id="t12" href="#t12">12</a></span><span class="t">            <span class="key">from</span> <span class="op">.</span><span class="nam">ollama</span> <span class="key">import</span> <span class="nam">get_model</span> <span class="key">as</span> <span class="nam">get_ollama_model</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t13" href="#t13">13</a></span><span class="t">&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t14" href="#t14">14</a></span><span class="t">            <span class="key">return</span> <span class="nam">get_ollama_model</span><span class="op">(</span><span class="op">)</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t15" href="#t15">15</a></span><span class="t">        <span class="key">case</span> <span class="nam">ModelType</span><span class="op">.</span><span class="nam">HUGGINGFACE</span><span class="op">:</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t16" href="#t16">16</a></span><span class="t">            <span class="key">from</span> <span class="op">.</span><span class="nam">huggingface</span> <span class="key">import</span> <span class="nam">get_model</span> <span class="key">as</span> <span class="nam">get_huggingface_model</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t15" href="#t15">15</a></span><span class="t">        <span class="key">case</span> <span class="nam">ModelType</span><span class="op">.</span><span class="nam">ANTHROPIC</span><span class="op">:</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t16" href="#t16">16</a></span><span class="t">            <span class="key">from</span> <span class="op">.</span><span class="nam">anthropic</span> <span class="key">import</span> <span class="nam">get_model</span> <span class="key">as</span> <span class="nam">get_anthropic_model</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t17" href="#t17">17</a></span><span class="t">&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t18" href="#t18">18</a></span><span class="t">            <span class="key">return</span> <span class="nam">get_huggingface_model</span><span class="op">(</span><span class="op">)</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t19" href="#t19">19</a></span><span class="t">        <span class="key">case</span> <span class="nam">ModelType</span><span class="op">.</span><span class="nam">ANTHROPIC</span><span class="op">:</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t20" href="#t20">20</a></span><span class="t">            <span class="key">from</span> <span class="op">.</span><span class="nam">anthropic</span> <span class="key">import</span> <span class="nam">get_model</span> <span class="key">as</span> <span class="nam">get_anthropic_model</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t18" href="#t18">18</a></span><span class="t">            <span class="key">return</span> <span class="nam">get_anthropic_model</span><span class="op">(</span><span class="op">)</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t19" href="#t19">19</a></span><span class="t">        <span class="key">case</span> <span class="nam">ModelType</span><span class="op">.</span><span class="nam">OPENAI</span><span class="op">:</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t20" href="#t20">20</a></span><span class="t">            <span class="key">from</span> <span class="op">.</span><span class="nam">openai</span> <span class="key">import</span> <span class="nam">get_model</span> <span class="key">as</span> <span class="nam">get_openai_model</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t21" href="#t21">21</a></span><span class="t">&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t22" href="#t22">22</a></span><span class="t">            <span class="key">return</span> <span class="nam">get_anthropic_model</span><span class="op">(</span><span class="op">)</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t22" href="#t22">22</a></span><span class="t">            <span class="key">return</span> <span class="nam">get_openai_model</span><span class="op">(</span><span class="op">)</span>&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t23" href="#t23">23</a></span><span class="t">        <span class="key">case</span> <span class="nam">_</span><span class="op">:</span>&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t24" href="#t24">24</a></span><span class="t">            <span class="key">raise</span> <span class="nam">TomorrowModelError</span><span class="op">(</span><span class="fst">f&quot;</span><span class="fst">Unsupported model type: </span><span class="op">{</span><span class="nam">model_type</span><span class="op">}</span><span class="fst">&quot;</span><span class="op">)</span>&nbsp;</span><span class="r"></span></p>
 </main>
@@ -115,7 +115,7 @@
             <a class="nav" href="z_0f8b5f5fc498b500_anthropic_py.html">&#xbb; next</a>
             &nbsp; &nbsp; &nbsp;
             <a class="nav" href="https://coverage.readthedocs.io/en/7.15.4">coverage.py v7.15.4</a>,
-            created at 2026-08-14 02:07 +0000
+            created at 2026-08-14 03:38 +0000
         </p>
     </div>
 </footer>
