@@ -36,13 +36,6 @@ class OllamaConfig(BaseConfigModel):
     temperature: float = 0
 
 
-class HuggingFaceConfig(BaseConfigModel):
-    model: str = "mistralai/Mistral-7B-Instruct-v0.2"
-    url: str | None = None
-    api_key: str | None = None
-    temperature: float = 0.1
-
-
 class AnthropicConfig(BaseConfigModel):
     model: str = "claude-sonnet-5"
     api_key: str | None = None
@@ -53,7 +46,6 @@ class AnthropicConfig(BaseConfigModel):
 class ModelConfig(BaseConfigModel):
     type: ModelType = ModelType.OLLAMA
     ollama: OllamaConfig = Field(default_factory=OllamaConfig, alias=ModelType.OLLAMA)
-    huggingface: HuggingFaceConfig = Field(default_factory=HuggingFaceConfig, alias=ModelType.HUGGINGFACE)
     anthropic: AnthropicConfig = Field(default_factory=AnthropicConfig, alias=ModelType.ANTHROPIC)
 
 

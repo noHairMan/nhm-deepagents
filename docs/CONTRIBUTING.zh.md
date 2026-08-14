@@ -11,7 +11,7 @@
 - **API 框架**: [FastAPI](https://fastapi.tiangolo.com/)
 - **Web 服务器**: [Uvicorn](https://www.uvicorn.org/)
 - **智能体框架**: [deepagents](https://github.com/zongxuheng/deepagents)（基于 LangGraph/LangChain）
-- **LLM 提供商**: [Ollama](https://ollama.com/)、[HuggingFace](https://huggingface.co/) 和 [Anthropic](https://www.anthropic.com/)
+- **LLM 提供商**: [Ollama](https://ollama.com/) 和 [Anthropic](https://www.anthropic.com/)
 - **代码执行**: [langchain-quickjs](https://github.com/langchain-ai/langchainjs) 提供的 QuickJS 中间件
 - **终端交互**: `asyncclick`、`prompt-toolkit` 和 `Rich`
 - **配置管理**: [Pydantic Settings](https://docs.pydantic.dev/latest/usage/settings/)

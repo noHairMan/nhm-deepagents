@@ -46,7 +46,7 @@
 - **API 框架**: [FastAPI](https://fastapi.tiangolo.com/)
 - **Web 服务器**: [Uvicorn](https://www.uvicorn.org/)
 - **智能体框架**: [deepagents](https://github.com/zongxuheng/deepagents) (基于 LangGraph/LangChain)
-- **LLM 提供商**: [Ollama](https://ollama.com/)、[HuggingFace](https://huggingface.co/) 和 [Anthropic](https://www.anthropic.com/)
+- **LLM 提供商**: [Ollama](https://ollama.com/) 和 [Anthropic](https://www.anthropic.com/)
 - **代码执行**: [langchain-quickjs](https://github.com/langchain-ai/langchainjs) 提供的 QuickJS 中间件
 - **终端交互**: [asyncclick](https://github.com/python-trio/asyncclick) 提供异步 CLI 命令、参数解析和帮助信息；[prompt-toolkit](https://github.com/prompt-toolkit/python-prompt-toolkit) 提供异步输入、输入历史、命令补全和多行编辑；[Rich](https://github.com/Textualize/rich) 提供终端输出样式。
 - **配置管理**: [Pydantic Settings](https://docs.pydantic.dev/latest/usage/settings/)
@@ -59,7 +59,7 @@
 - **Python 3.14+**
 - **uv**: 一个快速的 Python 包安装和解析器。
 - **LLM 提供商**: 当前 `.env` 使用 Anthropic 兼容接口，无需运行 Ollama。
-- **LLM 模型**: 当前配置使用 `deepseek-v4-flash`；也可以通过 `TOMORROW_MODEL` 切换到 Ollama 或 HuggingFace。
+- **LLM 模型**: 当前配置使用 `deepseek-v4-flash`；也可以通过 `TOMORROW_MODEL` 切换到 Ollama。
 
 ## 🚀 快速入门
 
@@ -148,7 +148,7 @@ fragile purge
 | 变量 | 描述 | 默认值 |
 |----------|-------------|---------|
 | `TOMORROW_APP` | 应用名称（用作环境变量前缀） | `tomorrow` |
-| `TOMORROW_MODEL` | 模型配置，支持 OLLAMA、HUGGINGFACE 和 ANTHROPIC | 当前 `.env` 使用 `anthropic` / `deepseek-v4-flash` |
+| `TOMORROW_MODEL` | 模型配置，支持 OLLAMA 和 ANTHROPIC | 当前 `.env` 使用 `anthropic` / `deepseek-v4-flash` |
 | `TOMORROW_CHECKPOINT` | 检查点配置，支持 MEMORY 和 SQLITE | `{"type":"memory"}` |
 | `TOMORROW_BACKEND` | 后端配置，支持 FILESYSTEM 和 LOCAL_SHELL | `{"type":"filesystem"}` |
 | `TOMORROW_STORE` | 存储配置，支持 MEMORY 和 SQLITE | `{"type":"sqlite"}` |
@@ -156,7 +156,7 @@ fragile purge
 | `TOMORROW_SUBAGENTS` | 子代理配置列表 | `[]` |
 | `TOMORROW_RECURSION_LIMIT` | 智能体递归调用上限 | `100` |
 
-模型配置通过 `TOMORROW_MODEL` 或嵌套环境变量传入。当前 `.env` 使用 Anthropic 兼容接口和 `deepseek-v4-flash`；使用其他提供商时，请相应配置 `ollama` 或 `huggingface` 对象。例如：
+模型配置通过 `TOMORROW_MODEL` 或嵌套环境变量传入。当前 `.env` 使用 Anthropic 兼容接口和 `deepseek-v4-flash`；使用 Ollama 时，请相应配置 `ollama` 对象。例如：
 
 ```bash
 export TOMORROW_MODEL__TYPE="anthropic"

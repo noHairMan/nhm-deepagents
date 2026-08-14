@@ -21,19 +21,6 @@ class TestModels:
                 get_model()
                 mock_get_model.assert_called_once()
 
-    def test_get_model_huggingface(self):
-        with patch("tomorrow.core.model.huggingface.get_model") as mock_get_model:
-            from tomorrow.conf import settings
-            from tomorrow.settings import ModelConfig
-
-            new_model_data = settings.MODEL.model_dump()
-            new_model_data.pop("type")
-            new_model = ModelConfig(type=ModelType.HUGGINGFACE, **new_model_data)
-
-            with patch("tomorrow.conf.settings.MODEL", new_model):
-                get_model()
-                mock_get_model.assert_called_once()
-
     def test_get_model_anthropic(self):
         with patch("tomorrow.core.model.anthropic.get_model") as mock_get_model:
             from tomorrow.conf import settings
