@@ -16,9 +16,9 @@
 
 專案內部包含三個主要模組：
 
--   **`tomorrow`**: 核心智能體模組。代號取自遊戲《死亡擱淺 2：冥灘之上》（Death Stranding 2: On the Beach）中的角色**明天**（艾莉·範甯飾演）。在劇情中，她是主角山姆布里吉斯（Sam Bridges）的女兒，也被揭露為前作中的**大樓**(BB-28)。
+-   **`tomorrow`**: 核心智能體模組。代號取自遊戲《死亡擱淺 2：冥灘之上》（Death Stranding 2: On the Beach）中的角色**明天**（艾莉·範甯飾演）。在劇情中，她是主角山姆布里吉斯（Sam Bridges）的女兒，也被揭露為前作中的**大樓** (BB-28)。
 -   **`rainy`**: 基於 FastAPI 的 API 服務模組。代號同樣取自《死亡擱淺 2》中的角色**下雨天**（由忽那汐裡飾演）。在遊戲中，她擁有引發「時間雨」（Timefall）和具有治癒能力的「核心雨」（Corefall）的神奇力量，被描述為既能傷害也能治癒的「藥（Pharmakon）」。
--   **`fragile`**: 基於`asyncclick`的非同步命令列客戶端，用於直接向 Tomorrow 智能體提問或啟動互動式會話。其名稱取自同一作品中的角色**脆弱的**。 Fragile 是 Fragile Express 的創辦人和快遞員，因接觸時間雨而快速衰老，卻始終在危險環境中為他人運送重要物資；這種「脆弱」外表下仍堅持承擔連接與傳遞使命的形象，正是該客戶端名稱的背景。
+-   **`fragile`**: 基於`asyncclick`的非同步命令列客戶端，用於直接向 Tomorrow 智能體提問或啟動互動式會話。其名稱取自同一作品中的角色**脆弱的**。 Fragile 是 Fragile Express 的创始人和快递员，因接触时间雨而快速衰老，却始终在危险环境中为他人运送重要物资；这种“脆弱”外表下仍坚持承担连接与传递使命的形象，正是该客户端名称的背景。
 
 該專案提供了一個通用的智慧助理智能體，利用`deepagents`框架分析使用者輸入，並透過`rainy`模組對外提供同步（`/api/chat`）及**流式（`/api/chat/stream`）**API 介面。
 
@@ -32,7 +32,7 @@
 -   **生命週期管理**: 引入`AgentManager`統一管理智能體實例的創建與銷毀，確保資源的優雅初始化。
 -   **高效能 API**: 基於 FastAPI 構建，支援同步回應與 Server-Sent Events (SSE) 串流輸出。
 -   **互動式 CLI**:`fragile`支援`/new`建立新會話、`/history`瀏覽並切換已持久化的歷史會話、`/account`配置外部模型帳戶、`/quit`退出、會話恢復、輸入歷史記錄、斜線命令補全和多行編輯。
--   **帳戶配置持久化**: 支援透過互動式指令保存 OpenAI、Anthropic、Google、xAI 和 OpenRouter 的模型憑證，並在後續會話中自動復原。
+-   **帳戶配置持久化**: 支援透過互動式指令保存 Ollama、Anthropic 和 OpenAI 的 API 憑證，並在後續會話中自動復原。
 -   **可靠性保障**: 強制類型提示、Ruff 靜態檢查、100% 測試覆蓋率要求。
 
 ## 🛠️ 技術棧
@@ -42,7 +42,7 @@
 -   **API 框架**:[迅速](https://fastapi.tiangolo.com/)
 -   **Web 伺服器**:[獨角獸](https://www.uvicorn.org/)
 -   **智能體框架**:[深度代理](https://github.com/zongxuheng/deepagents)(基於 LangGraph/LangChain)
--   **LLM 提供者**:[成為](https://ollama.com/)、[抱臉](https://huggingface.co/)和[人擇](https://www.anthropic.com/)
+-   **LLM 提供者**:[成為](https://ollama.com/)、[人擇](https://www.anthropic.com/)和[開放人工智慧](https://openai.com/)
 -   **程式碼執行**:[langchain-quickjs](https://github.com/langchain-ai/langchainjs)提供的 QuickJS 中介軟體
 -   **終端交互**:[非同步點擊](https://github.com/python-trio/asyncclick)提供非同步 CLI 命令、參數解析和幫助資訊；[提示工具包](https://github.com/prompt-toolkit/python-prompt-toolkit)提供非同步輸入、輸入歷史記錄、命令補全和多行編輯；[富有的](https://github.com/Textualize/rich)提供終端輸出樣式。
 -   **配置管理**:[懸垂設定](https://docs.pydantic.dev/latest/usage/settings/)
@@ -55,7 +55,7 @@
 -   **Python 3.14+**
 -   **紫外線**: 一個快速的 Python 套件安裝和解析器。
 -   **LLM 提供者**: 目前`.env`使用 Anthropic 相容接口，無需運行 Ollama。
--   **LLM 模型**: 目前配置使用`deepseek-v4-flash`；也可以透過`TOMORROW_MODEL`切換到 O​​llama 或 HuggingFace。
+-   **LLM 模型**: 目前配置使用`deepseek-v4-flash`；也可以透過`TOMORROW_MODEL`切換到 O​​llama。
 
 ## 🚀 快速入門
 
@@ -105,7 +105,7 @@ uv run langgraph dev
 
 CLI 會讀取根目錄的`langgraph.json`，並暴露名為`tomorrow`的 graph。
 
-Rainy API 的請求體包含必填的`message`字段和可選的會話`thread_id`。同步介面返回智能體的最終回覆：
+Rainy API 的請求體包含必填的`message`字段和可選的會話`thread_id`。同步接口返回智能体的最终回复：
 
 ```bash
 curl -X POST http://localhost:8000/api/chat \
@@ -129,9 +129,9 @@ uv run fragile
 
 透過`--thread`或`-t`傳入 UUID 可以恢復已有會話；不傳入時會自動建立新的執行緒。互動過程中輸入`/new`可清屏並開始新會話，輸入`/history`可查看已儲存的會話並按編號或 UUID 切換，輸入`/quit`退出；也可以連續兩次按`Ctrl+C`在短時間內退出會話，按`Esc`後回車可插入換行。
 
-首次使用其他模型提供者時，可在互動會話中輸入`/account`，按提示選擇提供者並填寫 API Key、Base URL 和模型資訊。憑證會持久化到本機資料庫，後續啟動`fragile`時自動恢復；如需修改配置，再次執行`/account`即可。
+首次使用其他模型提供者時，可在互動會話中輸入`/account`，按提示選擇提供者並填寫 Base URL 和 API Key。模型名稱等其他配置仍透過`TOMORROW_MODEL`或對應的環境變數設定。憑證會持久化到本機資料庫，後續啟動`fragile`時自動恢復；如需修改配置，再次執行`/account`即可。
 
-`fragile`的 CLI 入口和`purge`子命令均使用非同步命令函數，避免在已運行的事件循環中嵌套調用`asyncio.run()`。清理已持久化的會話記錄：
+`fragile`的 CLI 入口和`purge`子命令均使用非同步命令函數，避免在已運行的事件循環中嵌套調用`asyncio.run()`。清理已持久化的会话记录：
 
 ```bash
 fragile purge
@@ -147,24 +147,34 @@ fragile purge
 
 #### Tomorrow 配置 (核心)
 
-| 變數                         | 描述                                     | 預設值                                       |
-| -------------------------- | -------------------------------------- | ----------------------------------------- |
-| `TOMORROW_APP`             | 應用名稱（用作環境變數前綴）                         | `tomorrow`                                |
-| `TOMORROW_MODEL`           | 模型配置，支援 OLLAMA、HUGGINGFACE 和 ANTHROPIC | 目前`.env`使用`anthropic`/`deepseek-v4-flash` |
-| `TOMORROW_CHECKPOINT`      | 檢查點配置，支援 MEMORY 和 SQLITE               | `{"type":"memory"}`                       |
-| `TOMORROW_BACKEND`         | 後端配置，支援 FILESYSTEM 和 LOCAL_SHELL       | `{"type":"filesystem"}`                   |
-| `TOMORROW_STORE`           | 儲存配置，支援 MEMORY 和 SQLITE                | `{"type":"sqlite"}`                       |
-| `TOMORROW_SKILLS`          | 技能目錄列表                                 | `["skills/"]`                             |
-| `TOMORROW_SUBAGENTS`       | 子代理配置列表                                | `[]`                                      |
-| `TOMORROW_RECURSION_LIMIT` | 智能體遞歸調用上限                              | `100`                                     |
+| 變數                         | 描述                                | 預設值                                       |
+| -------------------------- | --------------------------------- | ----------------------------------------- |
+| `TOMORROW_APP`             | 應用名稱（用作環境變數前綴）                    | `tomorrow`                                |
+| `TOMORROW_MODEL`           | 模型配置，支援 OLLAMA、ANTHROPIC 和 OPENAI | 目前`.env`使用`anthropic`/`deepseek-v4-flash` |
+| `TOMORROW_CHECKPOINT`      | 檢查點配置，支援 MEMORY 和 SQLITE          | `{"type":"memory"}`                       |
+| `TOMORROW_BACKEND`         | 後端配置，支援 FILESYSTEM 和 LOCAL_SHELL  | `{"type":"filesystem"}`                   |
+| `TOMORROW_STORE`           | 儲存配置，支援 MEMORY 和 SQLITE           | `{"type":"sqlite"}`                       |
+| `TOMORROW_SKILLS`          | 技能目錄列表                            | `["skills/"]`                             |
+| `TOMORROW_SUBAGENTS`       | 子代理配置列表                           | `[]`                                      |
+| `TOMORROW_RECURSION_LIMIT` | 智能體遞歸調用上限                         | `100`                                     |
 
-模型配置透過`TOMORROW_MODEL`或嵌套環境變數傳入。目前`.env`使用 Anthropic 相容介面和`deepseek-v4-flash`；使用其他提供者時，請相應配置`ollama`或`huggingface`對象。例如：
+模型配置透過`TOMORROW_MODEL`或嵌套環境變數傳入。目前`.env`使用 Anthropic 相容介面和`deepseek-v4-flash`；使用 Ollama 時，請相應配置`ollama`對象。例如：
 
 ```bash
 export TOMORROW_MODEL__TYPE="anthropic"
 export TOMORROW_MODEL__ANTHROPIC__BASE_URL="https://www.llmgateway.cn"
 export TOMORROW_MODEL__ANTHROPIC__MODEL="deepseek-v4-flash"
 export TOMORROW_MODEL__ANTHROPIC__API_KEY="your-api-key"
+```
+
+選擇 OpenAI 或相容 OpenAI API 的服務時，可以使用以下巢狀環境變數來配置模型名稱、API Key、可選的 Base URL 和溫度：
+
+```bash
+export TOMORROW_MODEL__TYPE="openai"
+export TOMORROW_MODEL__OPENAI__MODEL="gpt-4o-mini"
+export TOMORROW_MODEL__OPENAI__API_KEY="your-api-key"
+export TOMORROW_MODEL__OPENAI__BASE_URL="https://api.openai.com/v1"
+export TOMORROW_MODEL__OPENAI__TEMPERATURE="0"
 ```
 
 具體欄位和預設值請參閱`src/tomorrow/settings.py`。
@@ -194,7 +204,7 @@ export TOMORROW_SUBAGENTS='[{"name":"researcher","description":"负责资料检�
 | `FRAGILE_INTERRUPT_EXIT_THRESHOLD` | 兩次`Ctrl+C`觸發退出的最大間隔（秒） | `0.5`                  |
 | `FRAGILE_ENABLED_COMMANDS`         | 啟用的互動式命令類別路徑列表         | `quit`、`new`、`history` |
 
-Fragile 的其他互動行為透過命令列選項和內建斜線命令控制。命令透過註冊表統一發現和處理，可使用`FRAGILE_ENABLED_COMMANDS`調整啟用的命令。帳戶憑證由`Account`模型以單例形式保存於 Fragile 的資料庫中，啟動互動會話時會恢復到 Tomorrow 的模型配置；環境變數仍可作為配置來源並擁有更高優先權。
+Fragile 的其他互動行為透過命令列選項和內建斜線命令控制。命令透過註冊表統一發現和處理，可使用`FRAGILE_ENABLED_COMMANDS`調整啟用的命令。帳戶憑證由`Account`模型以單例形式保存於 Fragile 的資料庫中，啟動交互會話時會恢復到 Tomorrow 的模型配置；環境變數仍可作為配置來源並擁有更高優先權。
 
 ## 📄 許可證
 
