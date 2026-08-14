@@ -36,7 +36,7 @@
 - **生命周期管理**: 引入 `AgentManager` 统一管理智能体实例的创建与销毁，确保资源的优雅初始化。
 - **高性能 API**: 基于 FastAPI 构建，支持同步响应与 Server-Sent Events (SSE) 流式输出。
 - **交互式 CLI**: `fragile` 支持 `/new` 创建新会话、`/history` 浏览并切换已持久化的历史会话、`/account` 配置外部模型账户、`/quit` 退出、会话恢复、输入历史、斜线命令补全和多行编辑。
-- **账户配置持久化**: 支持通过交互式命令保存 OpenAI、Anthropic、Google、xAI 和 OpenRouter 的模型凭据，并在后续会话中自动恢复。
+- **账户配置持久化**: 支持通过交互式命令保存 Ollama、Anthropic 和 OpenAI 的模型凭据，并在后续会话中自动恢复。
 - **可靠性保障**: 强制类型提示、Ruff 静态检查、100% 测试覆盖率要求。
 
 ## 🛠️ 技术栈
@@ -46,7 +46,7 @@
 - **API 框架**: [FastAPI](https://fastapi.tiangolo.com/)
 - **Web 服务器**: [Uvicorn](https://www.uvicorn.org/)
 - **智能体框架**: [deepagents](https://github.com/zongxuheng/deepagents) (基于 LangGraph/LangChain)
-- **LLM 提供商**: [Ollama](https://ollama.com/) 和 [Anthropic](https://www.anthropic.com/)
+- **LLM 提供商**: [Ollama](https://ollama.com/)、[Anthropic](https://www.anthropic.com/) 和 [OpenAI](https://openai.com/)
 - **代码执行**: [langchain-quickjs](https://github.com/langchain-ai/langchainjs) 提供的 QuickJS 中间件
 - **终端交互**: [asyncclick](https://github.com/python-trio/asyncclick) 提供异步 CLI 命令、参数解析和帮助信息；[prompt-toolkit](https://github.com/prompt-toolkit/python-prompt-toolkit) 提供异步输入、输入历史、命令补全和多行编辑；[Rich](https://github.com/Textualize/rich) 提供终端输出样式。
 - **配置管理**: [Pydantic Settings](https://docs.pydantic.dev/latest/usage/settings/)

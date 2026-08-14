@@ -13,13 +13,14 @@ from prompt_toolkit.widgets import Label, RadioList
 from fragile.commands.interactive.commands.base import Command as BaseCommand
 from fragile.models import Account, InvalidAccountError, SessionState
 from fragile.models.constants import CommandResult
+from tomorrow.models.constants import ModelType
 
 
 class AccountCommand(BaseCommand):
     """Interactively persist credentials for an external model provider."""
 
     name = "account"
-    providers = ("OpenAI", "Anthropic", "Google", "xAI", "OpenRouter")
+    providers: tuple[ModelType, ...] = tuple(ModelType)
 
     async def handle(self, prompt: str | None, state: SessionState) -> CommandResult:
         """Select a provider and interactively collect its credentials."""
@@ -38,9 +39,9 @@ class AccountCommand(BaseCommand):
         click.echo("Account settings saved.")
         return CommandResult.CONTINUE
 
-    async def _select_provider(self) -> str | None:
+    async def _select_provider(self) -> ModelType | None:
         """Display the provider selector and return the selected provider."""
-        values = [(provider, provider) for provider in self.providers]
+        values = [(provider, provider.label) for provider in self.providers]
         radio_list = RadioList(values=values, select_on_focus=True, show_numbers=False)
         bindings = KeyBindings()
 

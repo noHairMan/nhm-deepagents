@@ -6,6 +6,7 @@ from fragile.commands.interactive.commands import account
 from fragile.commands.interactive.commands.account import AccountCommand
 from fragile.models import SessionState
 from fragile.models.constants import CommandResult
+from tomorrow.models.constants import ModelType
 
 
 class TestAccountCommand:
@@ -22,22 +23,23 @@ class TestAccountCommand:
                 return decorator
 
         class FakeRadioList:
-            current_value = "OpenAI"
+            current_value = ModelType.OLLAMA
 
             def __init__(self, **kwargs: object) -> None:
-                assert kwargs["values"] == [(provider, provider) for provider in AccountCommand.providers]
+                assert AccountCommand.providers == tuple(ModelType)
+                assert kwargs["values"] == [(provider, provider.label) for provider in AccountCommand.providers]
 
         class FakeApplication:
             def __init__(self, **kwargs: object) -> None:
                 self.bindings = kwargs["key_bindings"]
 
-            async def run_async(self) -> str:
+            async def run_async(self) -> ModelType:
                 event = type("Event", (), {"app": self})()
                 callbacks["enter"](event)
-                return "OpenAI"
+                return ModelType.OLLAMA
 
-            def exit(self, *, result: str) -> None:
-                assert result == "OpenAI"
+            def exit(self, *, result: ModelType) -> None:
+                assert result is ModelType.OLLAMA
 
         monkeypatch.setattr(account, "KeyBindings", FakeKeyBindings)
         monkeypatch.setattr(account, "RadioList", FakeRadioList)
@@ -47,7 +49,7 @@ class TestAccountCommand:
         monkeypatch.setattr(account, "Label", lambda text: text)
         monkeypatch.setattr(account.Style, "from_dict", lambda styles: styles)
 
-        assert await AccountCommand()._select_provider() == "OpenAI"
+        assert await AccountCommand()._select_provider() is ModelType.OLLAMA
 
     @pytest.mark.asyncio
     async def test_select_provider_returns_none_when_cancelled(self, monkeypatch) -> None:
