@@ -2,7 +2,8 @@ import runpy
 from pathlib import Path
 from unittest.mock import patch
 
-from fragile.__main__ import configure_checkpoint, main
+from fragile.__main__ import configure_checkpoint, configure_logging, main
+from fragile.conf import settings as fragile_settings
 from tomorrow.conf import settings
 from tomorrow.models.constants import CheckpointType
 
@@ -18,9 +19,20 @@ class TestMain:
         assert settings.CHECKPOINT.type == CheckpointType.SQLITE
         assert settings.CHECKPOINT.sqlite.path == tmp_path / "fragile.db"
 
+    def test_configure_logging_uses_fragile_settings(self) -> None:
+        with patch("fragile.__main__.dictConfig") as configure:
+            configure_logging()
+
+        configure.assert_called_once_with(fragile_settings.LOGGING)
+
     def test_main_configures_checkpoint_before_starting_app(self) -> None:
-        with patch("fragile.__main__.configure_checkpoint") as configure, patch("fragile.__main__.app") as run_app:
+        with (
+            patch("fragile.__main__.configure_logging") as configure_logging,
+            patch("fragile.__main__.configure_checkpoint") as configure,
+            patch("fragile.__main__.app") as run_app,
+        ):
             main()
 
+        configure_logging.assert_called_once_with()
         configure.assert_called_once_with()
         run_app.assert_called_once_with()

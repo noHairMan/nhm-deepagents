@@ -15,6 +15,12 @@ class TestFragileSettings:
 
         assert settings.APP == "fragile"
         assert settings.AGENT == "tomorrow.core.agent.AgentManager.create_agent"
+        assert settings.LOG_LEVEL == 20
+        assert settings.LOG_ROOT.name == "logs"
+        assert settings.LOGGING["handlers"]["fragile"]["filename"].endswith("logs/fragile.log")
+        assert settings.LOGGING["handlers"]["fragile"]["class"] == "logging.handlers.RotatingFileHandler"
+        assert "console" not in settings.LOGGING["handlers"]
+        assert settings.LOGGING["root"]["handlers"] == ["fragile"]
         assert settings.ENABLED_COMMANDS == (
             "fragile.commands.interactive.commands.quit.QuitCommand",
             "fragile.commands.interactive.commands.new.NewCommand",
@@ -28,3 +34,10 @@ class TestFragileSettings:
         settings = FragileSettings(_env_file="/non/existent/path")
 
         assert settings.AGENT == "custom.module.create_agent"
+
+    def test_log_level_setting(self, monkeypatch):
+        monkeypatch.setenv("FRAGILE_LOG_LEVEL", "10")
+
+        settings = FragileSettings(_env_file="/non/existent/path")
+
+        assert settings.LOG_LEVEL == 10
