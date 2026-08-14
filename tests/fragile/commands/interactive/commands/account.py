@@ -11,6 +11,15 @@ from tomorrow.models.constants import ModelType
 
 class TestAccountCommand:
     @pytest.mark.asyncio
+    async def test_current_account_text_is_empty_without_saved_credentials(self, monkeypatch) -> None:
+        async def get_credentials() -> None:
+            return None
+
+        monkeypatch.setattr(account.Account, "get_credentials", get_credentials)
+
+        assert await AccountCommand()._current_account_text() == ""
+
+    @pytest.mark.asyncio
     async def test_select_provider_returns_selected_value(self, monkeypatch) -> None:
         callbacks = {}
         labels: list[str] = []
