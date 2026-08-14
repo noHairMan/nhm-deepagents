@@ -2,12 +2,85 @@ from uuid import UUID
 
 import pytest
 
+from fragile.commands.interactive.commands import account
 from fragile.commands.interactive.commands.account import AccountCommand
 from fragile.models import SessionState
 from fragile.models.constants import CommandResult
 
 
 class TestAccountCommand:
+    @pytest.mark.asyncio
+    async def test_select_provider_returns_selected_value(self, monkeypatch) -> None:
+        callbacks = {}
+
+        class FakeKeyBindings:
+            def add(self, key: str, **kwargs: object):
+                def decorator(callback):
+                    callbacks[key] = callback
+                    return callback
+
+                return decorator
+
+        class FakeRadioList:
+            current_value = "OpenAI"
+
+            def __init__(self, **kwargs: object) -> None:
+                assert kwargs["values"] == [(provider, provider) for provider in AccountCommand.providers]
+
+        class FakeApplication:
+            def __init__(self, **kwargs: object) -> None:
+                self.bindings = kwargs["key_bindings"]
+
+            async def run_async(self) -> str:
+                event = type("Event", (), {"app": self})()
+                callbacks["enter"](event)
+                return "OpenAI"
+
+            def exit(self, *, result: str) -> None:
+                assert result == "OpenAI"
+
+        monkeypatch.setattr(account, "KeyBindings", FakeKeyBindings)
+        monkeypatch.setattr(account, "RadioList", FakeRadioList)
+        monkeypatch.setattr(account, "Application", FakeApplication)
+        monkeypatch.setattr(account, "HSplit", lambda children, **kwargs: children)
+        monkeypatch.setattr(account, "Layout", lambda container, **kwargs: container)
+        monkeypatch.setattr(account, "Label", lambda text: text)
+        monkeypatch.setattr(account.Style, "from_dict", lambda styles: styles)
+
+        assert await AccountCommand()._select_provider() == "OpenAI"
+
+    @pytest.mark.asyncio
+    async def test_select_provider_returns_none_when_cancelled(self, monkeypatch) -> None:
+        callbacks = {}
+
+        class FakeKeyBindings:
+            def add(self, key: str, **kwargs: object):
+                def decorator(callback):
+                    callbacks[key] = callback
+                    return callback
+
+                return decorator
+
+        class FakeApplication:
+            def __init__(self, **kwargs: object) -> None:
+                pass
+
+            async def run_async(self) -> None:
+                event = type("Event", (), {"app": self})()
+                callbacks["escape"](event)
+
+            def exit(self, *, exception: Exception) -> None:
+                raise exception
+
+        monkeypatch.setattr(account, "KeyBindings", FakeKeyBindings)
+        monkeypatch.setattr(account, "Application", FakeApplication)
+        monkeypatch.setattr(account, "HSplit", lambda children, **kwargs: children)
+        monkeypatch.setattr(account, "Layout", lambda container, **kwargs: container)
+        monkeypatch.setattr(account, "Label", lambda text: text)
+        monkeypatch.setattr(account.Style, "from_dict", lambda styles: styles)
+
+        assert await AccountCommand()._select_provider() is None
+
     @pytest.mark.asyncio
     async def test_handle_interactively_saves_selected_provider_credentials(self, monkeypatch, capsys) -> None:
         saved: dict[str, str] = {}
