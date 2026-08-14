@@ -225,5 +225,7 @@ coverage/
 .run/
 .workspace/
 .langgraph_api/
-.junie/
+.junie/*
+!.junie/skills/
+!.junie/AGENTS.md
 .output*
