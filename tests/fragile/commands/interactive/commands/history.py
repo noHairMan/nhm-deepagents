@@ -5,6 +5,7 @@ from uuid import UUID
 import asyncclick as click
 import pytest
 from prompt_toolkit.key_binding import KeyBindings
+from prompt_toolkit.output import DummyOutput
 from prompt_toolkit.widgets import RadioList
 from sqlalchemy import create_engine
 from sqlalchemy.orm import Session
@@ -26,7 +27,7 @@ class TestHistoryCommand:
     def test_history_application_accepts_selection(self) -> None:
         first = UUID(int=1)
         application, radio_list = build_history_application(
-            "Select:", [(first, "对话")], KeyBindings(), HISTORY_STYLE, "", False
+            "Select:", [(first, "对话")], KeyBindings(), HISTORY_STYLE, "", False, output=DummyOutput()
         )
         event = MagicMock()
         event.app = MagicMock()
@@ -41,7 +42,7 @@ class TestHistoryCommand:
 
     def test_history_application_interrupts_when_enabled(self) -> None:
         application, _ = build_history_application(
-            "Select:", [(UUID(int=1), "对话")], KeyBindings(), HISTORY_STYLE, "", True
+            "Select:", [(UUID(int=1), "对话")], KeyBindings(), HISTORY_STYLE, "", True, output=DummyOutput()
         )
         event = MagicMock()
         event.app = MagicMock()

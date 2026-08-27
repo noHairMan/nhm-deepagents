@@ -8,6 +8,7 @@ import asyncclick as click
 from prompt_toolkit.application import Application
 from prompt_toolkit.key_binding import KeyBindings, merge_key_bindings
 from prompt_toolkit.layout import HSplit, Layout
+from prompt_toolkit.output import Output
 from prompt_toolkit.styles import Style
 from prompt_toolkit.utils import get_cwidth
 from prompt_toolkit.widgets import Label, RadioList
@@ -44,6 +45,7 @@ def build_history_application(
     style: Style,
     symbol: str,
     enable_interrupt: bool,
+    output: Output | None = None,
 ) -> tuple[Application, RadioList]:
     """Build the history selector application."""
     radio_list = RadioList(
@@ -86,6 +88,7 @@ def build_history_application(
         key_bindings=merge_key_bindings([bindings, key_bindings]),
         style=style,
         full_screen=True,
+        output=output,
     )
     return application, radio_list
 

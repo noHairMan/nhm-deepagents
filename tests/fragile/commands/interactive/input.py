@@ -3,6 +3,7 @@ from unittest.mock import MagicMock, patch
 
 from prompt_toolkit.document import Document
 from prompt_toolkit.keys import Keys
+from prompt_toolkit.output import DummyOutput
 
 from fragile.commands.interactive.input import CommandCompleter, create_prompt_session
 
@@ -10,7 +11,7 @@ from fragile.commands.interactive.input import CommandCompleter, create_prompt_s
 class TestInput:
     def testprompt_session_configuresinteractive_features(self) -> None:
 
-        session = create_prompt_session()
+        session = create_prompt_session(output=DummyOutput())
         assert session.multiline is True
         assert isinstance(session.completer, CommandCompleter)
         assert {binding.keys for binding in session.key_bindings.bindings} == {
@@ -23,7 +24,7 @@ class TestInput:
 
     def testprompt_session_key_bindings_submit_and_insert_newline(self) -> None:
 
-        session = create_prompt_session()
+        session = create_prompt_session(output=DummyOutput())
         event = MagicMock()
         handlers = {binding.keys: binding.handler for binding in session.key_bindings.bindings}
 

@@ -1,3 +1,5 @@
+from pathlib import Path
+
 from fragile.settings import FragileSettings
 
 
@@ -17,7 +19,9 @@ class TestFragileSettings:
         assert settings.AGENT == "tomorrow.core.agent.AgentManager.create_agent"
         assert settings.LOG_LEVEL == 20
         assert settings.LOG_ROOT.name == "logs"
-        assert settings.LOGGING["handlers"]["fragile"]["filename"].endswith("logs/fragile.log")
+        log_filename = Path(settings.LOGGING["handlers"]["fragile"]["filename"])
+        assert log_filename.name == "fragile.log"
+        assert log_filename.parent.name == "logs"
         assert settings.LOGGING["handlers"]["fragile"]["class"] == "logging.handlers.RotatingFileHandler"
         assert "console" not in settings.LOGGING["handlers"]
         assert settings.LOGGING["root"]["handlers"] == ["fragile"]

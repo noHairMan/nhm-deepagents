@@ -7,6 +7,7 @@ from prompt_toolkit import PromptSession
 from prompt_toolkit.completion import Completer, Completion
 from prompt_toolkit.history import InMemoryHistory
 from prompt_toolkit.key_binding import KeyBindings
+from prompt_toolkit.output import Output
 from prompt_toolkit.styles import Style
 
 from fragile.commands.interactive.commands import command_registry
@@ -26,7 +27,7 @@ class CommandCompleter(Completer):
                 yield Completion(command, start_position=-len(text_before_cursor))
 
 
-def create_prompt_session() -> PromptSession[str]:
+def create_prompt_session(output: Output | None = None) -> PromptSession[str]:
     key_bindings = KeyBindings()
 
     @key_bindings.add("enter")
@@ -44,4 +45,5 @@ def create_prompt_session() -> PromptSession[str]:
         multiline=True,
         enable_suspend=True,
         key_bindings=key_bindings,
+        output=output,
     )
