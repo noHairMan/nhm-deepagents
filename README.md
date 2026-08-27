@@ -5,30 +5,30 @@
 | Name                                                      |    Stmts |     Miss |   Branch |   BrPart |    Cover |   Missing |
 |---------------------------------------------------------- | -------: | -------: | -------: | -------: | -------: | --------: |
 | src/fragile/\_\_init\_\_.py                               |        0 |        0 |        0 |        0 |     100% |           |
-| src/fragile/\_\_main\_\_.py                               |       17 |        0 |        2 |        0 |     100% |           |
+| src/fragile/\_\_main\_\_.py                               |       21 |        0 |        2 |        0 |     100% |           |
 | src/fragile/app.py                                        |       12 |        0 |        2 |        0 |     100% |           |
 | src/fragile/commands/\_\_init\_\_.py                      |        0 |        0 |        0 |        0 |     100% |           |
 | src/fragile/commands/interactive/\_\_init\_\_.py          |        2 |        0 |        0 |        0 |     100% |           |
-| src/fragile/commands/interactive/agent.py                 |       56 |        0 |       20 |        0 |     100% |           |
+| src/fragile/commands/interactive/agent.py                 |       60 |        0 |       20 |        0 |     100% |           |
 | src/fragile/commands/interactive/commands/\_\_init\_\_.py |       34 |        0 |        8 |        0 |     100% |           |
 | src/fragile/commands/interactive/commands/account.py      |       65 |        0 |        6 |        0 |     100% |           |
 | src/fragile/commands/interactive/commands/base.py         |       15 |        0 |        2 |        0 |     100% |           |
-| src/fragile/commands/interactive/commands/history.py      |       82 |        0 |       14 |        0 |     100% |           |
+| src/fragile/commands/interactive/commands/history.py      |       83 |        0 |       14 |        0 |     100% |           |
 | src/fragile/commands/interactive/commands/new.py          |       12 |        0 |        0 |        0 |     100% |           |
 | src/fragile/commands/interactive/commands/quit.py         |        8 |        0 |        0 |        0 |     100% |           |
-| src/fragile/commands/interactive/display.py               |       20 |        0 |        2 |        0 |     100% |           |
+| src/fragile/commands/interactive/display.py               |       38 |        0 |        8 |        0 |     100% |           |
 | src/fragile/commands/interactive/input.py                 |       27 |        0 |        6 |        0 |     100% |           |
-| src/fragile/commands/interactive/session.py               |       51 |        0 |       10 |        0 |     100% |           |
-| src/fragile/commands/purge.py                             |       15 |        0 |        2 |        0 |     100% |           |
+| src/fragile/commands/interactive/session.py               |       73 |        0 |       10 |        0 |     100% |           |
+| src/fragile/commands/purge.py                             |       18 |        0 |        4 |        0 |     100% |           |
 | src/fragile/conf/\_\_init\_\_.py                          |        1 |        0 |        0 |        0 |     100% |           |
 | src/fragile/conf/config.py                                |        5 |        0 |        0 |        0 |     100% |           |
 | src/fragile/exceptions.py                                 |        8 |        0 |        0 |        0 |     100% |           |
 | src/fragile/models/\_\_init\_\_.py                        |        5 |        0 |        0 |        0 |     100% |           |
-| src/fragile/models/account.py                             |       54 |        0 |       10 |        0 |     100% |           |
+| src/fragile/models/account.py                             |       62 |        0 |       12 |        0 |     100% |           |
 | src/fragile/models/base.py                                |       30 |        0 |        4 |        0 |     100% |           |
 | src/fragile/models/constants/\_\_init\_\_.py              |        2 |        0 |        0 |        0 |     100% |           |
 | src/fragile/models/constants/command.py                   |        5 |        0 |        0 |        0 |     100% |           |
-| src/fragile/models/history.py                             |       24 |        0 |        2 |        0 |     100% |           |
+| src/fragile/models/history.py                             |       49 |        0 |        2 |        0 |     100% |           |
 | src/fragile/models/session.py                             |        3 |        0 |        0 |        0 |     100% |           |
 | src/fragile/settings.py                                   |       19 |        0 |        0 |        0 |     100% |           |
 | src/fragile/utils/\_\_init\_\_.py                         |        0 |        0 |        0 |        0 |     100% |           |
@@ -57,7 +57,7 @@
 | src/tomorrow/conf/\_\_init\_\_.py                         |        1 |        0 |        0 |        0 |     100% |           |
 | src/tomorrow/conf/config.py                               |        5 |        0 |        0 |        0 |     100% |           |
 | src/tomorrow/core/\_\_init\_\_.py                         |        0 |        0 |        0 |        0 |     100% |           |
-| src/tomorrow/core/agent.py                                |       45 |        0 |        2 |        0 |     100% |           |
+| src/tomorrow/core/agent.py                                |       48 |        0 |        2 |        0 |     100% |           |
 | src/tomorrow/core/backend/\_\_init\_\_.py                 |       15 |        0 |        4 |        0 |     100% |           |
 | src/tomorrow/core/backend/filesystem.py                   |       10 |        0 |        2 |        0 |     100% |           |
 | src/tomorrow/core/backend/local\_shell.py                 |       10 |        0 |        2 |        0 |     100% |           |
@@ -84,7 +84,7 @@
 | src/tomorrow/utils/\_\_init\_\_.py                        |        0 |        0 |        0 |        0 |     100% |           |
 | src/tomorrow/utils/functional.py                          |      224 |        0 |       58 |        0 |     100% |           |
 | src/tomorrow/utils/log.py                                 |        6 |        0 |        0 |        0 |     100% |           |
-| **TOTAL**                                                 | **1310** |    **0** |  **208** |    **0** | **100%** |           |
+| **TOTAL**                                                 | **1398** |    **0** |  **218** |    **0** | **100%** |           |
 
 
 ## Setup coverage badge
