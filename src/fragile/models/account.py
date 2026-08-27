@@ -88,7 +88,7 @@ async def restore_account_configuration() -> bool:
         ModelType.ANTHROPIC: tomorrow_settings.MODEL.anthropic,
         ModelType.OPENAI: tomorrow_settings.MODEL.openai,
     }
-    tomorrow_settings.MODEL.type = model_type.value
+    tomorrow_settings.MODEL.type = model_type
     model_config = model_configs[model_type]
     model_config.base_url = base_url
     if model_type in {ModelType.ANTHROPIC, ModelType.OPENAI}:

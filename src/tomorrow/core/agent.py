@@ -57,7 +57,10 @@ class AgentManager:
 
         # 打印当前使用的配置
         model_type = settings.MODEL.get("type")
-        logger.info(f"MODEL: {model_type} -> {settings.MODEL.get(model_type)}")
+        model_config = dict(settings.MODEL.get(model_type, {}))
+        if "api_key" in model_config:
+            model_config["api_key"] = "***"
+        logger.info("MODEL: %s -> %s", model_type, model_config)
 
         backend_type = settings.BACKEND.get("type")
         logger.info(f"BACKEND: {backend_type} -> {settings.BACKEND.get(backend_type)}")

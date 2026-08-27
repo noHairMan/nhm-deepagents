@@ -1,3 +1,4 @@
+from unittest.mock import patch
 from uuid import UUID
 
 import pytest
@@ -248,7 +249,7 @@ class TestAccountCommand:
         assert capsys.readouterr().out == ""
 
     @pytest.mark.asyncio
-    async def test_handle_reports_validation_error(self, monkeypatch, capsys) -> None:
+    async def test_handle_logs_validation_error_without_terminal_output(self, monkeypatch, capsys) -> None:
         async def select_provider(self) -> str:
             return "Anthropic"
 
@@ -258,5 +259,7 @@ class TestAccountCommand:
 
         monkeypatch.setattr(AccountCommand, "_select_provider", select_provider)
         monkeypatch.setattr("fragile.commands.interactive.commands.account.PromptSession", FakePromptSession)
-        await AccountCommand().handle(None, SessionState(thread_id=UUID(int=1)))
-        assert "Account not saved" in capsys.readouterr().out
+        with patch.object(account.logger, "exception") as log_exception:
+            await AccountCommand().handle(None, SessionState(thread_id=UUID(int=1)))
+        log_exception.assert_called_once()
+        assert capsys.readouterr().out == ""

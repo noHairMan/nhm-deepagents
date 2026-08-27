@@ -1,7 +1,7 @@
+import logging
 from logging.config import dictConfig
 from pathlib import Path
 
-from fragile.app import app
 from fragile.conf import settings
 
 
@@ -19,11 +19,20 @@ def configure_checkpoint() -> None:
 
 def configure_logging() -> None:
     dictConfig(settings.LOGGING)
+    logging.captureWarnings(True)
+    manager = logging.root.manager
+    for logger in manager.loggerDict.values():
+        if isinstance(logger, logging.Logger):
+            logger.handlers.clear()
+            logger.disabled = False
+            logger.propagate = True
 
 
 def main() -> None:
     configure_logging()
     configure_checkpoint()
+    from fragile.app import app
+
     app()
 
 

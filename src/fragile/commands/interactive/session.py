@@ -6,13 +6,15 @@ import time
 import asyncclick as click
 import httpx
 from langchain_anthropic.chat_models import AnthropicInvalidRequestError
+from langgraph.graph.state import CompiledStateGraph
 
-from fragile.commands.interactive.agent import chat
+from fragile.commands.interactive.agent import agent_runtime, chat
 from fragile.commands.interactive.commands import command_registry
 from fragile.commands.interactive.display import (
     enter_fullscreen,
     leave_fullscreen,
     show_connection_error,
+    show_request_error,
     show_startup,
 )
 from fragile.commands.interactive.input import create_prompt_session
@@ -41,18 +43,19 @@ class InteractiveSession:
         enter_fullscreen()
         try:
             show_startup(self.thread_id, self.thread is not None)
-            while self.is_running:
-                await self.run_iteration()
+            async with agent_runtime() as agent:
+                while self.is_running:
+                    await self.run_iteration(agent)
         finally:
             leave_fullscreen()
 
-    async def run_iteration(self) -> None:
+    async def run_iteration(self, agent: CompiledStateGraph) -> None:
         """Read and process one prompt when the session is running."""
         user_input = await self.read_input()
         if user_input is None:
             return
         result = await command_registry.handle(user_input, self.state)
-        await self.handle_result(result, user_input)
+        await self.handle_result(agent, result, user_input)
 
     async def read_input(self) -> str | None:
         """Read one prompt, handling retryable and terminating interrupts."""
@@ -72,17 +75,17 @@ class InteractiveSession:
         self.last_keyboard_interrupt = None
         return user_input.strip()
 
-    async def handle_result(self, result: CommandResult, user_input: str) -> None:
+    async def handle_result(self, agent: CompiledStateGraph, result: CommandResult, user_input: str) -> None:
         """Apply a command result or process an ordinary chat prompt."""
         if result is CommandResult.EXIT:
             self.is_running = False
         elif result is CommandResult.NOT_HANDLED and user_input:
             await ConversationHistory.register_conversation(self.state.thread_id, user_input)
             try:
-                await chat(user_input, self.state.thread_id)
+                await chat(agent, user_input, self.state.thread_id)
             except httpx.ConnectError:
-                model_type = str(tomorrow_settings.MODEL.get("type"))
-                model_config = tomorrow_settings.MODEL.get(model_type)
+                model_type = str(tomorrow_settings.MODEL.get("type") or "unknown")
+                model_config = tomorrow_settings.MODEL.get(model_type) or {}
                 provider = model_type
                 model = str(model_config.get("model", "unknown"))
                 base_url = str(model_config.get("base_url") or "未配置")
@@ -94,8 +97,8 @@ class InteractiveSession:
                 )
                 show_connection_error(provider, model, base_url)
             except AnthropicInvalidRequestError as error:
-                model_type = str(tomorrow_settings.MODEL.get("type"))
-                model_config = tomorrow_settings.MODEL.get(model_type)
+                model_type = str(tomorrow_settings.MODEL.get("type") or "unknown")
+                model_config = tomorrow_settings.MODEL.get(model_type) or {}
                 provider = model_type
                 model = str(model_config.get("model", "unknown"))
                 base_url = str(model_config.get("base_url") or "未配置")
@@ -106,7 +109,7 @@ class InteractiveSession:
                     base_url,
                     error,
                 )
-                click.echo(f"模型请求失败（provider: {provider}，模型: {model}）：{error}")
+                show_request_error(str(error))
 
 
 async def interactive(

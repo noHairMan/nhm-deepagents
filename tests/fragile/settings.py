@@ -23,8 +23,11 @@ class TestFragileSettings:
         assert log_filename.name == "fragile.log"
         assert log_filename.parent.name == "logs"
         assert settings.LOGGING["handlers"]["fragile"]["class"] == "logging.handlers.RotatingFileHandler"
+        assert settings.LOGGING["handlers"]["fragile"]["level"] == settings.LOG_LEVEL
         assert "console" not in settings.LOGGING["handlers"]
         assert settings.LOGGING["root"]["handlers"] == ["fragile"]
+        assert settings.LOGGING["root"]["level"] == settings.LOG_LEVEL
+        assert settings.LOGGING["loggers"]["py.warnings"]["propagate"]
         assert settings.ENABLED_COMMANDS == (
             "fragile.commands.interactive.commands.quit.QuitCommand",
             "fragile.commands.interactive.commands.new.NewCommand",
@@ -45,3 +48,5 @@ class TestFragileSettings:
         settings = FragileSettings(_env_file="/non/existent/path")
 
         assert settings.LOG_LEVEL == 10
+        assert settings.LOGGING["root"]["level"] == 10
+        assert settings.LOGGING["handlers"]["fragile"]["level"] == 10

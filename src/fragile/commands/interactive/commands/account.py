@@ -1,5 +1,6 @@
 """Account configuration command handling."""
 
+import logging
 from typing import Any
 
 import asyncclick as click
@@ -14,6 +15,8 @@ from fragile.commands.interactive.commands.base import Command as BaseCommand
 from fragile.models import Account, InvalidAccountError, SessionState
 from fragile.models.constants import CommandResult
 from tomorrow.models.constants import ModelType
+
+logger = logging.getLogger(__name__)
 
 
 class AccountCommand(BaseCommand):
@@ -44,7 +47,7 @@ class AccountCommand(BaseCommand):
         try:
             await Account.save_credentials(provider, api_key, base_url)
         except (InvalidAccountError, ValueError) as error:
-            click.echo(f"Account not saved: {error}")
+            logger.exception("Account settings could not be saved: %s", error)
             return CommandResult.CONTINUE
         click.echo("Account settings saved.")
         return CommandResult.CONTINUE

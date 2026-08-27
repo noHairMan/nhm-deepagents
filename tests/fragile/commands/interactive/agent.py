@@ -5,7 +5,14 @@ from uuid import UUID
 import pytest
 from langgraph.graph.state import CompiledStateGraph
 
-from fragile.commands.interactive.agent import chat, content_text, create_agent, load_agent_factory, stream_events
+from fragile.commands.interactive.agent import (
+    agent_runtime,
+    chat,
+    content_text,
+    create_agent,
+    load_agent_factory,
+    stream_events,
+)
 from fragile.exceptions import AgentFactoryImportError, AgentFactoryTypeError, AgentGraphTypeError
 
 
@@ -85,17 +92,51 @@ class TestAgent:
             create_agent()
 
     @pytest.mark.asyncio
-    async def test_chat_uses_checkpoint_and_prints(self) -> None:
+    async def test_chat_uses_provided_agent_and_prints(self) -> None:
+        agent = MagicMock(spec=CompiledStateGraph)
+        with (
+            patch("fragile.commands.interactive.agent.stream_events", return_value=self.async_values("answer")),
+            patch("fragile.commands.interactive.agent.print_stream") as output,
+            patch("fragile.commands.interactive.agent.SessionOutput.save_output", new_callable=AsyncMock),
+        ):
+            await chat(agent, "prompt", UUID(int=1))
+        assert output.call_args_list == [(("answer",), {}), (("\n",), {})]
+
+    @pytest.mark.asyncio
+    async def test_agent_runtime_initializes_and_releases_once(self) -> None:
+        context = MagicMock()
+        context.__aenter__ = AsyncMock(return_value="checkpoint")
+        context.__aexit__ = AsyncMock(return_value=None)
+        agent = MagicMock(spec=CompiledStateGraph)
+        with (
+            patch("fragile.commands.interactive.agent.get_checkpointer_context", return_value=context) as get_context,
+            patch(
+                "fragile.commands.interactive.agent.restore_account_configuration", new_callable=AsyncMock
+            ) as restore,
+            patch("fragile.commands.interactive.agent.create_agent", return_value=agent) as create,
+        ):
+            async with agent_runtime() as actual:
+                assert actual is agent
+        get_context.assert_called_once_with()
+        restore.assert_awaited_once_with()
+        create.assert_called_once_with("checkpoint")
+        context.__aenter__.assert_awaited_once_with()
+        context.__aexit__.assert_awaited_once()
+
+    @pytest.mark.asyncio
+    async def test_agent_runtime_releases_context_when_creation_fails(self) -> None:
         context = MagicMock()
         context.__aenter__ = AsyncMock(return_value="checkpoint")
         context.__aexit__ = AsyncMock(return_value=None)
         with (
             patch("fragile.commands.interactive.agent.get_checkpointer_context", return_value=context),
             patch("fragile.commands.interactive.agent.restore_account_configuration", new_callable=AsyncMock),
-            patch("fragile.commands.interactive.agent.create_agent", return_value=MagicMock()),
-            patch("fragile.commands.interactive.agent.stream_events", return_value=self.async_values("answer")),
-            patch("fragile.commands.interactive.agent.print_stream") as output,
-            patch("fragile.commands.interactive.agent.SessionOutput.save_output", new_callable=AsyncMock),
+            patch(
+                "fragile.commands.interactive.agent.create_agent",
+                side_effect=RuntimeError("creation failed"),
+            ),
+            pytest.raises(RuntimeError, match="creation failed"),
         ):
-            await chat("prompt", UUID(int=1))
-        assert output.call_args_list == [(("answer",), {}), (("\n",), {})]
+            async with agent_runtime():
+                pass
+        context.__aexit__.assert_awaited_once()

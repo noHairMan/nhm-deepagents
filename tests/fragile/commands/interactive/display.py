@@ -7,6 +7,7 @@ from fragile.commands.interactive.display import (
     print_stream,
     replay_outputs,
     show_connection_error,
+    show_request_error,
     show_startup,
 )
 
@@ -29,10 +30,22 @@ class TestDisplay:
         error_text = print_console.call_args.args[0]
         assert error_text.style == "bold red"
 
+    def test_show_request_error_uses_red_style(self) -> None:
+        with patch("fragile.commands.interactive.display.console.print") as print_console:
+            show_request_error("invalid request")
+
+        error_text = print_console.call_args.args[0]
+        assert error_text.style == "bold red"
+
     def test_print_stream(self, capsys) -> None:
         print_stream("answer")
 
         assert capsys.readouterr().out == "answer"
+
+    def test_print_stream_preserves_rich_markup_as_plain_text(self, capsys) -> None:
+        print_stream("[not-a-markup-tag]answer[/not-a-markup-tag]")
+
+        assert capsys.readouterr().out == "[not-a-markup-tag]answer[/not-a-markup-tag]"
 
     def test_replay_outputs_preserves_markup(self, capsys) -> None:
         record = type("Record", (), {"user_input": "question", "assistant_output": "[bold]answer[/bold]"})()

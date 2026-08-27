@@ -1,6 +1,7 @@
 """Tomorrow Agent communication handling."""
 
 from collections.abc import AsyncIterator
+from contextlib import asynccontextmanager
 from importlib import import_module
 from typing import Any
 from uuid import UUID
@@ -74,14 +75,19 @@ def create_agent(checkpointer: BaseCheckpointSaver | None = None) -> CompiledSta
     return agent
 
 
-async def chat(prompt: str, thread_id: UUID) -> None:
-    contents: list[str] = []
+@asynccontextmanager
+async def agent_runtime() -> AsyncIterator[CompiledStateGraph]:
+    """Create an agent and its checkpointer for one interactive session."""
     async with get_checkpointer_context() as checkpointer:
         await restore_account_configuration()
-        agent = create_agent(checkpointer)
-        async for content in stream_events(agent, prompt, thread_id):
-            print_stream(content)
-            contents.append(content)
+        yield create_agent(checkpointer)
+
+
+async def chat(agent: CompiledStateGraph, prompt: str, thread_id: UUID) -> None:
+    contents: list[str] = []
+    async for content in stream_events(agent, prompt, thread_id):
+        print_stream(content)
+        contents.append(content)
     print_stream("\n")
     complete_output = "".join(contents)
     await SessionOutput.save_output(thread_id, prompt, complete_output, complete_output)

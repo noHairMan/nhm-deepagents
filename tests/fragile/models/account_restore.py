@@ -2,6 +2,7 @@ import pytest
 
 from fragile.models import Account, restore_account_configuration
 from tomorrow.conf import settings
+from tomorrow.models.constants import ModelType
 
 
 class TestAccountRestore:
@@ -18,7 +19,7 @@ class TestAccountRestore:
 
         monkeypatch.setattr(Account, "get_credentials", get_credentials)
         assert await restore_account_configuration() is True
-        assert settings.MODEL.type == provider.strip().lower()
+        assert settings.MODEL.type is ModelType(provider.strip().lower())
         model_config = getattr(settings.MODEL, config_name)
         assert model_config.base_url == "https://persisted.example/v1"
         if config_name != "ollama":

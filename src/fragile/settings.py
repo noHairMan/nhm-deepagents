@@ -1,3 +1,4 @@
+import copy
 import logging
 import os
 from pathlib import Path
@@ -14,7 +15,7 @@ class FragileSettings(BaseSettings):
     INTERRUPT_EXIT_THRESHOLD: float = Field(default=0.5, gt=0)
     LOG_LEVEL: int = logging.INFO
     LOG_ROOT: ClassVar[Path] = Path(__file__).resolve().parent.parent.parent / "logs"
-    LOGGING: ClassVar[dict] = {
+    _LOGGING: ClassVar[dict] = {
         "version": 1,
         "disable_existing_loggers": True,
         "formatters": {
@@ -39,6 +40,7 @@ class FragileSettings(BaseSettings):
         },
         "loggers": {
             "fragile": {"handlers": [], "level": logging.INFO, "propagate": True},
+            "py.warnings": {"handlers": [], "level": logging.INFO, "propagate": True},
         },
     }
     ENABLED_COMMANDS: tuple[str, ...] = (
@@ -54,6 +56,16 @@ class FragileSettings(BaseSettings):
         extra="ignore",
         env_file=os.environ.get("FRAGILE_ENV_FILE", ".env"),
     )
+
+    @property
+    def LOGGING(self) -> dict:
+        """Return logging configuration using the configured log level."""
+        logging_config = copy.deepcopy(self._LOGGING)
+        logging_config["handlers"]["fragile"]["level"] = self.LOG_LEVEL
+        logging_config["root"]["level"] = self.LOG_LEVEL
+        for logger_config in logging_config["loggers"].values():
+            logger_config["level"] = self.LOG_LEVEL
+        return logging_config
 
     def __init__(self, **values):
         super().__init__(**values)

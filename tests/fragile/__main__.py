@@ -1,3 +1,4 @@
+import logging
 import runpy
 from pathlib import Path
 from unittest.mock import patch
@@ -27,16 +28,33 @@ class TestMain:
         get_engine.assert_called_once_with()
 
     def test_configure_logging_uses_fragile_settings(self) -> None:
-        with patch("fragile.__main__.dictConfig") as configure:
+        with (
+            patch("fragile.__main__.dictConfig") as configure,
+            patch("fragile.__main__.logging.captureWarnings") as capture_warnings,
+        ):
             configure_logging()
 
         configure.assert_called_once_with(fragile_settings.LOGGING)
+        capture_warnings.assert_called_once_with(True)
+
+    def test_configure_logging_removes_existing_logger_handlers(self) -> None:
+        third_party_logger = logging.getLogger("third_party.test")
+        handler = logging.StreamHandler()
+        third_party_logger.addHandler(handler)
+        try:
+            with patch("fragile.__main__.dictConfig"):
+                configure_logging()
+            assert third_party_logger.handlers == []
+            assert third_party_logger.propagate
+            assert not third_party_logger.disabled
+        finally:
+            third_party_logger.handlers.clear()
 
     def test_main_configures_checkpoint_before_starting_app(self) -> None:
         with (
             patch("fragile.__main__.configure_logging") as configure_logging,
             patch("fragile.__main__.configure_checkpoint") as configure,
-            patch("fragile.__main__.app") as run_app,
+            patch("fragile.app.app") as run_app,
         ):
             main()
 

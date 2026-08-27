@@ -90,6 +90,28 @@ class TestAgent:
             assert kwargs["skills"] == settings.SKILLS
             assert kwargs["subagents"] == []
 
+    def test_create_agent_does_not_log_api_key(self):
+        from tomorrow.conf import settings
+        from tomorrow.models.constants import ModelType
+        from tomorrow.settings import ModelConfig
+
+        secret = "secret-api-key"
+        model_data = settings.MODEL.model_dump()
+        model_data.pop("type")
+        model_data["anthropic"]["api_key"] = secret
+        model = ModelConfig(type=ModelType.ANTHROPIC, **model_data)
+        with (
+            patch.object(settings, "MODEL", model),
+            patch("tomorrow.core.agent.create_deep_agent", return_value=MagicMock()),
+            patch("tomorrow.core.agent.get_backend", return_value=MagicMock()),
+            patch("tomorrow.core.agent.get_store", return_value=MagicMock()),
+            patch("tomorrow.core.agent.get_model", return_value=MagicMock()),
+            patch("tomorrow.core.agent.logger") as mock_logger,
+        ):
+            AgentManager.create_agent()
+
+        assert secret not in str(mock_logger.info.call_args_list)
+
     def test_get_subagents(self):
         from tomorrow.conf import settings
         from tomorrow.settings import SubAgentConfig

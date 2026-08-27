@@ -31,7 +31,7 @@ def leave_fullscreen() -> None:
 
 def print_stream(content: str) -> None:
     """打印流式响应内容，但不在每个片段后追加换行。"""
-    console.print(content, end="")
+    console.print(content, end="", markup=False)
 
 
 def show_connection_error(provider: str | None = None, model: str | None = None, base_url: str | None = None) -> None:
@@ -49,6 +49,11 @@ def show_connection_error(provider: str | None = None, model: str | None = None,
             style="bold red",
         )
     )
+
+
+def show_request_error(error: str) -> None:
+    """Show an actionable model request error."""
+    console.print(Text(f"模型请求失败：{error}，请检查请求参数后重试。", style="bold red"))
 
 
 def replay_outputs(records: list[object]) -> None:
