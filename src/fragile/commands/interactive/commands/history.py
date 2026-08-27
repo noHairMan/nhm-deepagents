@@ -16,8 +16,8 @@ from sqlalchemy import Engine, select
 from sqlalchemy.orm import Session
 
 from fragile.commands.interactive.commands.base import Command as BaseCommand
-from fragile.commands.interactive.display import show_startup
-from fragile.models import SessionState
+from fragile.commands.interactive.display import replay_outputs, show_startup
+from fragile.models import SessionOutput, SessionState
 from fragile.models.base import engine, get_initialized_session_factory
 from fragile.models.constants import CommandResult
 from fragile.models.history import ConversationHistory
@@ -105,6 +105,7 @@ class HistoryCommand(BaseCommand):
         if selected_thread is not None:
             state.thread_id = selected_thread
             show_startup(state.thread_id, True)
+            replay_outputs(await SessionOutput.list_for_thread(selected_thread))
         return CommandResult.CONTINUE
 
 

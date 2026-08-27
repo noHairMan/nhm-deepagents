@@ -3,7 +3,7 @@
 from datetime import datetime
 from uuid import UUID
 
-from sqlalchemy import String, select
+from sqlalchemy import String, delete, select
 from sqlalchemy.orm import Mapped, mapped_column
 
 from fragile.models.base import Base, get_initialized_session_factory
@@ -36,3 +36,52 @@ class ConversationHistory(Base):
             else:
                 conversation.update_time = datetime.now()
             await session.commit()
+
+
+class SessionOutput(Base):
+    """Persisted terminal output for one completed conversation turn."""
+
+    __tablename__ = "fragile_session_output"
+
+    thread_id: Mapped[str] = mapped_column(String(32), index=True, nullable=False)
+    user_input: Mapped[str] = mapped_column(String, nullable=False)
+    assistant_output: Mapped[str] = mapped_column(String, nullable=False)
+    style_payload: Mapped[str] = mapped_column(String, nullable=False, default="")
+
+    @classmethod
+    async def save_output(
+        cls,
+        thread_id: UUID,
+        user_input: str,
+        assistant_output: str,
+        style_payload: str = "",
+    ) -> None:
+        """Save a completed turn without blocking the event loop."""
+        session_factory = await get_initialized_session_factory()
+        async with session_factory() as session:
+            session.add(
+                cls(
+                    thread_id=to_hex(thread_id),
+                    user_input=user_input,
+                    assistant_output=assistant_output,
+                    style_payload=style_payload,
+                )
+            )
+            await session.commit()
+
+    @classmethod
+    async def list_for_thread(cls, thread_id: UUID) -> list[SessionOutput]:
+        """Return output records in their insertion order."""
+        session_factory = await get_initialized_session_factory()
+        async with session_factory() as session:
+            result = await session.scalars(select(cls).where(cls.thread_id == to_hex(thread_id)).order_by(cls.id))
+            return list(result)
+
+    @classmethod
+    async def delete_for_thread(cls, thread_id: UUID) -> int:
+        """Delete all output records belonging to a thread."""
+        session_factory = await get_initialized_session_factory()
+        async with session_factory() as session:
+            result = await session.execute(delete(cls).where(cls.thread_id == to_hex(thread_id)))
+            await session.commit()
+            return result.rowcount or 0

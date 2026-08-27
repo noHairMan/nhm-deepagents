@@ -6,16 +6,32 @@ from tomorrow.conf import settings
 
 class TestAccountRestore:
     @pytest.mark.asyncio
-    async def test_restore_updates_anthropic_configuration(self, monkeypatch) -> None:
+    @pytest.mark.parametrize(
+        ("provider", "config_name"),
+        [("OLLAMA", "ollama"), (" Anthropic ", "anthropic"), ("openai", "openai")],
+    )
+    async def test_restore_updates_selected_provider_configuration(
+        self, monkeypatch, provider: str, config_name: str
+    ) -> None:
         async def get_credentials() -> tuple[str, str, str]:
-            return "anthropic", "persisted-key", "https://persisted.example/v1"
+            return provider, "persisted-key", "https://persisted.example/v1"
 
         monkeypatch.setattr(Account, "get_credentials", get_credentials)
-        settings.MODEL.type = "ollama"
         assert await restore_account_configuration() is True
-        assert settings.MODEL.type == "anthropic"
-        assert settings.MODEL.anthropic.api_key == "persisted-key"
-        assert settings.MODEL.anthropic.base_url == "https://persisted.example/v1"
+        assert settings.MODEL.type == provider.strip().lower()
+        model_config = getattr(settings.MODEL, config_name)
+        assert model_config.base_url == "https://persisted.example/v1"
+        if config_name != "ollama":
+            assert model_config.api_key == "persisted-key"
+
+    @pytest.mark.asyncio
+    async def test_restore_rejects_unsupported_provider(self, monkeypatch) -> None:
+        async def get_credentials() -> tuple[str, str, str]:
+            return "vertex", "persisted-key", "https://persisted.example/v1"
+
+        monkeypatch.setattr(Account, "get_credentials", get_credentials)
+        with pytest.raises(ValueError, match="unsupported model provider"):
+            await restore_account_configuration()
 
     @pytest.mark.asyncio
     async def test_restore_keeps_defaults_without_account(self, monkeypatch) -> None:

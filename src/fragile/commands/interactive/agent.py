@@ -11,7 +11,7 @@ from langgraph.graph.state import CompiledStateGraph
 from fragile.commands.interactive.display import print_stream
 from fragile.conf import settings as fragile_settings
 from fragile.exceptions import AgentFactoryImportError, AgentFactoryTypeError, AgentGraphTypeError
-from fragile.models import restore_account_configuration
+from fragile.models import SessionOutput, restore_account_configuration
 from tomorrow.conf import settings
 from tomorrow.core.checkpoint import get_checkpointer_context
 
@@ -75,9 +75,13 @@ def create_agent(checkpointer: BaseCheckpointSaver | None = None) -> CompiledSta
 
 
 async def chat(prompt: str, thread_id: UUID) -> None:
+    contents: list[str] = []
     async with get_checkpointer_context() as checkpointer:
         await restore_account_configuration()
         agent = create_agent(checkpointer)
         async for content in stream_events(agent, prompt, thread_id):
             print_stream(content)
+            contents.append(content)
     print_stream("\n")
+    complete_output = "".join(contents)
+    await SessionOutput.save_output(thread_id, prompt, complete_output, complete_output)

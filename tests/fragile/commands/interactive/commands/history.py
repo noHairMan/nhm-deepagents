@@ -80,6 +80,7 @@ class TestHistoryCommand:
     async def test_history_command_uses_selector(self) -> None:
         selected = UUID(int=2)
         state = SessionState(thread_id=UUID(int=1))
+        events: list[str] = []
         with (
             patch(
                 "fragile.commands.interactive.commands.history.list_history",
@@ -91,10 +92,25 @@ class TestHistoryCommand:
                 new_callable=AsyncMock,
                 return_value=selected,
             ),
-            patch("fragile.commands.interactive.commands.history.show_startup"),
+            patch(
+                "fragile.commands.interactive.commands.history.show_startup",
+                side_effect=lambda *_args: events.append("startup"),
+            ) as startup,
+            patch(
+                "fragile.commands.interactive.commands.history.replay_outputs",
+                side_effect=lambda _records: events.append("replay"),
+            ) as replay,
+            patch(
+                "fragile.commands.interactive.commands.history.SessionOutput.list_for_thread",
+                new_callable=AsyncMock,
+                return_value=[],
+            ),
         ):
             assert await HistoryCommand().handle("/history", state) is CommandResult.CONTINUE
         assert state.thread_id == selected
+        assert events == ["startup", "replay"]
+        startup.assert_called_once_with(selected, True)
+        replay.assert_called_once_with([])
 
     @pytest.mark.asyncio
     async def test_choose_history_returns_selected_thread(self) -> None:

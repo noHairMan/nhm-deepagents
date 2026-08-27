@@ -6,11 +6,15 @@ from fragile.conf import settings
 
 
 def configure_checkpoint() -> None:
+    import fragile.commands.purge as purge_module
+    import fragile.models.base as base_module
     from tomorrow.conf import settings
     from tomorrow.models.constants import CheckpointType
 
     settings.CHECKPOINT.type = CheckpointType.SQLITE
     settings.CHECKPOINT.sqlite.path = Path.cwd() / "fragile.db"
+    base_module.engine = base_module.get_engine()
+    purge_module.engine = base_module.engine
 
 
 def configure_logging() -> None:

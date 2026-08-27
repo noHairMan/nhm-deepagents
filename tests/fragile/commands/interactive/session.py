@@ -2,7 +2,9 @@ from unittest.mock import AsyncMock, MagicMock, patch
 from uuid import UUID
 
 import asyncclick as click
+import httpx
 import pytest
+from langchain_anthropic.chat_models import AnthropicInvalidRequestError
 from sqlalchemy import create_engine
 
 from fragile.commands.interactive.commands import CommandRegistry, command_registry
@@ -44,6 +46,81 @@ class TestSession:
         await session.handle_result(CommandResult.EXIT, "/quit")
 
         assert not session.is_running
+
+    @pytest.mark.asyncio
+    async def test_chat_connection_error_is_reported_without_stopping_session(self, capsys) -> None:
+        with (
+            patch("fragile.commands.interactive.session.create_prompt_session"),
+            patch(
+                "fragile.commands.interactive.session.ConversationHistory.register_conversation",
+                new_callable=AsyncMock,
+            ),
+            patch(
+                "fragile.commands.interactive.session.chat",
+                new_callable=AsyncMock,
+                side_effect=httpx.ConnectError("connection failed"),
+            ),
+            patch("fragile.commands.interactive.session.logger.exception") as log_exception,
+            patch("fragile.commands.interactive.session.show_connection_error") as show_error,
+            patch(
+                "fragile.commands.interactive.session.tomorrow_settings.MODEL",
+                {
+                    "type": "ollama",
+                    "ollama": {"model": "qwen3.5:9b", "base_url": "http://localhost:11434"},
+                },
+            ),
+        ):
+            session = InteractiveSession(None)
+            await session.handle_result(CommandResult.NOT_HANDLED, "hello")
+
+        log_exception.assert_called_once_with(
+            "模型服务连接失败 provider=%s model=%s base_url=%s",
+            "ollama",
+            "qwen3.5:9b",
+            "http://localhost:11434",
+        )
+        show_error.assert_called_once_with("ollama", "qwen3.5:9b", "http://localhost:11434")
+        assert session.is_running
+
+    @pytest.mark.asyncio
+    async def test_anthropic_invalid_request_is_reported_without_stopping_session(self, capsys) -> None:
+        error = AnthropicInvalidRequestError(
+            "tools[0].type is invalid",
+            response=httpx.Response(400, request=httpx.Request("POST", "https://proxy.example")),
+            body={"error": {"type": "invalid_request_error"}},
+        )
+        with (
+            patch("fragile.commands.interactive.session.create_prompt_session"),
+            patch(
+                "fragile.commands.interactive.session.ConversationHistory.register_conversation",
+                new_callable=AsyncMock,
+            ),
+            patch(
+                "fragile.commands.interactive.session.chat",
+                new_callable=AsyncMock,
+                side_effect=error,
+            ),
+            patch("fragile.commands.interactive.session.logger.exception") as log_exception,
+            patch(
+                "fragile.commands.interactive.session.tomorrow_settings.MODEL",
+                {
+                    "type": "anthropic",
+                    "anthropic": {"model": "claude-sonnet-5", "base_url": "https://proxy.example"},
+                },
+            ),
+        ):
+            session = InteractiveSession(None)
+            await session.handle_result(CommandResult.NOT_HANDLED, "hello")
+
+        log_exception.assert_called_once_with(
+            "模型请求失败 provider=%s model=%s base_url=%s error=%s",
+            "anthropic",
+            "claude-sonnet-5",
+            "https://proxy.example",
+            error,
+        )
+        assert "模型请求失败" in capsys.readouterr().out
+        assert session.is_running
 
     @pytest.mark.asyncio
     async def test_command_registry_handles_registered_commands(self) -> None:

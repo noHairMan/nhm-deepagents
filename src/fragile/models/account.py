@@ -8,6 +8,7 @@ from sqlalchemy.orm import Mapped, mapped_column
 from fragile.exceptions import FragileError
 from fragile.models.base import Base, get_initialized_session_factory
 from tomorrow.conf import settings as tomorrow_settings
+from tomorrow.models.constants import ModelType
 
 
 class InvalidAccountError(FragileError, ValueError):
@@ -76,8 +77,20 @@ async def restore_account_configuration() -> bool:
     if credentials is None:
         return False
     provider, api_key, base_url = credentials
-    tomorrow_settings.MODEL.type = provider
-    model_config = tomorrow_settings.MODEL.anthropic
-    model_config.api_key = api_key
+    normalized_provider = provider.strip().lower()
+    try:
+        model_type = ModelType(normalized_provider)
+    except ValueError as exc:
+        raise InvalidAccountError(f"unsupported model provider: {provider}") from exc
+
+    model_configs = {
+        ModelType.OLLAMA: tomorrow_settings.MODEL.ollama,
+        ModelType.ANTHROPIC: tomorrow_settings.MODEL.anthropic,
+        ModelType.OPENAI: tomorrow_settings.MODEL.openai,
+    }
+    tomorrow_settings.MODEL.type = model_type.value
+    model_config = model_configs[model_type]
     model_config.base_url = base_url
+    if model_type in {ModelType.ANTHROPIC, ModelType.OPENAI}:
+        model_config.api_key = api_key
     return True

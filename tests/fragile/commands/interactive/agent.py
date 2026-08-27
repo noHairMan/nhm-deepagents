@@ -91,9 +91,11 @@ class TestAgent:
         context.__aexit__ = AsyncMock(return_value=None)
         with (
             patch("fragile.commands.interactive.agent.get_checkpointer_context", return_value=context),
+            patch("fragile.commands.interactive.agent.restore_account_configuration", new_callable=AsyncMock),
             patch("fragile.commands.interactive.agent.create_agent", return_value=MagicMock()),
             patch("fragile.commands.interactive.agent.stream_events", return_value=self.async_values("answer")),
             patch("fragile.commands.interactive.agent.print_stream") as output,
+            patch("fragile.commands.interactive.agent.SessionOutput.save_output", new_callable=AsyncMock),
         ):
             await chat("prompt", UUID(int=1))
         assert output.call_args_list == [(("answer",), {}), (("\n",), {})]

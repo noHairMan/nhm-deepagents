@@ -19,6 +19,13 @@ class TestMain:
         assert settings.CHECKPOINT.type == CheckpointType.SQLITE
         assert settings.CHECKPOINT.sqlite.path == tmp_path / "fragile.db"
 
+    def test_configure_checkpoint_rebinds_fragile_database_engine(self, tmp_path, monkeypatch) -> None:
+        monkeypatch.chdir(tmp_path)
+        with patch("fragile.models.base.get_engine") as get_engine:
+            configure_checkpoint()
+
+        get_engine.assert_called_once_with()
+
     def test_configure_logging_uses_fragile_settings(self) -> None:
         with patch("fragile.__main__.dictConfig") as configure:
             configure_logging()
