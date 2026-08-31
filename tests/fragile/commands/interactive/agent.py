@@ -13,7 +13,7 @@ from fragile.commands.interactive.agent import (
     load_agent_factory,
     stream_events,
 )
-from fragile.exceptions import AgentFactoryImportError, AgentFactoryTypeError, AgentGraphTypeError
+from fragile.exceptions import AgentFactoryImportError, AgentFactoryTypeError, AgentGraphTypeError, AgentResponseError
 
 
 class TestAgent:
@@ -40,6 +40,19 @@ class TestAgent:
         agent.astream_events = stream
 
         assert [value async for value in stream_events(agent, "prompt", UUID(int=1))] == ["ok", "你好呀"]
+
+    @pytest.mark.asyncio
+    async def test_stream_events_wraps_invalid_stream_response(self) -> None:
+        agent = MagicMock()
+
+        async def stream(*args, **kwargs):
+            raise ValueError("No generations found in stream.")
+            yield
+
+        agent.astream_events = stream
+
+        with pytest.raises(AgentResponseError, match="No generations found in stream."):
+            _ = [value async for value in stream_events(agent, "prompt", UUID(int=1))]
 
     def testcontent_text_handles_supported_content(self) -> None:
 

@@ -20,7 +20,8 @@ from fragile.commands.interactive.display import (
 )
 from fragile.commands.interactive.input import create_prompt_session
 from fragile.conf import settings
-from fragile.models import ConversationHistory, SessionState
+from fragile.exceptions import AgentResponseError
+from fragile.models import ConversationHistory, SessionState, restore_account_configuration
 from fragile.models.constants import CommandResult
 from fragile.utils.uid import resolve_thread_id
 from tomorrow.conf import settings as tomorrow_settings
@@ -89,6 +90,7 @@ class InteractiveSession:
         if result is CommandResult.EXIT:
             self.is_running = False
         elif result is CommandResult.MODEL_CHANGED:
+            await restore_account_configuration()
             return create_agent(checkpointer)
         elif result is CommandResult.NOT_HANDLED and user_input:
             await ConversationHistory.register_conversation(self.state.thread_id, user_input)
@@ -107,7 +109,7 @@ class InteractiveSession:
                     base_url,
                 )
                 show_connection_error(provider, model, base_url)
-            except AnthropicInvalidRequestError as error:
+            except (AnthropicInvalidRequestError, AgentResponseError) as error:
                 model_type = str(tomorrow_settings.MODEL.get("type") or "unknown")
                 model_config = tomorrow_settings.MODEL.get(model_type) or {}
                 provider = model_type

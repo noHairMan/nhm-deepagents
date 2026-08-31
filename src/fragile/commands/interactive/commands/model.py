@@ -1,15 +1,19 @@
 """Model selection command handling."""
 
 import logging
+from dataclasses import dataclass
 from typing import Any
 
 import asyncclick as click
 import httpx
-from prompt_toolkit.key_binding import KeyBindings
+from prompt_toolkit.application import Application
+from prompt_toolkit.key_binding import KeyBindings, merge_key_bindings
+from prompt_toolkit.layout import HSplit, Layout
+from prompt_toolkit.output import Output
 from prompt_toolkit.styles import Style
+from prompt_toolkit.widgets import Label, RadioList
 
 from fragile.commands.interactive.commands.base import Command as BaseCommand
-from fragile.commands.interactive.commands.history import select_history
 from fragile.models import Account, InvalidAccountError, SessionState
 from fragile.models.constants import CommandResult
 from tomorrow.conf import settings as tomorrow_settings
@@ -22,30 +26,89 @@ ModelSelection = tuple[ModelType, str]
 ANTHROPIC_VERSION = "2023-06-01"
 
 
+@dataclass(frozen=True)
+class ModelRecord:
+    """A validated provider model and its available display metadata."""
+
+    provider: ModelType
+    model_id: str
+    details: tuple[tuple[str, str], ...] = ()
+
+
 def _provider_url(base_url: str, path: str) -> str:
     """Append a provider endpoint path to the configured base URL."""
     return f"{base_url.rstrip('/')}/{path.lstrip('/')}"
 
 
-def _response_model_names(response: object, key: str) -> list[str] | None:
-    """Extract non-empty model names from a provider response collection."""
+def _optional_text(model: dict[str, object], key: str, label: str) -> tuple[str, str] | None:
+    """Return a non-empty text metadata field, if present."""
+    value = model.get(key)
+    if isinstance(value, str) and value.strip():
+        return label, value.strip()
+    return None
+
+
+def _optional_integer(model: dict[str, object], key: str, label: str) -> tuple[str, str] | None:
+    """Return an integer metadata field, if present."""
+    value = model.get(key)
+    if isinstance(value, int) and not isinstance(value, bool):
+        return label, str(value)
+    return None
+
+
+def _ollama_details(model: dict[str, object]) -> tuple[tuple[str, str], ...]:
+    """Extract displayable metadata from an Ollama model."""
+    details = [
+        _optional_integer(model, "size", "Size (bytes)"),
+        _optional_text(model, "modified_at", "Modified at"),
+    ]
+    nested_details = model.get("details")
+    if isinstance(nested_details, dict):
+        details.extend(
+            [
+                _optional_text(nested_details, "parameter_size", "Parameter size"),
+                _optional_text(nested_details, "quantization_level", "Quantization"),
+                _optional_text(nested_details, "family", "Family"),
+            ]
+        )
+    return tuple(detail for detail in details if detail is not None)
+
+
+def _record_details(provider: ModelType, model: dict[str, object]) -> tuple[tuple[str, str], ...]:
+    """Extract validated provider-specific metadata for a model."""
+    if provider is ModelType.OLLAMA:
+        return _ollama_details(model)
+    if provider is ModelType.OPENAI:
+        details = [_optional_text(model, "owned_by", "Owner"), _optional_integer(model, "created", "Created")]
+    else:
+        details = [
+            _optional_text(model, "display_name", "Display name"),
+            _optional_text(model, "created_at", "Created at"),
+            _optional_integer(model, "context_window", "Input context"),
+            _optional_integer(model, "max_tokens", "Maximum output tokens"),
+        ]
+    return tuple(detail for detail in details if detail is not None)
+
+
+def _response_model_records(response: object, key: str, provider: ModelType) -> list[ModelRecord] | None:
+    """Extract validated model records from a provider response collection."""
     if not isinstance(response, dict):
         return None
     models = response.get(key)
     if not isinstance(models, list):
         return None
-    names: list[str] = []
+    records: list[ModelRecord] = []
     for model in models:
         if not isinstance(model, dict):
             return None
-        name = model.get("name") if key == "models" else model.get("id")
-        if not isinstance(name, str) or not name.strip():
+        model_id = model.get("name") if provider is ModelType.OLLAMA else model.get("id")
+        if not isinstance(model_id, str) or not model_id.strip():
             return None
-        names.append(name.strip())
-    return names
+        records.append(ModelRecord(provider, model_id.strip(), _record_details(provider, model)))
+    return records
 
 
-async def discover_models(provider: ModelType, api_key: str, base_url: str) -> list[str] | None:
+async def discover_models(provider: ModelType, api_key: str, base_url: str) -> list[ModelRecord] | None:
     """Return models exposed by the configured provider, or ``None`` on failure."""
     headers: dict[str, str] = {}
     path: str
@@ -67,26 +130,26 @@ async def discover_models(provider: ModelType, api_key: str, base_url: str) -> l
             if provider is not ModelType.ANTHROPIC:
                 response = await client.get(_provider_url(base_url, path), headers=headers)
                 response.raise_for_status()
-                names = _response_model_names(response.json(), response_key)
-                if names is None:
+                records = _response_model_records(response.json(), response_key, provider)
+                if records is None:
                     raise ValueError("response has an invalid model list")
-                return names
+                return records
 
-            names = []
+            records = []
             params: dict[str, int | str] = {"limit": 100}
             while True:
                 response = await client.get(_provider_url(base_url, path), headers=headers, params=params.copy())
                 response.raise_for_status()
                 payload = response.json()
-                page_names = _response_model_names(payload, response_key)
-                if page_names is None:
+                page_records = _response_model_records(payload, response_key, provider)
+                if page_records is None:
                     raise ValueError("response has an invalid model list")
-                names.extend(page_names)
+                records.extend(page_records)
                 has_more = payload.get("has_more", False)
                 if not isinstance(has_more, bool):
                     raise ValueError("response has an invalid has_more value")
                 if not has_more:
-                    return names
+                    return records
                 last_id = payload.get("last_id")
                 if not isinstance(last_id, str) or not last_id.strip():
                     raise ValueError("paginated response is missing last_id")
@@ -97,21 +160,81 @@ async def discover_models(provider: ModelType, api_key: str, base_url: str) -> l
 
 
 def build_model_options(
-    catalog: dict[ModelType, tuple[str, ...]], current: ModelSelection | None
+    catalog: dict[ModelType, tuple[ModelRecord, ...]], current: ModelSelection | None
 ) -> list[tuple[ModelSelection, str]]:
     """Build provider-grouped labels for the discovered model catalog."""
     options: list[tuple[ModelSelection, str]] = []
     for provider in ModelType:
         for model in catalog.get(provider, ()):
-            selection = provider, model
+            selection = provider, model.model_id
             current_marker = "  Current model" if selection == current else ""
-            options.append((selection, f"{provider.label:<10} {model}{current_marker}"))
+            options.append((selection, f"{provider.label:<10} {model.model_id}{current_marker}"))
     return options
 
 
-async def choose_model(options: list[tuple[ModelSelection, str]]) -> ModelSelection | None:
+def format_model_details(record: ModelRecord | None) -> str:
+    """Format the details panel for the currently highlighted model."""
+    if record is None:
+        return ""
+    lines = ["Model details", f"Provider: {record.provider.label}", f"Model ID: {record.model_id}"]
+    lines.extend(f"{label}: {value}" for label, value in record.details)
+    return "\n".join(lines)
+
+
+def build_model_application(
+    records: list[ModelRecord],
+    current: ModelSelection | None,
+    key_bindings: KeyBindings,
+    output: Output | None = None,
+) -> tuple[Application, RadioList]:
+    """Build the full-screen model selector with a dynamic details panel."""
+    catalog = {provider: tuple(record for record in records if record.provider is provider) for provider in ModelType}
+    options = build_model_options(catalog, current)
+    records_by_selection = {(record.provider, record.model_id): record for record in records}
+    radio_list = RadioList(
+        values=options,
+        select_on_focus=True,
+        open_character="",
+        select_character="",
+        close_character="",
+        show_cursor=False,
+        show_numbers=False,
+        container_style="class:input-selection",
+        default_style="class:option",
+        selected_style="",
+        checked_style="class:selected-option",
+        number_style="class:number",
+        show_scrollbar=False,
+    )
+    bindings = KeyBindings()
+
+    @bindings.add("enter", eager=True)
+    def accept_selection(event: Any) -> None:
+        event.app.exit(result=radio_list.current_value)
+
+    application = Application(
+        layout=Layout(
+            HSplit(
+                [
+                    Label("Select a model (Enter confirms, Esc cancels):", dont_extend_height=True),
+                    radio_list,
+                    Label("", dont_extend_height=True),
+                    Label(lambda: format_model_details(records_by_selection.get(radio_list.current_value))),
+                ]
+            ),
+            focused_element=radio_list,
+        ),
+        key_bindings=merge_key_bindings([bindings, key_bindings]),
+        style=MODEL_STYLE,
+        full_screen=True,
+        output=output,
+    )
+    return application, radio_list
+
+
+async def choose_model(records: list[ModelRecord], current: ModelSelection | None) -> ModelSelection | None:
     """Display the full-screen model selector and return the chosen model."""
-    if not options:
+    if not records:
         click.echo("No models are available for the current account.")
         return None
     key_bindings = KeyBindings()
@@ -121,14 +244,8 @@ async def choose_model(options: list[tuple[ModelSelection, str]]) -> ModelSelect
         event.app.exit(exception=click.Abort())
 
     try:
-        return await select_history(
-            "Select a model (Enter confirms, Esc cancels):",
-            options=options,
-            key_bindings=key_bindings,
-            style=MODEL_STYLE,
-            symbol="",
-            enable_interrupt=False,
-        )
+        application, _ = build_model_application(records, current, key_bindings)
+        return await application.run_async()
     except click.Abort:
         return None
 
@@ -152,12 +269,11 @@ class ModelCommand(BaseCommand):
             logger.exception("Configured account has an unsupported provider: %s", provider_name)
             return CommandResult.CONTINUE
         current = await self._current_selection(provider)
-        model_names = await discover_models(provider, api_key, base_url)
-        if model_names is None:
+        models = await discover_models(provider, api_key, base_url)
+        if models is None:
             click.echo("Could not retrieve models for the current account.")
             return CommandResult.CONTINUE
-        options = build_model_options({provider: tuple(model_names)}, current)
-        selected = await choose_model(options)
+        selected = await choose_model(models, current)
         if selected is None or selected == current:
             return CommandResult.CONTINUE
         try:

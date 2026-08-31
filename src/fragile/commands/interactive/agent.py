@@ -11,7 +11,7 @@ from langgraph.graph.state import CompiledStateGraph
 
 from fragile.commands.interactive.display import print_stream
 from fragile.conf import settings as fragile_settings
-from fragile.exceptions import AgentFactoryImportError, AgentFactoryTypeError, AgentGraphTypeError
+from fragile.exceptions import AgentFactoryImportError, AgentFactoryTypeError, AgentGraphTypeError, AgentResponseError
 from fragile.models import SessionOutput, restore_account_configuration
 from tomorrow.conf import settings
 from tomorrow.core.checkpoint import get_checkpointer_context
@@ -30,17 +30,20 @@ def content_text(content: Any) -> str:
 
 
 async def stream_events(agent: CompiledStateGraph, prompt: str, thread_id: UUID) -> AsyncIterator[str]:
-    async for event in agent.astream_events(
-        {"messages": [("user", prompt)]},
-        config={"recursion_limit": settings.RECURSION_LIMIT, "configurable": {"thread_id": thread_id}},
-        version="v2",
-    ):
-        if not isinstance(event, dict) or event.get("event") != "on_chat_model_stream":
-            continue
-        chunk = event.get("data", {}).get("chunk")
-        content = content_text(getattr(chunk, "content", ""))
-        if content:
-            yield content
+    try:
+        async for event in agent.astream_events(
+            {"messages": [("user", prompt)]},
+            config={"recursion_limit": settings.RECURSION_LIMIT, "configurable": {"thread_id": thread_id}},
+            version="v2",
+        ):
+            if not isinstance(event, dict) or event.get("event") != "on_chat_model_stream":
+                continue
+            chunk = event.get("data", {}).get("chunk")
+            content = content_text(getattr(chunk, "content", ""))
+            if content:
+                yield content
+    except ValueError as error:
+        raise AgentResponseError(str(error)) from error
 
 
 def load_agent_factory(path: str) -> Any:

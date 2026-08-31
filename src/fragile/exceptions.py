@@ -23,6 +23,10 @@ class AgentGraphTypeError(AgentConfigurationError, TypeError):
     """Raised when an agent factory does not return a compiled graph."""
 
 
+class AgentResponseError(FragileError):
+    """Raised when an agent response cannot be processed."""
+
+
 class InvalidCommandError(FragileError, TypeError):
     """Raised when a non-command object is registered."""
 

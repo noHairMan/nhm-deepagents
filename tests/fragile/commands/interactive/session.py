@@ -11,7 +11,7 @@ from fragile.commands.interactive.commands import CommandRegistry, command_regis
 from fragile.commands.interactive.commands.base import extract_prompt
 from fragile.commands.interactive.commands.quit import QuitCommand
 from fragile.commands.interactive.session import InteractiveSession, interactive
-from fragile.exceptions import FragileError, InvalidThreadIdError
+from fragile.exceptions import AgentResponseError, FragileError, InvalidThreadIdError
 from fragile.models import Base, SessionState
 from fragile.models.constants import CommandResult
 from fragile.utils.uid import resolve_thread_id
@@ -50,6 +50,28 @@ class TestSession:
         await session.handle_result(MagicMock(), MagicMock(), CommandResult.EXIT, "/quit")
 
         assert not session.is_running
+
+    @pytest.mark.asyncio
+    async def test_model_change_restores_selection_before_recreating_agent(self) -> None:
+        replacement_agent = MagicMock()
+        events: list[str] = []
+        with (
+            patch("fragile.commands.interactive.session.create_prompt_session"),
+            patch(
+                "fragile.commands.interactive.session.restore_account_configuration",
+                new_callable=AsyncMock,
+                side_effect=lambda: events.append("restore"),
+            ),
+            patch(
+                "fragile.commands.interactive.session.create_agent",
+                side_effect=lambda _checkpointer: events.append("create") or replacement_agent,
+            ),
+        ):
+            session = InteractiveSession(None)
+            agent = await session.handle_result(MagicMock(), MagicMock(), CommandResult.MODEL_CHANGED, "/model")
+
+        assert agent is replacement_agent
+        assert events == ["restore", "create"]
 
     @pytest.mark.asyncio
     async def test_chat_connection_error_is_logged_and_shown_without_stopping_session(self, capsys) -> None:
@@ -192,6 +214,44 @@ class TestSession:
         assert session.is_running
 
     @pytest.mark.asyncio
+    async def test_chat_empty_generation_stream_is_logged_and_shown_without_stopping_session(self, capsys) -> None:
+        error = AgentResponseError("No generations found in stream.")
+        with (
+            patch("fragile.commands.interactive.session.create_prompt_session"),
+            patch(
+                "fragile.commands.interactive.session.ConversationHistory.register_conversation",
+                new_callable=AsyncMock,
+            ),
+            patch(
+                "fragile.commands.interactive.session.chat",
+                new_callable=AsyncMock,
+                side_effect=error,
+            ),
+            patch("fragile.commands.interactive.session.logger.exception") as log_exception,
+            patch(
+                "fragile.commands.interactive.session.tomorrow_settings.MODEL",
+                {
+                    "type": "anthropic",
+                    "anthropic": {"model": "claude-sonnet-5", "base_url": "https://proxy.example"},
+                },
+            ),
+        ):
+            session = InteractiveSession(None)
+            await session.handle_result(MagicMock(), MagicMock(), CommandResult.NOT_HANDLED, "hello")
+
+        log_exception.assert_called_once_with(
+            "模型请求失败 provider=%s model=%s base_url=%s error=%s",
+            "anthropic",
+            "claude-sonnet-5",
+            "https://proxy.example",
+            error,
+        )
+        output = capsys.readouterr().out
+        assert "模型请求失败" in output
+        assert "No generations found in stream." in output
+        assert session.is_running
+
+    @pytest.mark.asyncio
     async def test_command_registry_handles_registered_commands(self) -> None:
         state = SessionState(thread_id=UUID(int=1))
 
@@ -311,6 +371,10 @@ class TestSession:
             patch("fragile.commands.interactive.session.show_startup"),
             patch("fragile.commands.interactive.session.create_prompt_session", return_value=prompt_session),
             patch("fragile.commands.interactive.session.agent_runtime", return_value=runtime),
+            patch(
+                "fragile.commands.interactive.session.restore_account_configuration",
+                new_callable=AsyncMock,
+            ),
             patch.object(
                 command_registry,
                 "handle",
