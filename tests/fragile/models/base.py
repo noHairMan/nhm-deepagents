@@ -40,3 +40,9 @@ class TestDatabase:
             columns = {column["name"] for column in inspect(connection).get_columns("fragile_account")}
         sync_engine.dispose()
         assert "model" in columns
+
+    def test_migrate_account_model_ignores_missing_account_table(self, tmp_path) -> None:
+        sync_engine = create_engine(f"sqlite:///{tmp_path / 'empty-model.db'}")
+        with sync_engine.begin() as connection:
+            _migrate_account_model(connection)
+        sync_engine.dispose()

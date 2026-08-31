@@ -16,6 +16,8 @@ class TestAccount:
 
         await Account.save_credentials("OpenAI", " key-one ", " https://one.example/v1 ")
         assert await Account.get_credentials() == ("openai", "key-one", "https://one.example/v1")
+        await Account.save_credentials("OpenAI", "key-one-updated", "https://one.example/v1")
+        assert await Account.get_credentials() == ("openai", "key-one-updated", "https://one.example/v1")
         await Account.save_credentials("Anthropic", "key-two", "https://two.example/v1")
         await async_engine.dispose()
 
