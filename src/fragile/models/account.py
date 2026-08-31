@@ -130,8 +130,7 @@ async def restore_account_configuration() -> bool:
     tomorrow_settings.MODEL.type = model_type
     model_config = model_configs[model_type]
     model_config.base_url = base_url
-    if model_type in {ModelType.ANTHROPIC, ModelType.OPENAI}:
-        model_config.api_key = api_key
+    model_config.api_key = api_key
     selection = await Account.get_model_selection()
     if selection is not None:
         selected_provider, selected_model = selection
