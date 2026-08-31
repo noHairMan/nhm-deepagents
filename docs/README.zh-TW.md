@@ -16,9 +16,9 @@
 
 專案內部包含三個主要模組：
 
--   **`tomorrow`**: 核心智能體模組。代號取自遊戲《死亡擱淺 2：冥灘之上》（Death Stranding 2: On the Beach）中的角色**明天**（艾莉·範甯飾演）。在劇情中，她是主角山姆布里吉斯（Sam Bridges）的女兒，也被揭露為前作中的**大樓** (BB-28)。
+-   **`tomorrow`**: 核心智能體模組。代號取自遊戲《死亡擱淺 2：冥灘之上》（Death Stranding 2: On the Beach）中的角色**明天**（艾莉·範甯飾演）。在劇情中，她是主角山姆布里吉斯（Sam Bridges）的女兒，也被揭露為前作中的**大樓**(BB-28)。
 -   **`rainy`**: 基於 FastAPI 的 API 服務模組。代號同樣取自《死亡擱淺 2》中的角色**下雨天**（由忽那汐裡飾演）。在遊戲中，她擁有引發「時間雨」（Timefall）和具有治癒能力的「核心雨」（Corefall）的神奇力量，被描述為既能傷害也能治癒的「藥（Pharmakon）」。
--   **`fragile`**: 基於`asyncclick`的非同步命令列客戶端，用於直接向 Tomorrow 智能體提問或啟動互動式會話。其名稱取自同一作品中的角色**脆弱的**。 Fragile 是 Fragile Express 的创始人和快递员，因接触时间雨而快速衰老，却始终在危险环境中为他人运送重要物资；这种“脆弱”外表下仍坚持承担连接与传递使命的形象，正是该客户端名称的背景。
+-   **`fragile`**: 基於`asyncclick`的非同步命令列客戶端，用於直接向 Tomorrow 智能體提問或啟動互動式會話。其名稱取自同一作品中的角色**脆弱的**。 Fragile 是 Fragile Express 的創辦人和快遞員，因接觸時間雨而快速衰老，卻始終在危險環境中為他人運送重要物資；這種「脆弱」外表下仍堅持承擔連接與傳遞使命的形象，正是該客戶端名稱的背景。
 
 該專案提供了一個通用的智慧助理智能體，利用`deepagents`框架分析使用者輸入，並透過`rainy`模組對外提供同步（`/api/chat`）及**流式（`/api/chat/stream`）**API 介面。
 
@@ -27,7 +27,6 @@
 -   **深度智能體**: 集成`deepagents`框架，支援複雜任務處理與狀態管理。
 -   **技能模組**: 支持透過`TOMORROW_SKILLS`配置技能目錄，為智能體載入可擴充的領域能力。
 -   **子代理**: 支持透過`TOMORROW_SUBAGENTS`配置專用子代理程式及其模型、技能和系統提示詞。
--   **程式碼解釋器**: 整合 QuickJS 中間件，為智能體提供程式碼執行能力。
 -   **遞迴控制**: 支持透過`TOMORROW_RECURSION_LIMIT`限制智能體遞歸調用深度。
 -   **生命週期管理**: 引入`AgentManager`統一管理智能體實例的創建與銷毀，確保資源的優雅初始化。
 -   **高效能 API**: 基於 FastAPI 構建，支援同步回應與 Server-Sent Events (SSE) 串流輸出。
@@ -43,7 +42,6 @@
 -   **Web 伺服器**:[獨角獸](https://www.uvicorn.org/)
 -   **智能體框架**:[深度代理](https://github.com/zongxuheng/deepagents)(基於 LangGraph/LangChain)
 -   **LLM 提供者**:[成為](https://ollama.com/)、[人擇](https://www.anthropic.com/)和[開放人工智慧](https://openai.com/)
--   **程式碼執行**:[langchain-quickjs](https://github.com/langchain-ai/langchainjs)提供的 QuickJS 中介軟體
 -   **終端交互**:[非同步點擊](https://github.com/python-trio/asyncclick)提供非同步 CLI 命令、參數解析和幫助資訊；[提示工具包](https://github.com/prompt-toolkit/python-prompt-toolkit)提供非同步輸入、輸入歷史記錄、命令補全和多行編輯；[富有的](https://github.com/Textualize/rich)提供終端輸出樣式。
 -   **配置管理**:[懸垂設定](https://docs.pydantic.dev/latest/usage/settings/)
 -   **例外處理**: 自訂異常體系 (`TomorrowError`及其子類)，涵蓋模型、後端、儲存和檢查點錯誤。
@@ -105,7 +103,7 @@ uv run langgraph dev
 
 CLI 會讀取根目錄的`langgraph.json`，並暴露名為`tomorrow`的 graph。
 
-Rainy API 的請求體包含必填的`message`字段和可選的會話`thread_id`。同步接口返回智能体的最终回复：
+Rainy API 的請求體包含必填的`message`字段和可選的會話`thread_id`。同步介面返回智能體的最終回覆：
 
 ```bash
 curl -X POST http://localhost:8000/api/chat \
@@ -131,7 +129,7 @@ uv run fragile
 
 首次使用其他模型提供者時，可在互動會話中輸入`/account`，按提示選擇提供者並填寫 Base URL 和 API Key。模型名稱等其他配置仍透過`TOMORROW_MODEL`或對應的環境變數設定。憑證會持久化到本機資料庫，後續啟動`fragile`時自動恢復；如需修改配置，再次執行`/account`即可。
 
-`fragile`的 CLI 入口和`purge`子命令均使用非同步命令函數，避免在已運行的事件循環中嵌套調用`asyncio.run()`。清理已持久化的会话记录：
+`fragile`的 CLI 入口和`purge`子命令均使用非同步命令函數，避免在已運行的事件循環中嵌套調用`asyncio.run()`。清理已持久化的會話記錄：
 
 ```bash
 fragile purge
@@ -167,7 +165,7 @@ export TOMORROW_MODEL__ANTHROPIC__MODEL="deepseek-v4-flash"
 export TOMORROW_MODEL__ANTHROPIC__API_KEY="your-api-key"
 ```
 
-選擇 OpenAI 或相容 OpenAI API 的服務時，可以使用以下巢狀環境變數來配置模型名稱、API Key、可選的 Base URL 和溫度：
+选择 OpenAI 或兼容 OpenAI API 的服务时，可以使用以下嵌套环境变量配置模型名、API Key、可选的 Base URL 和温度：
 
 ```bash
 export TOMORROW_MODEL__TYPE="openai"
