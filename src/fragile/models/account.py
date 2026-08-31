@@ -24,6 +24,7 @@ class Account(Base):
     provider: Mapped[str] = mapped_column(String(32), nullable=False)
     api_key: Mapped[str] = mapped_column(String, nullable=False)
     base_url: Mapped[str] = mapped_column(String, nullable=False)
+    model: Mapped[str | None] = mapped_column(String(256), nullable=True)
 
     @staticmethod
     def validate_credentials(provider: str, api_key: str, base_url: str) -> tuple[str, str, str]:
@@ -57,6 +58,8 @@ class Account(Base):
                     )
                 )
             else:
+                if account.provider != normalized_provider:
+                    account.model = None
                 account.provider = normalized_provider
                 account.api_key = normalized_key
                 account.base_url = normalized_url
@@ -69,6 +72,43 @@ class Account(Base):
         async with session_factory() as session:
             account = await session.scalar(select(cls).where(cls.singleton == "default"))
             return None if account is None else (account.provider, account.api_key, account.base_url)
+
+    @staticmethod
+    def validate_model_selection(provider: str, model: str) -> tuple[str, str]:
+        """Validate and normalize a selected provider model."""
+        normalized_provider = provider.strip().lower()
+        normalized_model = model.strip()
+        try:
+            ModelType(normalized_provider)
+        except ValueError as exc:
+            raise InvalidAccountError(f"unsupported model provider: {provider}") from exc
+        if not normalized_model:
+            raise InvalidAccountError("model must not be empty")
+        return normalized_provider, normalized_model
+
+    @classmethod
+    async def save_model_selection(cls, provider: str, model: str) -> None:
+        """Persist the selected model for the configured account provider."""
+        normalized_provider, normalized_model = cls.validate_model_selection(provider, model)
+        session_factory = await get_initialized_session_factory()
+        async with session_factory() as session:
+            account = await session.scalar(select(cls).where(cls.singleton == "default"))
+            if account is None:
+                raise InvalidAccountError("account must be configured before selecting a model")
+            if account.provider != normalized_provider:
+                raise InvalidAccountError("selected model provider does not match the configured account")
+            account.model = normalized_model
+            await session.commit()
+
+    @classmethod
+    async def get_model_selection(cls) -> tuple[str, str] | None:
+        """Return the persisted provider and selected model, if present."""
+        session_factory = await get_initialized_session_factory()
+        async with session_factory() as session:
+            account = await session.scalar(select(cls).where(cls.singleton == "default"))
+            if account is None or account.model is None or not account.model.strip():
+                return None
+            return account.provider.strip().lower(), account.model.strip()
 
 
 async def restore_account_configuration() -> bool:
@@ -93,4 +133,9 @@ async def restore_account_configuration() -> bool:
     model_config.base_url = base_url
     if model_type in {ModelType.ANTHROPIC, ModelType.OPENAI}:
         model_config.api_key = api_key
+    selection = await Account.get_model_selection()
+    if selection is not None:
+        selected_provider, selected_model = selection
+        if selected_provider == normalized_provider:
+            model_config.model = selected_model
     return True

@@ -1,6 +1,7 @@
 from pathlib import Path
 
 from fragile.settings import FragileSettings
+from tomorrow.models.constants import ModelType
 
 
 class TestFragileSettings:
@@ -33,6 +34,12 @@ class TestFragileSettings:
             "fragile.commands.interactive.commands.new.NewCommand",
             "fragile.commands.interactive.commands.history.HistoryCommand",
             "fragile.commands.interactive.commands.account.AccountCommand",
+            "fragile.commands.interactive.commands.model.ModelCommand",
+        )
+        assert settings.MODEL_CATALOG[ModelType.ANTHROPIC] == (
+            "claude-sonnet-5",
+            "claude-haiku-4-5",
+            "glm-5.3-flash",
         )
 
     def test_agent_setting(self, monkeypatch):

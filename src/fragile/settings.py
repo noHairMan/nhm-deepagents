@@ -7,6 +7,8 @@ from typing import ClassVar
 from pydantic import Field
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
+from tomorrow.models.constants import ModelType
+
 
 class FragileSettings(BaseSettings):
     APP: str = "fragile"
@@ -48,6 +50,14 @@ class FragileSettings(BaseSettings):
         "fragile.commands.interactive.commands.new.NewCommand",
         "fragile.commands.interactive.commands.history.HistoryCommand",
         "fragile.commands.interactive.commands.account.AccountCommand",
+        "fragile.commands.interactive.commands.model.ModelCommand",
+    )
+    MODEL_CATALOG: dict[ModelType, tuple[str, ...]] = Field(
+        default_factory=lambda: {
+            ModelType.OLLAMA: ("qwen3.5:9b", "qwen3:8b", "llama3.3:latest"),
+            ModelType.ANTHROPIC: ("claude-sonnet-5", "claude-haiku-4-5", "glm-5.3-flash"),
+            ModelType.OPENAI: ("gpt-5", "gpt-4o-mini"),
+        }
     )
 
     model_config = SettingsConfigDict(

@@ -7,3 +7,4 @@ class CommandResult(IntChoices):
     NOT_HANDLED = 1, "Not handled"
     CONTINUE = 2, "Continue"
     EXIT = 3, "Exit"
+    MODEL_CHANGED = 4, "Model changed"

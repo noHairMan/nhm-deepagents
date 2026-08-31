@@ -36,6 +36,7 @@ async def create_tables(async_engine: AsyncEngine) -> None:
     async with async_engine.begin() as connection:
         await connection.run_sync(Base.metadata.create_all)
         await connection.run_sync(_migrate_account_provider)
+        await connection.run_sync(_migrate_account_model)
 
 
 def _migrate_account_provider(connection: object) -> None:
@@ -48,6 +49,16 @@ def _migrate_account_provider(connection: object) -> None:
         connection.execute(
             text("ALTER TABLE fragile_account ADD COLUMN provider VARCHAR(32) NOT NULL DEFAULT 'anthropic'")
         )
+
+
+def _migrate_account_model(connection: object) -> None:
+    """Add the selected model column to legacy account databases."""
+    inspector = inspect(connection)
+    if "fragile_account" not in inspector.get_table_names():
+        return
+    columns = {column["name"] for column in inspector.get_columns("fragile_account")}
+    if "model" not in columns:
+        connection.execute(text("ALTER TABLE fragile_account ADD COLUMN model VARCHAR(256)"))
 
 
 async def get_initialized_session_factory() -> async_sessionmaker[AsyncSession]:

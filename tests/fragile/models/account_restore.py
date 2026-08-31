@@ -41,3 +41,30 @@ class TestAccountRestore:
 
         monkeypatch.setattr(Account, "get_credentials", get_credentials)
         assert await restore_account_configuration() is False
+
+    @pytest.mark.asyncio
+    async def test_restore_applies_persisted_model_for_account_provider(self, monkeypatch) -> None:
+        async def get_credentials() -> tuple[str, str, str]:
+            return "openai", "persisted-key", "https://persisted.example/v1"
+
+        async def get_model_selection() -> tuple[str, str]:
+            return "openai", "gpt-5"
+
+        monkeypatch.setattr(Account, "get_credentials", get_credentials)
+        monkeypatch.setattr(Account, "get_model_selection", get_model_selection)
+        assert await restore_account_configuration() is True
+        assert settings.MODEL.openai.model == "gpt-5"
+
+    @pytest.mark.asyncio
+    async def test_restore_ignores_model_for_different_provider(self, monkeypatch) -> None:
+        async def get_credentials() -> tuple[str, str, str]:
+            return "openai", "persisted-key", "https://persisted.example/v1"
+
+        async def get_model_selection() -> tuple[str, str]:
+            return "anthropic", "claude-sonnet-5"
+
+        monkeypatch.setattr(Account, "get_credentials", get_credentials)
+        monkeypatch.setattr(Account, "get_model_selection", get_model_selection)
+        previous_model = settings.MODEL.openai.model
+        assert await restore_account_configuration() is True
+        assert settings.MODEL.openai.model == previous_model

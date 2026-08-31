@@ -65,6 +65,11 @@ class TestCommandLoading:
 
         assert command.name == "new"
 
+    def test_load_command_imports_model_command(self) -> None:
+        command = load_command("fragile.commands.interactive.commands.model.ModelCommand")
+
+        assert command.name == "model"
+
     def test_create_command_registry_uses_enabled_commands(self) -> None:
         with patch(
             "fragile.commands.interactive.commands.settings.ENABLED_COMMANDS",

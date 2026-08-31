@@ -26,6 +26,7 @@ class TestAccount:
             assert accounts[0].api_key == "key-two"
             assert accounts[0].base_url == "https://two.example/v1"
             assert accounts[0].provider == "anthropic"
+            assert accounts[0].model is None
         engine.dispose()
 
     @pytest.mark.asyncio
@@ -35,6 +36,47 @@ class TestAccount:
         async_engine = get_engine()
         monkeypatch.setattr("fragile.models.base.engine", async_engine)
         assert await Account.get_credentials() is None
+        await async_engine.dispose()
+
+    @pytest.mark.asyncio
+    async def test_save_and_get_model_selection(self, tmp_path, monkeypatch) -> None:
+        database_path = tmp_path / "model-selection.db"
+        monkeypatch.setattr("fragile.models.base.settings.CHECKPOINT.sqlite.path", database_path)
+        async_engine = get_engine()
+        monkeypatch.setattr("fragile.models.base.engine", async_engine)
+
+        await Account.save_credentials("OpenAI", "key", "https://example.com/v1")
+        await Account.save_model_selection(" OpenAI ", " gpt-5 ")
+
+        assert await Account.get_model_selection() == ("openai", "gpt-5")
+        await async_engine.dispose()
+
+    @pytest.mark.asyncio
+    async def test_saving_credentials_for_new_provider_clears_model_selection(self, tmp_path, monkeypatch) -> None:
+        database_path = tmp_path / "changed-provider.db"
+        monkeypatch.setattr("fragile.models.base.settings.CHECKPOINT.sqlite.path", database_path)
+        async_engine = get_engine()
+        monkeypatch.setattr("fragile.models.base.engine", async_engine)
+
+        await Account.save_credentials("OpenAI", "key", "https://example.com/v1")
+        await Account.save_model_selection("openai", "gpt-5")
+        await Account.save_credentials("Anthropic", "new-key", "https://anthropic.example/v1")
+
+        assert await Account.get_model_selection() is None
+        await async_engine.dispose()
+
+    @pytest.mark.asyncio
+    async def test_save_model_selection_rejects_missing_or_mismatched_account(self, tmp_path, monkeypatch) -> None:
+        database_path = tmp_path / "missing-account.db"
+        monkeypatch.setattr("fragile.models.base.settings.CHECKPOINT.sqlite.path", database_path)
+        async_engine = get_engine()
+        monkeypatch.setattr("fragile.models.base.engine", async_engine)
+
+        with pytest.raises(InvalidAccountError, match="account must be configured"):
+            await Account.save_model_selection("openai", "gpt-5")
+        await Account.save_credentials("OpenAI", "key", "https://example.com/v1")
+        with pytest.raises(InvalidAccountError, match="does not match"):
+            await Account.save_model_selection("anthropic", "claude-sonnet-5")
         await async_engine.dispose()
 
     @pytest.mark.parametrize(
@@ -50,3 +92,11 @@ class TestAccount:
     ) -> None:
         with pytest.raises(InvalidAccountError, match=message):
             Account.validate_credentials(provider, api_key, base_url)
+
+    @pytest.mark.parametrize(
+        ("provider", "model", "message"),
+        [("vertex", "model", "unsupported"), ("openai", "  ", "model")],
+    )
+    def test_validate_model_selection_rejects_invalid_values(self, provider: str, model: str, message: str) -> None:
+        with pytest.raises(InvalidAccountError, match=message):
+            Account.validate_model_selection(provider, model)

@@ -116,7 +116,7 @@ class TestAgent:
             patch("fragile.commands.interactive.agent.create_agent", return_value=agent) as create,
         ):
             async with agent_runtime() as actual:
-                assert actual is agent
+                assert actual == (agent, "checkpoint")
         get_context.assert_called_once_with()
         restore.assert_awaited_once_with()
         create.assert_called_once_with("checkpoint")

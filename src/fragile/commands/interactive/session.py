@@ -6,9 +6,10 @@ import time
 import asyncclick as click
 import httpx
 from langchain_anthropic.chat_models import AnthropicInvalidRequestError
+from langgraph.checkpoint.base import BaseCheckpointSaver
 from langgraph.graph.state import CompiledStateGraph
 
-from fragile.commands.interactive.agent import agent_runtime, chat
+from fragile.commands.interactive.agent import agent_runtime, chat, create_agent
 from fragile.commands.interactive.commands import command_registry
 from fragile.commands.interactive.display import (
     enter_fullscreen,
@@ -43,19 +44,21 @@ class InteractiveSession:
         enter_fullscreen()
         try:
             show_startup(self.thread_id, self.thread is not None)
-            async with agent_runtime() as agent:
+            async with agent_runtime() as (agent, checkpointer):
                 while self.is_running:
-                    await self.run_iteration(agent)
+                    agent = await self.run_iteration(agent, checkpointer)
         finally:
             leave_fullscreen()
 
-    async def run_iteration(self, agent: CompiledStateGraph) -> None:
+    async def run_iteration(
+        self, agent: CompiledStateGraph, checkpointer: BaseCheckpointSaver | None
+    ) -> CompiledStateGraph:
         """Read and process one prompt when the session is running."""
         user_input = await self.read_input()
         if user_input is None:
-            return
+            return agent
         result = await command_registry.handle(user_input, self.state)
-        await self.handle_result(agent, result, user_input)
+        return await self.handle_result(agent, checkpointer, result, user_input)
 
     async def read_input(self) -> str | None:
         """Read one prompt, handling retryable and terminating interrupts."""
@@ -75,10 +78,18 @@ class InteractiveSession:
         self.last_keyboard_interrupt = None
         return user_input.strip()
 
-    async def handle_result(self, agent: CompiledStateGraph, result: CommandResult, user_input: str) -> None:
+    async def handle_result(
+        self,
+        agent: CompiledStateGraph,
+        checkpointer: BaseCheckpointSaver | None,
+        result: CommandResult,
+        user_input: str,
+    ) -> CompiledStateGraph:
         """Apply a command result or process an ordinary chat prompt."""
         if result is CommandResult.EXIT:
             self.is_running = False
+        elif result is CommandResult.MODEL_CHANGED:
+            return create_agent(checkpointer)
         elif result is CommandResult.NOT_HANDLED and user_input:
             await ConversationHistory.register_conversation(self.state.thread_id, user_input)
             try:
@@ -110,6 +121,7 @@ class InteractiveSession:
                     error,
                 )
                 show_request_error(str(error))
+        return agent
 
 
 async def interactive(

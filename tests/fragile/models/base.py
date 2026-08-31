@@ -1,7 +1,7 @@
 import pytest
 from sqlalchemy import create_engine, inspect, text
 
-from fragile.models.base import _migrate_account_provider, create_tables, get_engine
+from fragile.models.base import _migrate_account_model, _migrate_account_provider, create_tables, get_engine
 
 
 class TestDatabase:
@@ -29,3 +29,14 @@ class TestDatabase:
         with sync_engine.begin() as connection:
             _migrate_account_provider(connection)
         sync_engine.dispose()
+
+    def test_migrate_account_model_adds_missing_column_idempotently(self, tmp_path) -> None:
+        database_path = tmp_path / "legacy-model.db"
+        sync_engine = create_engine(f"sqlite:///{database_path}")
+        with sync_engine.begin() as connection:
+            connection.execute(text("CREATE TABLE fragile_account (id INTEGER PRIMARY KEY)"))
+            _migrate_account_model(connection)
+            _migrate_account_model(connection)
+            columns = {column["name"] for column in inspect(connection).get_columns("fragile_account")}
+        sync_engine.dispose()
+        assert "model" in columns

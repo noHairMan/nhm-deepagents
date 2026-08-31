@@ -24,7 +24,7 @@ class TestSession:
         Base.metadata.create_all(engine)
         monkeypatch.setattr("fragile.commands.interactive.commands.history.engine", engine)
         runtime = MagicMock()
-        runtime.__aenter__ = AsyncMock(return_value=MagicMock())
+        runtime.__aenter__ = AsyncMock(return_value=(MagicMock(), MagicMock()))
         runtime.__aexit__ = AsyncMock(return_value=None)
         monkeypatch.setattr("fragile.commands.interactive.session.agent_runtime", MagicMock(return_value=runtime))
 
@@ -47,7 +47,7 @@ class TestSession:
         with patch("fragile.commands.interactive.session.create_prompt_session"):
             session = InteractiveSession(None)
 
-        await session.handle_result(MagicMock(), CommandResult.EXIT, "/quit")
+        await session.handle_result(MagicMock(), MagicMock(), CommandResult.EXIT, "/quit")
 
         assert not session.is_running
 
@@ -74,7 +74,7 @@ class TestSession:
             ),
         ):
             session = InteractiveSession(None)
-            await session.handle_result(MagicMock(), CommandResult.NOT_HANDLED, "hello")
+            await session.handle_result(MagicMock(), MagicMock(), CommandResult.NOT_HANDLED, "hello")
 
         log_exception.assert_called_once_with(
             "模型服务连接失败 provider=%s model=%s base_url=%s",
@@ -102,7 +102,7 @@ class TestSession:
             patch("fragile.commands.interactive.session.tomorrow_settings.MODEL", {"type": "ollama", "ollama": None}),
         ):
             session = InteractiveSession(None)
-            await session.handle_result(MagicMock(), CommandResult.NOT_HANDLED, "hello")
+            await session.handle_result(MagicMock(), MagicMock(), CommandResult.NOT_HANDLED, "hello")
 
         assert "模型服务连接失败" in capsys.readouterr().out
         log_exception.assert_called_once_with(
@@ -141,7 +141,7 @@ class TestSession:
             ),
         ):
             session = InteractiveSession(None)
-            await session.handle_result(MagicMock(), CommandResult.NOT_HANDLED, "hello")
+            await session.handle_result(MagicMock(), MagicMock(), CommandResult.NOT_HANDLED, "hello")
 
         log_exception.assert_called_once_with(
             "模型请求失败 provider=%s model=%s base_url=%s error=%s",
@@ -177,7 +177,7 @@ class TestSession:
             patch("fragile.commands.interactive.session.tomorrow_settings.MODEL", {"type": "anthropic"}),
         ):
             session = InteractiveSession(None)
-            await session.handle_result(MagicMock(), CommandResult.NOT_HANDLED, "hello")
+            await session.handle_result(MagicMock(), MagicMock(), CommandResult.NOT_HANDLED, "hello")
 
         output = capsys.readouterr().out
         assert "模型请求失败" in output
@@ -254,7 +254,9 @@ class TestSession:
             patch("fragile.commands.interactive.session.chat", new_callable=AsyncMock) as chat,
             patch(
                 "fragile.commands.interactive.session.agent_runtime",
-                return_value=MagicMock(__aenter__=AsyncMock(return_value=MagicMock()), __aexit__=AsyncMock()),
+                return_value=MagicMock(
+                    __aenter__=AsyncMock(return_value=(MagicMock(), MagicMock())), __aexit__=AsyncMock()
+                ),
             ),
         ):
             await interactive(None)
@@ -269,7 +271,7 @@ class TestSession:
         prompt_session.prompt_async = AsyncMock(side_effect=["hello", "/new", "world", "/quit"])
         agent = MagicMock()
         runtime = MagicMock()
-        runtime.__aenter__ = AsyncMock(return_value=agent)
+        runtime.__aenter__ = AsyncMock(return_value=(agent, MagicMock()))
         runtime.__aexit__ = AsyncMock(return_value=None)
         with (
             patch("fragile.commands.interactive.session.enter_fullscreen"),
@@ -292,6 +294,47 @@ class TestSession:
         assert chat.call_args_list[0].args[2] != chat.call_args_list[1].args[2]
         runtime.__aenter__.assert_awaited_once_with()
         runtime.__aexit__.assert_awaited_once()
+
+    @pytest.mark.asyncio
+    async def test_interactive_recreates_agent_only_after_model_change(self) -> None:
+        prompt_session = MagicMock()
+        prompt_session.prompt_async = AsyncMock(side_effect=["hello", "/model", "world", "/quit"])
+        initial_agent = MagicMock()
+        replacement_agent = MagicMock()
+        checkpointer = MagicMock()
+        runtime = MagicMock()
+        runtime.__aenter__ = AsyncMock(return_value=(initial_agent, checkpointer))
+        runtime.__aexit__ = AsyncMock(return_value=None)
+        with (
+            patch("fragile.commands.interactive.session.enter_fullscreen"),
+            patch("fragile.commands.interactive.session.leave_fullscreen"),
+            patch("fragile.commands.interactive.session.show_startup"),
+            patch("fragile.commands.interactive.session.create_prompt_session", return_value=prompt_session),
+            patch("fragile.commands.interactive.session.agent_runtime", return_value=runtime),
+            patch.object(
+                command_registry,
+                "handle",
+                new_callable=AsyncMock,
+                side_effect=[
+                    CommandResult.NOT_HANDLED,
+                    CommandResult.MODEL_CHANGED,
+                    CommandResult.NOT_HANDLED,
+                    CommandResult.EXIT,
+                ],
+            ),
+            patch(
+                "fragile.commands.interactive.session.ConversationHistory.register_conversation",
+                new_callable=AsyncMock,
+            ),
+            patch("fragile.commands.interactive.session.chat", new_callable=AsyncMock) as chat,
+            patch("fragile.commands.interactive.session.create_agent", return_value=replacement_agent) as create,
+        ):
+            await InteractiveSession(str(UUID(int=1))).run()
+
+        create.assert_called_once_with(checkpointer)
+        assert chat.call_args_list[0].args[0] is initial_agent
+        assert chat.call_args_list[1].args[0] is replacement_agent
+        assert chat.call_args_list[0].args[2] == chat.call_args_list[1].args[2] == UUID(int=1)
 
     @pytest.mark.asyncio
     async def test_interactive_retries_after_keyboard_interrupt_and_eof(self) -> None:

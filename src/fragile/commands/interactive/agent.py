@@ -76,11 +76,11 @@ def create_agent(checkpointer: BaseCheckpointSaver | None = None) -> CompiledSta
 
 
 @asynccontextmanager
-async def agent_runtime() -> AsyncIterator[CompiledStateGraph]:
+async def agent_runtime() -> AsyncIterator[tuple[CompiledStateGraph, BaseCheckpointSaver | None]]:
     """Create an agent and its checkpointer for one interactive session."""
     async with get_checkpointer_context() as checkpointer:
         await restore_account_configuration()
-        yield create_agent(checkpointer)
+        yield create_agent(checkpointer), checkpointer
 
 
 async def chat(agent: CompiledStateGraph, prompt: str, thread_id: UUID) -> None:
