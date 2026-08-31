@@ -66,6 +66,14 @@ class RainySettings(BaseSettings):
                 "maxBytes": 100 * 1024 * 1024,
                 "backupCount": 5,
             },
+            "llm": {
+                "class": "logging.handlers.RotatingFileHandler",
+                "filename": os.path.join(LOG_ROOT, "llm.log"),
+                "formatter": "verbose",
+                "maxBytes": 100 * 1024 * 1024,
+                "backupCount": 5,
+                "level": logging.DEBUG,
+            },
         },
         "root": {
             "handlers": ["console", "root"],
@@ -75,6 +83,7 @@ class RainySettings(BaseSettings):
             "rainy": {"handlers": [], "level": logging.INFO, "propagate": True},
             "uvicorn": {"handlers": [], "level": logging.INFO, "propagate": True},
             "starlette": {"handlers": [], "level": logging.INFO, "propagate": True},
+            "tomorrow.llm": {"handlers": ["llm"], "level": logging.DEBUG, "propagate": False},
         },
     }
 

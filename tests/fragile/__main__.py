@@ -50,6 +50,19 @@ class TestMain:
         finally:
             third_party_logger.handlers.clear()
 
+    def test_configure_logging_preserves_llm_logger(self) -> None:
+        llm_logger = logging.getLogger("tomorrow.llm")
+        handler = logging.StreamHandler()
+        llm_logger.addHandler(handler)
+        llm_logger.propagate = False
+        try:
+            with patch("fragile.__main__.dictConfig"):
+                configure_logging()
+            assert handler in llm_logger.handlers
+            assert not llm_logger.propagate
+        finally:
+            llm_logger.removeHandler(handler)
+
     def test_main_configures_checkpoint_before_starting_app(self) -> None:
         with (
             patch("fragile.__main__.configure_logging") as configure_logging,

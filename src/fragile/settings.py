@@ -33,6 +33,14 @@ class FragileSettings(BaseSettings):
                 "maxBytes": 100 * 1024 * 1024,
                 "backupCount": 5,
             },
+            "llm": {
+                "class": "logging.handlers.RotatingFileHandler",
+                "filename": os.path.join(LOG_ROOT, "llm.log"),
+                "formatter": "verbose",
+                "maxBytes": 100 * 1024 * 1024,
+                "backupCount": 5,
+                "level": logging.DEBUG,
+            },
         },
         "root": {
             "handlers": ["fragile"],
@@ -41,6 +49,7 @@ class FragileSettings(BaseSettings):
         "loggers": {
             "fragile": {"handlers": [], "level": logging.INFO, "propagate": True},
             "py.warnings": {"handlers": [], "level": logging.INFO, "propagate": True},
+            "tomorrow.llm": {"handlers": ["llm"], "level": logging.DEBUG, "propagate": False},
         },
     }
     ENABLED_COMMANDS: tuple[str, ...] = (
@@ -66,6 +75,8 @@ class FragileSettings(BaseSettings):
         logging_config["root"]["level"] = self.LOG_LEVEL
         for logger_config in logging_config["loggers"].values():
             logger_config["level"] = self.LOG_LEVEL
+        logging_config["handlers"]["llm"]["level"] = logging.DEBUG
+        logging_config["loggers"]["tomorrow.llm"]["level"] = logging.DEBUG
         return logging_config
 
     def __init__(self, **values):

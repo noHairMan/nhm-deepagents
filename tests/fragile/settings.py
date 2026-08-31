@@ -1,3 +1,4 @@
+import logging
 from pathlib import Path
 
 from fragile.settings import FragileSettings
@@ -24,6 +25,15 @@ class TestFragileSettings:
         assert log_filename.parent.name == "logs"
         assert settings.LOGGING["handlers"]["fragile"]["class"] == "logging.handlers.RotatingFileHandler"
         assert settings.LOGGING["handlers"]["fragile"]["level"] == settings.LOG_LEVEL
+        llm_logging = settings.LOGGING["handlers"]["llm"]
+        assert Path(llm_logging["filename"]).name == "llm.log"
+        assert llm_logging["class"] == "logging.handlers.RotatingFileHandler"
+        assert llm_logging["level"] == logging.DEBUG
+        assert settings.LOGGING["loggers"]["tomorrow.llm"] == {
+            "handlers": ["llm"],
+            "level": logging.DEBUG,
+            "propagate": False,
+        }
         assert "console" not in settings.LOGGING["handlers"]
         assert settings.LOGGING["root"]["handlers"] == ["fragile"]
         assert settings.LOGGING["root"]["level"] == settings.LOG_LEVEL
@@ -52,3 +62,5 @@ class TestFragileSettings:
         assert settings.LOG_LEVEL == 10
         assert settings.LOGGING["root"]["level"] == 10
         assert settings.LOGGING["handlers"]["fragile"]["level"] == 10
+        assert settings.LOGGING["handlers"]["llm"]["level"] == logging.DEBUG
+        assert settings.LOGGING["loggers"]["tomorrow.llm"]["level"] == logging.DEBUG

@@ -1,6 +1,7 @@
 from unittest.mock import patch
 
 from tomorrow.core.model.anthropic import get_model
+from tomorrow.core.model.callbacks import llm_callback
 from tomorrow.models.constants import ModelType
 
 
@@ -22,4 +23,5 @@ class TestAnthropic:
                     api_key=model_config.get("api_key"),
                     base_url=model_config.get("base_url"),
                     temperature=model_config.get("temperature"),
+                    callbacks=[llm_callback],
                 )

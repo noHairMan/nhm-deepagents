@@ -21,8 +21,10 @@ def configure_logging() -> None:
     dictConfig(settings.LOGGING)
     logging.captureWarnings(True)
     manager = logging.root.manager
-    for logger in manager.loggerDict.values():
+    for logger_name, logger in manager.loggerDict.items():
         if isinstance(logger, logging.Logger):
+            if logger_name == "tomorrow.llm":
+                continue
             logger.handlers.clear()
             logger.disabled = False
             logger.propagate = True

@@ -1,3 +1,6 @@
+import logging
+from pathlib import Path
+
 from rainy.settings import RainySettings
 
 
@@ -18,7 +21,16 @@ class TestRainySettings:
         logging_config = RainySettings.LOGGING
         assert "console" in logging_config["handlers"]
         assert "root" in logging_config["handlers"]
+        assert "llm" in logging_config["handlers"]
+        assert Path(logging_config["handlers"]["llm"]["filename"]).name == "llm.log"
+        assert logging_config["handlers"]["llm"]["class"] == "logging.handlers.RotatingFileHandler"
+        assert logging_config["handlers"]["llm"]["level"] == logging.DEBUG
         assert "rainy" in logging_config["loggers"]
+        assert logging_config["loggers"]["tomorrow.llm"] == {
+            "handlers": ["llm"],
+            "level": logging.DEBUG,
+            "propagate": False,
+        }
 
     def test_base_config_model(self):
         from rainy.settings import BaseConfigModel
