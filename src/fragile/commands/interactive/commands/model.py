@@ -56,28 +56,8 @@ def _optional_integer(model: dict[str, object], key: str, label: str) -> tuple[s
     return None
 
 
-def _ollama_details(model: dict[str, object]) -> tuple[tuple[str, str], ...]:
-    """Extract displayable metadata from an Ollama model."""
-    details = [
-        _optional_integer(model, "size", "Size (bytes)"),
-        _optional_text(model, "modified_at", "Modified at"),
-    ]
-    nested_details = model.get("details")
-    if isinstance(nested_details, dict):
-        details.extend(
-            [
-                _optional_text(nested_details, "parameter_size", "Parameter size"),
-                _optional_text(nested_details, "quantization_level", "Quantization"),
-                _optional_text(nested_details, "family", "Family"),
-            ]
-        )
-    return tuple(detail for detail in details if detail is not None)
-
-
 def _record_details(provider: ModelType, model: dict[str, object]) -> tuple[tuple[str, str], ...]:
     """Extract validated provider-specific metadata for a model."""
-    if provider is ModelType.OLLAMA:
-        return _ollama_details(model)
     if provider is ModelType.OPENAI:
         details = [_optional_text(model, "owned_by", "Owner"), _optional_integer(model, "created", "Created")]
     else:
@@ -101,7 +81,7 @@ def _response_model_records(response: object, key: str, provider: ModelType) -> 
     for model in models:
         if not isinstance(model, dict):
             return None
-        model_id = model.get("name") if provider is ModelType.OLLAMA else model.get("id")
+        model_id = model.get("id")
         if not isinstance(model_id, str) or not model_id.strip():
             return None
         records.append(ModelRecord(provider, model_id.strip(), _record_details(provider, model)))
@@ -113,10 +93,7 @@ async def discover_models(provider: ModelType, api_key: str, base_url: str) -> l
     headers: dict[str, str] = {}
     path: str
     response_key: str
-    if provider is ModelType.OLLAMA:
-        path = "/api/tags"
-        response_key = "models"
-    elif provider is ModelType.OPENAI:
+    if provider is ModelType.OPENAI:
         path = "/models"
         response_key = "data"
         headers["Authorization"] = f"Bearer {api_key}"

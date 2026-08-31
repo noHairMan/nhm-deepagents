@@ -30,12 +30,6 @@ class CheckpointConfig(BaseConfigModel):
     sqlite: CheckpointSqliteConfig = Field(default_factory=CheckpointSqliteConfig, alias=CheckpointType.SQLITE)
 
 
-class OllamaConfig(BaseConfigModel):
-    model: str = "qwen3.5:9b"
-    base_url: str = "http://localhost:11434"
-    temperature: float = 0
-
-
 class AnthropicConfig(BaseConfigModel):
     model: str = "claude-sonnet-5"
     api_key: str | None = None
@@ -51,8 +45,7 @@ class OpenAIConfig(BaseConfigModel):
 
 
 class ModelConfig(BaseConfigModel):
-    type: ModelType = ModelType.OLLAMA
-    ollama: OllamaConfig = Field(default_factory=OllamaConfig, alias=ModelType.OLLAMA)
+    type: ModelType = ModelType.ANTHROPIC
     anthropic: AnthropicConfig = Field(default_factory=AnthropicConfig, alias=ModelType.ANTHROPIC)
     openai: OpenAIConfig = Field(default_factory=OpenAIConfig, alias=ModelType.OPENAI)
 

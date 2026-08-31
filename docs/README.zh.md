@@ -31,7 +31,6 @@
 - **深度智能体**: 集成 `deepagents` 框架，支持复杂任务处理与状态管理。
 - **技能模块**: 支持通过 `TOMORROW_SKILLS` 配置技能目录，为智能体加载可扩展的领域能力。
 - **子代理**: 支持通过 `TOMORROW_SUBAGENTS` 配置专用子代理及其模型、技能和系统提示词。
-- **代码解释器**: 集成 QuickJS 中间件，为智能体提供代码执行能力。
 - **递归控制**: 支持通过 `TOMORROW_RECURSION_LIMIT` 限制智能体递归调用深度。
 - **生命周期管理**: 引入 `AgentManager` 统一管理智能体实例的创建与销毁，确保资源的优雅初始化。
 - **高性能 API**: 基于 FastAPI 构建，支持同步响应与 Server-Sent Events (SSE) 流式输出。
@@ -47,7 +46,6 @@
 - **Web 服务器**: [Uvicorn](https://www.uvicorn.org/)
 - **智能体框架**: [deepagents](https://github.com/zongxuheng/deepagents) (基于 LangGraph/LangChain)
 - **LLM 提供商**: [Ollama](https://ollama.com/)、[Anthropic](https://www.anthropic.com/) 和 [OpenAI](https://openai.com/)
-- **代码执行**: [langchain-quickjs](https://github.com/langchain-ai/langchainjs) 提供的 QuickJS 中间件
 - **终端交互**: [asyncclick](https://github.com/python-trio/asyncclick) 提供异步 CLI 命令、参数解析和帮助信息；[prompt-toolkit](https://github.com/prompt-toolkit/python-prompt-toolkit) 提供异步输入、输入历史、命令补全和多行编辑；[Rich](https://github.com/Textualize/rich) 提供终端输出样式。
 - **配置管理**: [Pydantic Settings](https://docs.pydantic.dev/latest/usage/settings/)
 - **异常处理**: 自定义异常体系 (`TomorrowError` 及其子类)，涵盖模型、后端、存储和检查点错误。

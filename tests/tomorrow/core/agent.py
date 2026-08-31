@@ -9,9 +9,6 @@ from tomorrow.models.constants import StoreType
 
 
 class TestAgent:
-    def test_get_middleware_disables_code_interpreter(self):
-        assert AgentManager.get_middleware() == []
-
     def test_get_store_memory(self):
         from langgraph.store.memory import InMemoryStore
 
@@ -77,7 +74,7 @@ class TestAgent:
             args, kwargs = mock_create.call_args
             assert kwargs["checkpointer"] == mock_checkpointer
             assert kwargs["backend"] == mock_backend
-            assert kwargs["middleware"] == []
+            assert "middleware" not in kwargs
 
             # 验证日志是否被调用
             # Initializing Agent for ... (1)
@@ -86,7 +83,7 @@ class TestAgent:
             # STORE: ... (1)
             # CHECKPOINT: ... (1)
             # SKILLS: ... (1)
-            assert mock_logger.info.call_count == 8
+            assert mock_logger.info.call_count == 7
             assert kwargs["skills"] == settings.SKILLS
             assert kwargs["subagents"] == []
 

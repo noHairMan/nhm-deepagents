@@ -124,7 +124,6 @@ async def restore_account_configuration() -> bool:
         raise InvalidAccountError(f"unsupported model provider: {provider}") from exc
 
     model_configs = {
-        ModelType.OLLAMA: tomorrow_settings.MODEL.ollama,
         ModelType.ANTHROPIC: tomorrow_settings.MODEL.anthropic,
         ModelType.OPENAI: tomorrow_settings.MODEL.openai,
     }

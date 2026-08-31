@@ -8,10 +8,6 @@ from tomorrow.models.constants import ModelType
 def get_model() -> BaseChatModel:
     model_type = settings.MODEL.get("type")
     match model_type:
-        case ModelType.OLLAMA:
-            from .ollama import get_model as get_ollama_model
-
-            return get_ollama_model()
         case ModelType.ANTHROPIC:
             from .anthropic import get_model as get_anthropic_model
 

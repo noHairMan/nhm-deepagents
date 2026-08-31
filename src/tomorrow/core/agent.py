@@ -47,11 +47,6 @@ class AgentManager:
         ]
 
     @staticmethod
-    def get_middleware() -> list[object]:
-        logger.info("CODE_INTERPRETER: disabled")
-        return []
-
-    @staticmethod
     def create_agent(checkpointer: Optional[BaseCheckpointSaver] = None) -> CompiledStateGraph:
         logger.info(f"Initializing Agent for {settings.APP}...")
 
@@ -83,7 +78,6 @@ class AgentManager:
             tools=[],
             skills=skills,
             subagents=subagents,
-            middleware=AgentManager.get_middleware(),
             system_prompt=SystemMessage(content="""你是一名智能助理，运用你的知识尽可能的回答用户问题。"""),
             checkpointer=checkpointer,
             backend=get_backend(),
