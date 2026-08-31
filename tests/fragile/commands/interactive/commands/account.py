@@ -34,7 +34,7 @@ class TestAccountCommand:
                 return decorator
 
         class FakeRadioList:
-            current_value = ModelType.OLLAMA
+            current_value = ModelType.OPENAI
 
             def __init__(self, **kwargs: object) -> None:
                 assert AccountCommand.providers == tuple(ModelType)
@@ -48,10 +48,10 @@ class TestAccountCommand:
             async def run_async(self) -> ModelType:
                 event = type("Event", (), {"app": self})()
                 callbacks["enter"](event)
-                return ModelType.OLLAMA
+                return ModelType.OPENAI
 
             def exit(self, *, result: ModelType) -> None:
-                assert result is ModelType.OLLAMA
+                assert result is ModelType.OPENAI
 
         monkeypatch.setattr(account, "KeyBindings", FakeKeyBindings)
         monkeypatch.setattr(account, "RadioList", FakeRadioList)
@@ -66,7 +66,7 @@ class TestAccountCommand:
 
         monkeypatch.setattr(account.Account, "get_credentials", get_credentials)
 
-        assert await AccountCommand()._select_provider() is ModelType.OLLAMA
+        assert await AccountCommand()._select_provider() is ModelType.OPENAI
         assert labels[-2] == ""
         assert labels[-1] == (
             "Current account for openai:\nBase URL: https://configured.example.com\nAPI key: sk-1************cret"

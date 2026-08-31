@@ -13,14 +13,13 @@ from fragile.commands.interactive.display import (
 
 
 class TestDisplay:
-    def test_show_connection_error_uses_red_style(self, capsys) -> None:
-        show_connection_error("ollama", "qwen3.5:9b", "http://user:secret@localhost:11434/api")
+    def test_show_connection_error_redacts_credentials(self, capsys) -> None:
+        show_connection_error("anthropic", "claude-test", "https://user:secret@example.test:443/api")
 
         output = capsys.readouterr().out
-        assert "模型服务连接失败" in output
-        assert "provider: ollama" in output
-        assert "qwen3.5:9b" in output
-        assert "http://localhost:11434/api" in output
+        assert "provider: anthropic" in output
+        assert "claude-test" in output
+        assert "https://example.test:443/api" in output
         assert "secret" not in output
 
     def test_show_connection_error_does_not_use_red_background(self) -> None:

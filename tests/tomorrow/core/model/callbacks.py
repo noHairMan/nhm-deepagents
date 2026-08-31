@@ -68,6 +68,15 @@ class TestLLMLoggingCallbackHandler:
         payload = json.loads(mock_logger.debug.call_args.args[2])
         assert payload["messages"] == [[{"role": "human", "content": "hello"}]]
 
+    def test_on_chat_model_start_wraps_non_standard_message(self):
+        callback = LLMLoggingCallbackHandler()
+
+        with patch("tomorrow.core.model.callbacks.logger") as mock_logger:
+            callback.on_chat_model_start({}, [object()], run_id=UUID(int=9))
+
+        payload = json.loads(mock_logger.debug.call_args.args[2])
+        assert payload["messages"] == [[{"role": "message", "content": "<unserializable:object>"}]]
+
     def test_safe_value_normalizes_message(self):
         normalized = LLMLoggingCallbackHandler._safe_value(AIMessage(content="answer"))
 

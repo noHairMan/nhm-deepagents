@@ -13,17 +13,17 @@ class TestConfig:
 
         # 验证默认配置
         settings = TomorrowSettings(_env_file=None)
-        assert settings.MODEL["type"] == "ollama"
-        assert settings.MODEL["ollama"]["model"] == "qwen3.5:9b"
-        assert settings.MODEL["ollama"]["base_url"].startswith("http")
+        assert settings.MODEL["type"] == "anthropic"
+        assert settings.MODEL["anthropic"]["model"] == "claude-sonnet-5"
+        assert settings.MODEL["anthropic"]["base_url"] is None
         assert settings.SKILLS == []
         assert settings.RECURSION_LIMIT == 100
 
     def test_settings_override_with_env(self):
         # 模拟环境变量覆盖
-        with patch.dict(os.environ, {"TOMORROW_MODEL__OLLAMA__MODEL": "gpt-4"}):
+        with patch.dict(os.environ, {"TOMORROW_MODEL__ANTHROPIC__MODEL": "claude-test"}):
             new_settings = TomorrowSettings(_env_file=None)
-            assert new_settings.MODEL["ollama"]["model"] == "gpt-4"
+            assert new_settings.MODEL["anthropic"]["model"] == "claude-test"
 
         with patch.dict(os.environ, {"TOMORROW_RECURSION_LIMIT": "100"}):
             new_settings = TomorrowSettings(_env_file=None)

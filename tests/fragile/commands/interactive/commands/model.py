@@ -25,42 +25,8 @@ from tomorrow.models.constants import ModelType
 
 class TestModelCommand:
     @pytest.mark.parametrize(
-        ("response", "key"),
-        [
-            ([], "models"),
-            ({}, "models"),
-            ({"models": ["qwen"]}, "models"),
-            ({"models": [{}]}, "models"),
-            ({"data": [{"id": " "}]}, "data"),
-        ],
-    )
-    def test_response_model_records_rejects_invalid_collections(self, response: object, key: str) -> None:
-        assert _response_model_records(response, key, ModelType.OLLAMA) is None
-
-    @pytest.mark.parametrize(
         ("provider", "key", "response", "expected"),
         [
-            (
-                ModelType.OLLAMA,
-                "models",
-                {
-                    "models": [
-                        {
-                            "name": "qwen",
-                            "size": 1,
-                            "modified_at": "2026-01-01T00:00:00Z",
-                            "details": {"parameter_size": "7B", "quantization_level": "Q4", "family": "qwen"},
-                        }
-                    ]
-                },
-                (
-                    ("Size (bytes)", "1"),
-                    ("Modified at", "2026-01-01T00:00:00Z"),
-                    ("Parameter size", "7B"),
-                    ("Quantization", "Q4"),
-                    ("Family", "qwen"),
-                ),
-            ),
             (
                 ModelType.OPENAI,
                 "data",
@@ -96,7 +62,7 @@ class TestModelCommand:
         assert _response_model_records(response, key, provider) == [
             ModelRecord(
                 provider,
-                {ModelType.OLLAMA: "qwen", ModelType.OPENAI: "gpt", ModelType.ANTHROPIC: "claude"}[provider],
+                {ModelType.OPENAI: "gpt", ModelType.ANTHROPIC: "claude"}[provider],
                 expected,
             )
         ]
@@ -105,6 +71,13 @@ class TestModelCommand:
         response = {"data": [{"id": "gpt", "owned_by": 1, "created": True}]}
 
         assert _response_model_records(response, "data", ModelType.OPENAI) == [ModelRecord(ModelType.OPENAI, "gpt")]
+
+    @pytest.mark.parametrize(
+        "response",
+        [None, [], {}, {"data": "invalid"}, {"data": ["invalid"]}, {"data": [{"id": " "}]}],
+    )
+    def test_response_model_records_rejects_invalid_collections(self, response: object) -> None:
+        assert _response_model_records(response, "data", ModelType.OPENAI) is None
 
     def test_format_model_details_omits_unavailable_record(self) -> None:
         assert format_model_details(None) == ""
@@ -197,20 +170,6 @@ class TestModelCommand:
 
         assert result is CommandResult.CONTINUE
         assert "Configure an account" in capsys.readouterr().out
-
-    @pytest.mark.asyncio
-    async def test_discover_models_for_ollama(self) -> None:
-        client = Mock()
-        client.get = AsyncMock(
-            return_value=Mock(json=Mock(return_value={"models": [{"name": "qwen"}]}), raise_for_status=Mock())
-        )
-        async_client = MagicMock(__aenter__=AsyncMock(return_value=client), __aexit__=AsyncMock(return_value=None))
-
-        with patch("fragile.commands.interactive.commands.model.httpx.AsyncClient", return_value=async_client):
-            models = await discover_models(ModelType.OLLAMA, "unused", "http://ollama.test/")
-
-        assert models == [ModelRecord(ModelType.OLLAMA, "qwen")]
-        client.get.assert_awaited_once_with("http://ollama.test/api/tags", headers={})
 
     @pytest.mark.asyncio
     async def test_discover_models_for_openai(self) -> None:

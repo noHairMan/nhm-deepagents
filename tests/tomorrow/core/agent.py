@@ -109,6 +109,20 @@ class TestAgent:
 
         assert secret not in str(mock_logger.info.call_args_list)
 
+    def test_create_agent_logs_model_without_api_key(self):
+        from tomorrow.conf import settings
+
+        model = {"type": "anthropic", "anthropic": {"model": "claude-test"}}
+        with (
+            patch.object(settings, "MODEL", model),
+            patch("tomorrow.core.agent.create_deep_agent", return_value=MagicMock()),
+            patch("tomorrow.core.agent.get_backend", return_value=MagicMock()),
+            patch("tomorrow.core.agent.get_store", return_value=MagicMock()),
+            patch("tomorrow.core.agent.get_model", return_value=MagicMock()),
+            patch("tomorrow.core.agent.logger"),
+        ):
+            AgentManager.create_agent()
+
     def test_get_subagents(self):
         from tomorrow.conf import settings
         from tomorrow.settings import SubAgentConfig

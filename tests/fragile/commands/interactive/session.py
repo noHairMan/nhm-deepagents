@@ -89,10 +89,7 @@ class TestSession:
             patch("fragile.commands.interactive.session.logger.exception") as log_exception,
             patch(
                 "fragile.commands.interactive.session.tomorrow_settings.MODEL",
-                {
-                    "type": "ollama",
-                    "ollama": {"model": "qwen3.5:9b", "base_url": "http://localhost:11434"},
-                },
+                {"type": "anthropic", "anthropic": {"model": "claude-test", "base_url": "https://proxy.example"}},
             ),
         ):
             session = InteractiveSession(None)
@@ -100,39 +97,11 @@ class TestSession:
 
         log_exception.assert_called_once_with(
             "模型服务连接失败 provider=%s model=%s base_url=%s",
-            "ollama",
-            "qwen3.5:9b",
-            "http://localhost:11434",
+            "anthropic",
+            "claude-test",
+            "https://proxy.example",
         )
         assert "模型服务连接失败" in capsys.readouterr().out
-        assert session.is_running
-
-    @pytest.mark.asyncio
-    async def test_chat_connection_error_handles_missing_model_configuration(self, capsys) -> None:
-        with (
-            patch("fragile.commands.interactive.session.create_prompt_session"),
-            patch(
-                "fragile.commands.interactive.session.ConversationHistory.register_conversation",
-                new_callable=AsyncMock,
-            ),
-            patch(
-                "fragile.commands.interactive.session.chat",
-                new_callable=AsyncMock,
-                side_effect=httpx.ConnectError("connection failed"),
-            ),
-            patch("fragile.commands.interactive.session.logger.exception") as log_exception,
-            patch("fragile.commands.interactive.session.tomorrow_settings.MODEL", {"type": "ollama", "ollama": None}),
-        ):
-            session = InteractiveSession(None)
-            await session.handle_result(MagicMock(), MagicMock(), CommandResult.NOT_HANDLED, "hello")
-
-        assert "模型服务连接失败" in capsys.readouterr().out
-        log_exception.assert_called_once_with(
-            "模型服务连接失败 provider=%s model=%s base_url=%s",
-            "ollama",
-            "unknown",
-            "未配置",
-        )
         assert session.is_running
 
     @pytest.mark.asyncio

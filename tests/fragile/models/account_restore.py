@@ -9,7 +9,7 @@ class TestAccountRestore:
     @pytest.mark.asyncio
     @pytest.mark.parametrize(
         ("provider", "config_name"),
-        [("OLLAMA", "ollama"), (" Anthropic ", "anthropic"), ("openai", "openai")],
+        [(" Anthropic ", "anthropic"), ("openai", "openai")],
     )
     async def test_restore_updates_selected_provider_configuration(
         self, monkeypatch, provider: str, config_name: str
@@ -22,8 +22,7 @@ class TestAccountRestore:
         assert settings.MODEL.type is ModelType(provider.strip().lower())
         model_config = getattr(settings.MODEL, config_name)
         assert model_config.base_url == "https://persisted.example/v1"
-        if config_name != "ollama":
-            assert model_config.api_key == "persisted-key"
+        assert model_config.api_key == "persisted-key"
 
     @pytest.mark.asyncio
     async def test_restore_rejects_unsupported_provider(self, monkeypatch) -> None:
