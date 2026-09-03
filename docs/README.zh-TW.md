@@ -30,7 +30,7 @@
 -   **遞迴控制**: 支持透過`TOMORROW_RECURSION_LIMIT`限制智能體遞歸調用深度。
 -   **生命週期管理**: 引入`AgentManager`統一管理智能體實例的創建與銷毀，確保資源的優雅初始化。
 -   **高效能 API**: 基於 FastAPI 構建，支援同步回應與 Server-Sent Events (SSE) 串流輸出。
--   **互動式 CLI**:`fragile`支援`/new`建立新會話、`/history`瀏覽並切換已持久化的歷史會話、`/account`配置外部模型帳戶、`/model`選擇模型、`/quit`退出、會話恢復、輸入歷史記錄、斜線命令補全和多行編輯。
+-   **互動式 CLI**:`fragile`支援`/new`建立新會話、`/history`瀏覽並切換已持久化的歷史會話、`/account`配置外部模型帳戶、`/model`選擇模型、`/quit`退出、會話恢復、輸入歷史記錄、斜線命令補全和多行編輯，並以追加式時間軸顯示模型摘要、工具呼叫、命令結果和最終答案。
 -   **帳戶配置持久化**: 支援透過互動式指令保存 Anthropic 和 OpenAI 的 API 憑證，並在後續會話中自動復原。
 -   **可靠性保障**: 強制類型提示、Ruff 靜態檢查、100% 測試覆蓋率要求。
 
@@ -40,7 +40,7 @@
 -   **套件管理器**:[紫外線](https://github.com/astral-sh/uv)
 -   **API 框架**:[迅速](https://fastapi.tiangolo.com/)
 -   **Web 伺服器**:[獨角獸](https://www.uvicorn.org/)
--   **智能體框架**:[深度代理](https://github.com/zongxuheng/deepagents)(基於 LangGraph/LangChain)
+-   **智能体框架**:[深度代理](https://github.com/zongxuheng/deepagents)(基於 LangGraph/LangChain)
 -   **LLM 提供者**:[人擇](https://www.anthropic.com/)和[開放人工智慧](https://openai.com/)
 -   **終端交互**:[非同步點擊](https://github.com/python-trio/asyncclick)提供非同步 CLI 命令、參數解析和幫助資訊；[提示工具包](https://github.com/prompt-toolkit/python-prompt-toolkit)提供非同步輸入、輸入歷史記錄、命令補全和多行編輯；[富有的](https://github.com/Textualize/rich)提供終端輸出樣式。
 -   **配置管理**:[金字塔設置](https://docs.pydantic.dev/latest/usage/settings/)
@@ -127,6 +127,17 @@ uv run fragile
 
 透過`--thread`或`-t`傳入 UUID 可以恢復已有會話；不傳入時會自動建立新的執行緒。互動過程中輸入`/new`可清屏並開始新會話，輸入`/history`可查看已儲存的會話並按編號或 UUID 切換，輸入`/quit`退出；也可以連續兩次按`Ctrl+C`在短時間內退出會話，按`Esc`後回車可插入換行。
 
+#### Fragile 輸出時間軸
+
+每次普通對話都會依執行順序追加顯示以下區塊：
+
+-   `Thinking (provider summary)`：僅顯示模型提供者明確回傳的 thinking/reasoning 摘要，不推斷或產生私有思維鏈。
+-   `Tool`：顯示工具名稱、脫敏後的參數和運作狀態；`execute`也會突出顯示實際命令。
+-   `Completed`/`Failed`：顯示工具結果或失敗訊息；過長內容會在終端機中標記截斷。
+-   `Assistant`：最終答案仍依模型傳回的片段連續流式輸出。
+
+工具、命令、階段和模型摘要會與答案一起保存，使用`/history`切換會話時按原始順序回放。時間軸採用與全螢幕輸入相容的追加式輸出，不使用動態分割畫面面板；參數、結果和錯誤中的 API Key、Authorization、密碼及 URL 憑證會先脫敏後顯示並儲存。
+
 首次使用其他模型提供者時，可在互動會話中輸入`/account`，按提示選擇提供者並填寫 Base URL 和 API Key。模型名稱等其他配置仍透過`TOMORROW_MODEL`或對應的環境變數設定。憑證會持久化到本機資料庫，後續啟動`fragile`時自動恢復；如需修改配置，再次執行`/account`即可。
 
 `fragile`的 CLI 入口和`purge`子命令均使用非同步命令函數，避免在已運行的事件循環中嵌套調用`asyncio.run()`。清理已持久化的會話記錄：
@@ -137,7 +148,7 @@ fragile purge
 
 ## ⚙️ 配置
 
-該項目使用**金字塔設置**進行配置管理。設定分別定義在`src/tomorrow/settings.py`（明天），`src/rainy/settings.py`(Rainy) 和`src/fragile/settings.py`(Fragile) 中，可以透過環境變數或`.env` 文件进行覆盖。环境变量优先级最高，三个模块分别使用 `TOMORROW_`、`RAINY_`和`FRAGILE_`前綴；也可以透過`TOMORROW_ENV_FILE`、`RAINY_ENV_FILE`或`FRAGILE_ENV_FILE`指定設定檔路徑。
+該項目使用**金字塔設置**進行配置管理。設定分別定義在`src/tomorrow/settings.py`（明天），`src/rainy/settings.py`(Rainy) 和`src/fragile/settings.py`(Fragile) 中，可以透過環境變數或`.env`文件進行覆蓋。環境變數優先權最高，三個模組分別使用`TOMORROW_`、`RAINY_`和`FRAGILE_`前綴；也可以透過`TOMORROW_ENV_FILE`、`RAINY_ENV_FILE`或`FRAGILE_ENV_FILE`指定設定檔路徑。
 
 ### 環境變數
 
@@ -189,7 +200,7 @@ export TOMORROW_MODEL__OPENAI__REASONING_EFFORT="medium"
 export TOMORROW_MODEL__OPENAI__REASONING_SUMMARY="auto"
 ```
 
-Fragile 只展示提供者傳回的 thinking/reasoning 內容，不會產生或推斷模型未回傳的內部思考；Rainy API 的現有回應協定不受影響。未配置或模型不支援對應能力時，仍只顯示最終答案。
+Fragile 只展示提供者傳回的 thinking/reasoning 內容，不會產生或推斷模型未回傳的內部思考；Rainy API 的現有回應協定不受影響。未配置或模型不支援對應能力時，仍只顯示最終答案。 thinking/reasoning 可能會增加 token 消耗和回應延遲，具體內容取決於模型提供者。
 
 具體欄位和預設值請參閱`src/tomorrow/settings.py`。
 
