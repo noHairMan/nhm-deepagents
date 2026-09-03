@@ -16,7 +16,7 @@ For development environment, project structure, code specifications and testing 
 
 The project contains three main modules:
 
--   **`tomorrow`**: Core agent module. The code name is taken from a character in the game "Death Stranding 2: On the Beach"**Tomorrow**(played by Elle Fanning). In the plot, she is the daughter of protagonist Sam Bridges, and is also revealed to be a character in the previous game.**Lou**(BB-28)。
+-   **`tomorrow`**: Core agent module. The codename is taken from a character in the game "Death Stranding 2: On the Beach"**Tomorrow**(played by Elle Fanning). In the plot, she is the daughter of protagonist Sam Bridges, who was also revealed to be a character in the previous game.**Lou**(BB-28)。
 -   **`rainy`**: API service module based on FastAPI. The codename is also taken from a character in Death Stranding 2**Rainy**(played by Shiori Kutsuna). In the game, she has the magical power to cause "Timefall" and the healing "Corefall", and is described as a "Pharmakon" that can both hurt and heal.
 -   **`fragile`**: based on`asyncclick`An asynchronous command line client for asking questions directly to the Tomorrow agent or starting interactive sessions. Its name is taken from a character in the same work**Fragile**. Fragile is the founder and courier of Fragile Express. He has aged rapidly due to exposure to the rain of time, but he has always delivered important supplies to others in dangerous environments. This image of a "fragile" appearance that still insists on the mission of connection and delivery is the background of the name of this client.
 
@@ -30,7 +30,7 @@ This project provides a general smart assistant agent that utilizes`deepagents`T
 -   **recursive control**: support through`TOMORROW_RECURSION_LIMIT`Limit the depth of agent recursive calls.
 -   **life cycle management**: introduction`AgentManager`Unified management of the creation and destruction of agent instances ensures graceful initialization of resources.
 -   **High performance API**: Built on FastAPI, supports synchronous responses and Server-Sent Events (SSE) streaming output.
--   **Interactive CLI**:`fragile`support`/new`Create new session,`/history`Browse and switch between persisted historical sessions,`/account`Configure external model account,`/model`Select model,`/quit`Exit, session recovery, input history, slash command completion and multi-line editing.
+-   **Interactive CLI**:`fragile`support`/new`Create new session,`/history`Browse and switch between persisted historical sessions,`/account`Configure external model account,`/model`Select model,`/quit`Exit, session resume, input history, slash command completion and multi-line editing, with an appended timeline showing model summary, tool calls, command results and final answers.
 -   **Account configuration persistence**: Supports saving API credentials for Anthropic and OpenAI via interactive commands and automatically restoring them in subsequent sessions.
 -   **Reliability guaranteed**: Forced type hints, Ruff static checking, 100% test coverage requirement.
 
@@ -111,7 +111,7 @@ curl -X POST http://localhost:8000/api/chat \
   -d '{"message":"你好"}'
 ```
 
-When you need to receive replies step by step, you can call`/api/chat/stream` 获取 SSE 数据流；`/api/chat/stream/event`A more complete stream of LangGraph events is returned. The health check interface is`GET /api/health`。
+When you need to receive replies step by step, you can call`/api/chat/stream`Get SSE data stream;`/api/chat/stream/event`A more complete stream of LangGraph events is returned. The health check interface is`GET /api/health`。
 
 use`fragile`The command line client starts an interactive session:
 
@@ -126,6 +126,17 @@ uv run fragile
 ```
 
 pass`--thread`or`-t`Passing in the UUID can restore an existing session; if not passed in, a new thread will be automatically created. Input during interaction`/new`To clear the screen and start a new session, enter`/history`To view saved sessions and switch by number or UUID, enter`/quit`Exit; you can also press twice in succession`Ctrl+C`To exit a session in a short time, press`Esc`Press Enter to insert a line feed.
+
+#### Fragile output timeline
+
+Each ordinary conversation will append the actually generated blocks in the order of execution; no empty prompt will be displayed when there is no corresponding event:
+
+-   `Thinking (provider summary)`: Only display thinking/reasoning summaries explicitly returned by the model provider, no private thinking chains are inferred or generated.
+-   `Tool`: Display the tool name, desensitized parameters and running status;`execute`The actual command is also highlighted.
+-   `Completed`/`Failed`: Display tool results or failure information; content that is too long will be marked as truncated in the terminal.
+-   `Assistant`: The final answer is still continuously streamed out as fragments returned by the model.
+
+The actual tools, commands, skill/subagent stages, and model summaries that occurred are saved with the answers; empty tool or stage prompts are not displayed when there is no corresponding invocation. use`/history`Playback in original order when switching sessions. The timeline uses a sample-style compact appended status line without using dynamic split-screen panels; API Keys, Authorizations, passwords, and URL credentials in parameters, results, and errors are desensitized before being displayed and saved.
 
 When using another model provider for the first time, you can enter it in an interactive session`/account`, follow the prompts to select a provider and fill in the Base URL and API Key. Other configurations such as model names still pass`TOMORROW_MODEL`Or the corresponding environment variable settings. Credentials will be persisted to the local database for subsequent startups`fragile`Automatically restore when running; if you need to modify the configuration, execute it again`/account`That’s it.
 
@@ -189,7 +200,7 @@ export TOMORROW_MODEL__OPENAI__REASONING_EFFORT="medium"
 export TOMORROW_MODEL__OPENAI__REASONING_SUMMARY="auto"
 ```
 
-Fragile only displays the thinking/reasoning content returned by the provider and does not generate or infer internal thinking not returned by the model; the existing response protocol of the Rainy API is not affected. When it is not configured or the model does not support the corresponding capability, only the final answer will be displayed.
+Fragile only displays the thinking/reasoning content returned by the provider and does not generate or infer internal thinking not returned by the model; the existing response protocol of the Rainy API is not affected. When it is not configured or the model does not support the corresponding capability, only the final answer will be displayed. Thinking/reasoning may increase token consumption and response latency, depending on the model provider.
 
 For specific fields and default values, please refer to`src/tomorrow/settings.py`。
 
