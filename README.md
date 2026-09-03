@@ -17,7 +17,7 @@
 | src/fragile/commands/interactive/commands/model.py        |      168 |        0 |       46 |        0 |     100% |           |
 | src/fragile/commands/interactive/commands/new.py          |       12 |        0 |        0 |        0 |     100% |           |
 | src/fragile/commands/interactive/commands/quit.py         |        8 |        0 |        0 |        0 |     100% |           |
-| src/fragile/commands/interactive/display.py               |      110 |        0 |       40 |        0 |     100% |           |
+| src/fragile/commands/interactive/display.py               |      121 |        0 |       46 |        0 |     100% |           |
 | src/fragile/commands/interactive/input.py                 |       27 |        0 |        6 |        0 |     100% |           |
 | src/fragile/commands/interactive/session.py               |       81 |        0 |       12 |        0 |     100% |           |
 | src/fragile/commands/interactive/trace.py                 |      183 |        0 |       84 |        0 |     100% |           |
@@ -86,7 +86,7 @@
 | src/tomorrow/utils/\_\_init\_\_.py                        |        0 |        0 |        0 |        0 |     100% |           |
 | src/tomorrow/utils/functional.py                          |      224 |        0 |       58 |        0 |     100% |           |
 | src/tomorrow/utils/log.py                                 |        6 |        0 |        0 |        0 |     100% |           |
-| **TOTAL**                                                 | **2004** |    **0** |  **444** |    **0** | **100%** |           |
+| **TOTAL**                                                 | **2015** |    **0** |  **450** |    **0** | **100%** |           |
 
 
 ## Setup coverage badge
