@@ -16,9 +16,9 @@
 
 プロジェクトには 3 つの主要なモジュールが含まれています。
 
--   **`tomorrow`**: コアエージェントモジュール。コードネームはゲーム『デス・ストランディング2: オン・ザ・ビーチ』の登場人物から取られている。**明日**（エル・ファニングが演じる）。プロットでは、彼女は主人公サム・ブリッジスの娘であり、前作のキャラクターでもあることが明らかになりました。**ルー**(BB-28)。
--   **`rainy`**: FastAPIをベースとしたAPIサービスモジュール。コードネームもデス・ストランディング2のキャラクターから取られています**雨が降る**（忽那汐里が演じる）。ゲーム内では「タイムフォール」と回復の「コアフォール」を引き起こす魔法の力を持ち、傷つけることも治すこともできる「ファルマコン」として描かれている。
--   **`fragile`**： に基づく`asyncclick`Tomorrow エージェントに直接質問したり、対話型セッションを開始したりするための非同期コマンド ライン クライアント。名前は同作の登場人物から。**壊れやすい**。 Fragile は Fragile Express の創設者であり配達員です。彼は時の雨にさらされて急速に老化しましたが、危険な環境で常に重要な物資を他の人に届けてきました。つながりと届けという使命を主張しながらも、「壊れやすい」佇まいのイメージが、このクライアント名の背景となっている。
+-   **`tomorrow`**: コアエージェントモジュール。コードネームはゲーム『デス・ストランディング2: オン・ザ・ビーチ』のキャラクターから取られています。**明日**（エル・ファニングが演じる）。プロットでは、彼女は主人公サム・ブリッジスの娘であり、前作のキャラクターでもあることが明らかになりました。**ルー**(BB-28)。
+-   **`rainy`**: FastAPIをベースとしたAPIサービスモジュール。コードネームもデス・ストランディング2のキャラクターから取られています**雨が降る**（忽那汐里が演じる）。ゲーム内では「タイムフォール」と治癒の「コアフォール」を引き起こす魔法の力を持ち、傷つけることも治すこともできる「ファルマコン」として描かれている。
+-   **`fragile`**: 基于 `asyncclick`Tomorrow エージェントに直接質問したり、対話型セッションを開始したりするための非同期コマンド ライン クライアント。名前は同作の登場人物から。**壊れやすい**。 Fragile は Fragile Express の創設者であり配達員です。彼は時の雨にさらされて急速に老化しましたが、危険な環境で常に重要な物資を他の人に届けてきました。つながりと届けという使命を主張しながらも、「壊れやすい」佇まいのイメージが、このクライアント名の背景となっている。
 
 このプロジェクトは、`deepagents`フレームワークはユーザー入力を分析して渡します`rainy`このモジュールは外部同期を提供します (`/api/chat`）そして**ストリーミング (`/api/chat/stream`）**APIインターフェース。
 
@@ -38,7 +38,7 @@
 
 -   **言語**:[パイソン](https://www.python.org/)>= 3.14
 -   **包管理器**:[紫外線](https://github.com/astral-sh/uv)
--   **API 框架**:[速い](https://fastapi.tiangolo.com/)
+-   **APIフレームワーク**:[早い](https://fastapi.tiangolo.com/)
 -   **ウェブサーバー**:[ユビコーン](https://www.uvicorn.org/)
 -   **エージェントフレームワーク**:[ディープエージェント](https://github.com/zongxuheng/deepagents)(LangGraph/LangChainに基づく)
 -   **LLMプロバイダー**:[であること](https://ollama.com/)、[人間的](https://www.anthropic.com/)そして[OpenAI](https://openai.com/)
@@ -53,7 +53,7 @@
 -   **Python 3.14+**
 -   **紫外線**: 高速な Python パッケージ インストーラーおよびパーサー。
 -   **LLMプロバイダー**： 現在`.env`Anthropic 互換インターフェイスを使用すると、Ollama を実行する必要はありません。
--   **LLMモデル**: 当前配置使用 `deepseek-v4-flash`; 渡すこともできます`TOMORROW_MODEL`オラマに切り替えます。
+-   **LLMモデル**: 現在の構成では次のように使用されます。`deepseek-v4-flash`;パスすることもできます`TOMORROW_MODEL`オラマに切り替えます。
 
 ## 🚀 クイックスタート
 
@@ -145,16 +145,20 @@ fragile purge
 
 #### Tomorrow 配置 (核心)
 
-| 変数                         | 説明する                                      | デフォルト値                                    |
-| -------------------------- | ----------------------------------------- | ----------------------------------------- |
-| `TOMORROW_APP`             | アプリケーション名 (環境変数の接頭辞として使用)                 | `tomorrow`                                |
-| `TOMORROW_MODEL`           | モデル構成、OLLAMA、ANTHROPIC、OPENAI をサポート       | 現在`.env`使用`anthropic`/`deepseek-v4-flash` |
-| `TOMORROW_CHECKPOINT`      | チェックポイント構成、MEMORY および SQLITE をサポート        | `{"type":"memory"}`                       |
-| `TOMORROW_BACKEND`         | バックエンド構成、FILESYSTEM および LOCAL_SHELL をサポート | `{"type":"filesystem"}`                   |
-| `TOMORROW_STORE`           | ストレージ構成、MEMORY および SQLITE をサポート           | `{"type":"sqlite"}`                       |
-| `TOMORROW_SKILLS`          | スキルカタログ一覧                                 | `["skills/"]`                             |
-| `TOMORROW_SUBAGENTS`       | サブエージェント構成リスト                             | `[]`                                      |
-| `TOMORROW_RECURSION_LIMIT` | エージェント再帰呼び出しの上限                           | `100`                                     |
+| 変数                                                  | 説明する                                       | デフォルト値                                    |
+| --------------------------------------------------- | ------------------------------------------ | ----------------------------------------- |
+| `TOMORROW_APP`                                      | アプリケーション名 (環境変数の接頭辞として使用)                  | `tomorrow`                                |
+| `TOMORROW_MODEL`                                    | モデル構成、OLLAMA、ANTHROPIC、OPENAI をサポート        | 現在`.env`使用`anthropic`/`deepseek-v4-flash` |
+| `TOMORROW_CHECKPOINT`                               | チェックポイント構成、MEMORY および SQLITE をサポート         | `{"type":"memory"}`                       |
+| `TOMORROW_BACKEND`                                  | バックエンド構成、FILESYSTEM および LOCAL_SHELL をサポート  | `{"type":"filesystem"}`                   |
+| `TOMORROW_STORE`                                    | ストレージ構成、MEMORY および SQLITE をサポート            | `{"type":"sqlite"}`                       |
+| `TOMORROW_SKILLS`                                   | スキルカタログ一覧                                  | `["skills/"]`                             |
+| `TOMORROW_SUBAGENTS`                                | サブエージェント構成リスト                              | `[]`                                      |
+| `TOMORROW_RECURSION_LIMIT`                          | エージェント再帰呼び出しの上限                            | `100`                                     |
+| `TOMORROW_MODEL__ANTHROPIC__THINKING_ENABLED`       | 人間的思考のアウトプットを要求するかどうか                      | `false`                                   |
+| `TOMORROW_MODEL__ANTHROPIC__THINKING_BUDGET_TOKENS` | 人間的思考のトークン予算 (有効な場合は必須)                    | 設定されていません                                 |
+| `TOMORROW_MODEL__OPENAI__REASONING_EFFORT`          | OpenAI 推論の強み:`low`、`medium`または`high`       | 設定されていません                                 |
+| `TOMORROW_MODEL__OPENAI__REASONING_SUMMARY`         | OpenAI 推論の要約:`auto`、`concise`または`detailed` | 設定されていません                                 |
 
 モデル設定が渡されました`TOMORROW_MODEL`または、ネストされた環境変数を渡します。現在`.env`Anthropic 互換インターフェイスを使用し、`deepseek-v4-flash`; Ollama を使用する場合は、それに応じて設定してください`ollama`物体。例えば：
 
@@ -174,6 +178,18 @@ export TOMORROW_MODEL__OPENAI__API_KEY="your-api-key"
 export TOMORROW_MODEL__OPENAI__BASE_URL="https://api.openai.com/v1"
 export TOMORROW_MODEL__OPENAI__TEMPERATURE="0"
 ```
+
+思考/推論はデフォルトではオフになっています。にいる必要がある`fragile`CLI でモデルによって明示的に返された思考または推論の概要を表示する場合は、プロバイダーに従って対応するパラメーターを構成します。この機能により、トークンの消費量と応答遅延が増加する可能性があります。例えば：
+
+```bash
+export TOMORROW_MODEL__ANTHROPIC__THINKING_ENABLED="true"
+export TOMORROW_MODEL__ANTHROPIC__THINKING_BUDGET_TOKENS="2048"
+
+export TOMORROW_MODEL__OPENAI__REASONING_EFFORT="medium"
+export TOMORROW_MODEL__OPENAI__REASONING_SUMMARY="auto"
+```
+
+Fragile は、プロバイダーから返された思考/推論の内容のみを表示し、モデルから返されない内部思考を生成または推論しません。 Rainy API の既存の応答プロトコルは影響を受けません。未設定の場合、またはモデルが対応する機能をサポートしていない場合は、最終的な回答のみが表示されます。
 
 特定のフィールドとデフォルト値については、を参照してください。`src/tomorrow/settings.py`。
 
@@ -196,11 +212,11 @@ export TOMORROW_SUBAGENTS='[{"name":"researcher","description":"负责资料检�
 
 #### Fragile 配置 (CLI)
 
-| 変数                                 | 説明する                          | デフォルト値                 |
-| ---------------------------------- | ----------------------------- | ---------------------- |
-| `FRAGILE_APP`                      | アプリケーション名 (環境変数の接頭辞として使用)     | `fragile`              |
-| `FRAGILE_INTERRUPT_EXIT_THRESHOLD` | 二度`Ctrl+C`終了をトリガーする間の最大間隔 (秒) | `0.5`                  |
-| `FRAGILE_ENABLED_COMMANDS`         | 有効な対話型コマンドのクラスパス リスト          | `quit`、`new`、`history` |
+| 変数                                 | 説明する                      | デフォルト値                 |
+| ---------------------------------- | ------------------------- | ---------------------- |
+| `FRAGILE_APP`                      | アプリケーション名 (環境変数の接頭辞として使用) | `fragile`              |
+| `FRAGILE_INTERRUPT_EXIT_THRESHOLD` | 二度`Ctrl+C` 触发退出的最大间隔（秒）   | `0.5`                  |
+| `FRAGILE_ENABLED_COMMANDS`         | 有効な対話型コマンドのクラスパス リスト      | `quit`、`new`、`history` |
 
 Fragile のその他の対話型動作は、コマンド ライン オプションと組み込みのスラッシュ コマンドによって制御されます。コマンドは、レジストリを通じて均一に検出され、処理されます。`FRAGILE_ENABLED_COMMANDS`有効なコマンドを調整します。アカウントの資格情報は次によって提供されます。`Account`モデルは Fragile のデータベースにシングルトンとして保存され、対話型セッションが開始されると、Tomorrow のモデル構成に復元されます。環境変数は引き続き構成ソースとして使用でき、優先度が高くなります。
 
