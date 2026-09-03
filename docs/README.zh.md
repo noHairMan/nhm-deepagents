@@ -3,7 +3,7 @@
 [![Build Status](https://github.com/noHairMan/nhm-deepagents/actions/workflows/build.yml/badge.svg)](https://github.com/noHairMan/nhm-deepagents/actions/workflows/build.yml)
 [![Coverage badge](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/noHairMan/nhm-deepagents/python-coverage-comment-action-data/endpoint.json)](https://htmlpreview.github.io/?https://github.com/noHairMan/nhm-deepagents/blob/python-coverage-comment-action-data/htmlcov/index.html)
 [![Lint: Ruff](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/astral-sh/ruff/main/assets/badge/v2.json)](https://github.com/astral-sh/ruff)
-[![Python Version](https://img.shields.io/badge/python-3.14+-blue.svg)](https://www.python.org/downloads/release/python-3140/)
+[![Python Version](https://img.shields.io/badge/python-3.14-blue.svg)](https://www.python.org/downloads/release/python-3140/)
 [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
 [![Repo Size](https://img.shields.io/github/repo-size/noHairMan/nhm-deepagents)](https://github.com/noHairMan/nhm-deepagents)
 [![Last Commit](https://img.shields.io/github/last-commit/noHairMan/nhm-deepagents)](https://github.com/noHairMan/nhm-deepagents)
@@ -18,7 +18,7 @@
 
 ## 🌟 项目概览
 
-`nhm-deepagents` 是一个专注于深度智能体的专业 Python 项目。它利用现代 Python 特性 (3.14+) 和强大的工具，为 AI 智能体研究和应用提供高质量的开发体验。
+`nhm-deepagents` 是一个专注于深度智能体的专业 Python 项目。它利用 Python 3.14 和强大的工具，为 AI 智能体研究和应用提供高质量的开发体验。
 
 项目内部包含三个主要模块：
 - **`tomorrow`**: 核心智能体模块。代号取自游戏《死亡搁浅 2：冥滩之上》（Death Stranding 2: On the Beach）中的角色 **Tomorrow**（由艾丽·范宁饰演）。在剧情中，她是主角山姆·布里吉斯（Sam Bridges）的女儿，也被揭示为前作中的 **Lou** (BB-28)。
@@ -34,18 +34,18 @@
 - **递归控制**: 支持通过 `TOMORROW_RECURSION_LIMIT` 限制智能体递归调用深度。
 - **生命周期管理**: 引入 `AgentManager` 统一管理智能体实例的创建与销毁，确保资源的优雅初始化。
 - **高性能 API**: 基于 FastAPI 构建，支持同步响应与 Server-Sent Events (SSE) 流式输出。
-- **交互式 CLI**: `fragile` 支持 `/new` 创建新会话、`/history` 浏览并切换已持久化的历史会话、`/account` 配置外部模型账户、`/quit` 退出、会话恢复、输入历史、斜线命令补全和多行编辑。
-- **账户配置持久化**: 支持通过交互式命令保存 Ollama、Anthropic 和 OpenAI 的 API 凭据，并在后续会话中自动恢复。
+- **交互式 CLI**: `fragile` 支持 `/new` 创建新会话、`/history` 浏览并切换已持久化的历史会话、`/account` 配置外部模型账户、`/model` 选择模型、`/quit` 退出、会话恢复、输入历史、斜线命令补全和多行编辑。
+- **账户配置持久化**: 支持通过交互式命令保存 Anthropic 和 OpenAI 的 API 凭据，并在后续会话中自动恢复。
 - **可靠性保障**: 强制类型提示、Ruff 静态检查、100% 测试覆盖率要求。
 
 ## 🛠️ 技术栈
 
-- **语言**: [Python](https://www.python.org/) >= 3.14
+- **语言**: [Python](https://www.python.org/) >= 3.14, < 3.15
 - **包管理器**: [uv](https://github.com/astral-sh/uv)
 - **API 框架**: [FastAPI](https://fastapi.tiangolo.com/)
 - **Web 服务器**: [Uvicorn](https://www.uvicorn.org/)
 - **智能体框架**: [deepagents](https://github.com/zongxuheng/deepagents) (基于 LangGraph/LangChain)
-- **LLM 提供商**: [Ollama](https://ollama.com/)、[Anthropic](https://www.anthropic.com/) 和 [OpenAI](https://openai.com/)
+- **LLM 提供商**: [Anthropic](https://www.anthropic.com/) 和 [OpenAI](https://openai.com/)
 - **终端交互**: [asyncclick](https://github.com/python-trio/asyncclick) 提供异步 CLI 命令、参数解析和帮助信息；[prompt-toolkit](https://github.com/prompt-toolkit/python-prompt-toolkit) 提供异步输入、输入历史、命令补全和多行编辑；[Rich](https://github.com/Textualize/rich) 提供终端输出样式。
 - **配置管理**: [Pydantic Settings](https://docs.pydantic.dev/latest/usage/settings/)
 - **异常处理**: 自定义异常体系 (`TomorrowError` 及其子类)，涵盖模型、后端、存储和检查点错误。
@@ -54,10 +54,10 @@
 
 ## 📋 环境要求
 
-- **Python 3.14+**
+- **Python 3.14（不支持 3.15 及更高版本）**
 - **uv**: 一个快速的 Python 包安装和解析器。
-- **LLM 提供商**: 当前 `.env` 使用 Anthropic 兼容接口，无需运行 Ollama。
-- **LLM 模型**: 当前配置使用 `deepseek-v4-flash`；也可以通过 `TOMORROW_MODEL` 切换到 Ollama。
+- **LLM 提供商**: 支持 Anthropic 和 OpenAI 兼容接口，需要通过环境变量或 `.env` 配置 API Key。
+- **LLM 模型**: 默认使用 Anthropic 的 `claude-sonnet-5`，也可以通过 `TOMORROW_MODEL__TYPE` 切换到 OpenAI。
 
 ## 🚀 快速入门
 
@@ -146,11 +146,11 @@ fragile purge
 | 变量 | 描述 | 默认值 |
 |----------|-------------|---------|
 | `TOMORROW_APP` | 应用名称（用作环境变量前缀） | `tomorrow` |
-| `TOMORROW_MODEL` | 模型配置，支持 OLLAMA、ANTHROPIC 和 OPENAI | 当前 `.env` 使用 `anthropic` / `deepseek-v4-flash` |
+| `TOMORROW_MODEL` | 模型配置，支持 `ANTHROPIC` 和 `OPENAI` | `anthropic` / `claude-sonnet-5` |
 | `TOMORROW_CHECKPOINT` | 检查点配置，支持 MEMORY 和 SQLITE | `{"type":"memory"}` |
 | `TOMORROW_BACKEND` | 后端配置，支持 FILESYSTEM 和 LOCAL_SHELL | `{"type":"filesystem"}` |
 | `TOMORROW_STORE` | 存储配置，支持 MEMORY 和 SQLITE | `{"type":"sqlite"}` |
-| `TOMORROW_SKILLS` | 技能目录列表 | `["skills/"]` |
+| `TOMORROW_SKILLS` | 技能目录列表 | `[]` |
 | `TOMORROW_SUBAGENTS` | 子代理配置列表 | `[]` |
 | `TOMORROW_RECURSION_LIMIT` | 智能体递归调用上限 | `100` |
 | `TOMORROW_MODEL__ANTHROPIC__THINKING_ENABLED` | 是否请求 Anthropic thinking 输出 | `false` |
@@ -158,12 +158,12 @@ fragile purge
 | `TOMORROW_MODEL__OPENAI__REASONING_EFFORT` | OpenAI reasoning 强度：`low`、`medium` 或 `high` | 未设置 |
 | `TOMORROW_MODEL__OPENAI__REASONING_SUMMARY` | OpenAI reasoning 摘要：`auto`、`concise` 或 `detailed` | 未设置 |
 
-模型配置通过 `TOMORROW_MODEL` 或嵌套环境变量传入。当前 `.env` 使用 Anthropic 兼容接口和 `deepseek-v4-flash`；使用 Ollama 时，请相应配置 `ollama` 对象。例如：
+模型配置通过 `TOMORROW_MODEL` 或嵌套环境变量传入。默认使用 Anthropic 的 `claude-sonnet-5`，也可以配置 Anthropic 兼容接口。例如：
 
 ```bash
 export TOMORROW_MODEL__TYPE="anthropic"
-export TOMORROW_MODEL__ANTHROPIC__BASE_URL="https://www.llmgateway.cn"
-export TOMORROW_MODEL__ANTHROPIC__MODEL="deepseek-v4-flash"
+export TOMORROW_MODEL__ANTHROPIC__BASE_URL="https://api.anthropic.com"
+export TOMORROW_MODEL__ANTHROPIC__MODEL="claude-sonnet-5"
 export TOMORROW_MODEL__ANTHROPIC__API_KEY="your-api-key"
 ```
 
@@ -214,7 +214,7 @@ export TOMORROW_SUBAGENTS='[{"name":"researcher","description":"负责资料检�
 |----------|-------------|---------|
 | `FRAGILE_APP` | 应用名称（用作环境变量前缀） | `fragile` |
 | `FRAGILE_INTERRUPT_EXIT_THRESHOLD` | 两次 `Ctrl+C` 触发退出的最大间隔（秒） | `0.5` |
-| `FRAGILE_ENABLED_COMMANDS` | 启用的交互式命令类路径列表 | `quit`、`new`、`history` |
+| `FRAGILE_ENABLED_COMMANDS` | 启用的交互式命令类路径列表 | `quit`、`new`、`history`、`account`、`model` |
 
 Fragile 的其他交互行为通过命令行选项和内置斜线命令控制。命令通过注册表统一发现和处理，可使用 `FRAGILE_ENABLED_COMMANDS` 调整启用的命令。账户凭据由 `Account` 模型以单例形式保存于 Fragile 的数据库中，启动交互会话时会恢复到 Tomorrow 的模型配置；环境变量仍可作为配置来源并拥有更高优先级。
 
