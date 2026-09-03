@@ -40,12 +40,12 @@
 -   **套件管理器**:[紫外線](https://github.com/astral-sh/uv)
 -   **API 框架**:[迅速](https://fastapi.tiangolo.com/)
 -   **Web 伺服器**:[獨角獸](https://www.uvicorn.org/)
--   **智能体框架**:[深度代理](https://github.com/zongxuheng/deepagents)(基於 LangGraph/LangChain)
+-   **智能體框架**:[深度代理](https://github.com/zongxuheng/deepagents)(基於 LangGraph/LangChain)
 -   **LLM 提供者**:[人擇](https://www.anthropic.com/)和[開放人工智慧](https://openai.com/)
 -   **終端交互**:[非同步點擊](https://github.com/python-trio/asyncclick)提供非同步 CLI 命令、參數解析和幫助資訊；[提示工具包](https://github.com/prompt-toolkit/python-prompt-toolkit)提供非同步輸入、輸入歷史記錄、命令補全和多行編輯；[富有的](https://github.com/Textualize/rich)提供終端輸出樣式。
--   **配置管理**:[金字塔設置](https://docs.pydantic.dev/latest/usage/settings/)
+-   **配置管理**:[懸垂設定](https://docs.pydantic.dev/latest/usage/settings/)
 -   **例外處理**: 自訂異常體系 (`TomorrowError`及其子類)，涵蓋模型、後端、儲存和檢查點錯誤。
--   **代碼品質**:[魯夫](https://github.com/astral-sh/ruff)(替代 Black 和 Isort)、`pre-commit`、強制型別提示 (Strict Type Hinting)
+-   **代碼品質**:[拉夫](https://github.com/astral-sh/ruff)(替代 Black 和 Isort)、`pre-commit`、強制型別提示 (Strict Type Hinting)
 -   **測試與覆蓋率**:`pytest`,`coverage`
 
 ## 📋 環境要求
@@ -129,14 +129,14 @@ uv run fragile
 
 #### Fragile 輸出時間軸
 
-每次普通對話都會依執行順序追加顯示以下區塊：
+每次普通對話都會依執行順序追加實際產生的區塊；沒有對應事件時不顯示空提示：
 
 -   `Thinking (provider summary)`：僅顯示模型提供者明確回傳的 thinking/reasoning 摘要，不推斷或產生私有思維鏈。
 -   `Tool`：顯示工具名稱、脫敏後的參數和運作狀態；`execute`也會突出顯示實際命令。
 -   `Completed`/`Failed`：顯示工具結果或失敗訊息；過長內容會在終端機中標記截斷。
 -   `Assistant`：最終答案仍依模型傳回的片段連續流式輸出。
 
-工具、命令、階段和模型摘要會與答案一起保存，使用`/history`切換會話時按原始順序回放。時間軸採用與全螢幕輸入相容的追加式輸出，不使用動態分割畫面面板；參數、結果和錯誤中的 API Key、Authorization、密碼及 URL 憑證會先脫敏後顯示並儲存。
+實際發生的工具、指令、skill/subagent 階段和模型摘要會與答案一起儲存；沒有對應呼叫時不會顯示空的工具或階段提示。使用`/history`切換會話時按原始順序回放。時間軸採用範例風格的緊湊追加式狀態行，不使用動態分割畫面面板；參數、結果和錯誤中的 API Key、Authorization、密碼及 URL 憑證會先脫敏後顯示並儲存。
 
 首次使用其他模型提供者時，可在互動會話中輸入`/account`，按提示選擇提供者並填寫 Base URL 和 API Key。模型名稱等其他配置仍透過`TOMORROW_MODEL`或對應的環境變數設定。憑證會持久化到本機資料庫，後續啟動`fragile`時自動恢復；如需修改配置，再次執行`/account`即可。
 
@@ -148,7 +148,7 @@ fragile purge
 
 ## ⚙️ 配置
 
-該項目使用**金字塔設置**進行配置管理。設定分別定義在`src/tomorrow/settings.py`（明天），`src/rainy/settings.py`(Rainy) 和`src/fragile/settings.py`(Fragile) 中，可以透過環境變數或`.env`文件進行覆蓋。環境變數優先權最高，三個模組分別使用`TOMORROW_`、`RAINY_`和`FRAGILE_`前綴；也可以透過`TOMORROW_ENV_FILE`、`RAINY_ENV_FILE`或`FRAGILE_ENV_FILE`指定設定檔路徑。
+該項目使用**懸垂設定**進行配置管理。設定分別定義在`src/tomorrow/settings.py`（明天），`src/rainy/settings.py`(Rainy) 和`src/fragile/settings.py`(Fragile) 中，可以透過環境變數或`.env`文件進行覆蓋。環境變數優先權最高，三個模組分別使用`TOMORROW_`、`RAINY_`和`FRAGILE_`前綴；也可以透過`TOMORROW_ENV_FILE`、`RAINY_ENV_FILE`或`FRAGILE_ENV_FILE`指定設定檔路徑。
 
 ### 環境變數
 
