@@ -1,6 +1,6 @@
 # nhm-deepagents
 
-[![Build Status](https://github.com/noHairMan/nhm-deepagents/actions/workflows/build.yml/badge.svg)](https://github.com/noHairMan/nhm-deepagents/actions/workflows/build.yml)[![Coverage badge](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/noHairMan/nhm-deepagents/python-coverage-comment-action-data/endpoint.json)](https://htmlpreview.github.io/?https://github.com/noHairMan/nhm-deepagents/blob/python-coverage-comment-action-data/htmlcov/index.html)[![Lint: Ruff](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/astral-sh/ruff/main/assets/badge/v2.json)](https://github.com/astral-sh/ruff)[![Python Version](https://img.shields.io/badge/python-3.14+-blue.svg)](https://www.python.org/downloads/release/python-3140/)[![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)[![Repo Size](https://img.shields.io/github/repo-size/noHairMan/nhm-deepagents)](https://github.com/noHairMan/nhm-deepagents)[![Last Commit](https://img.shields.io/github/last-commit/noHairMan/nhm-deepagents)](https://github.com/noHairMan/nhm-deepagents)
+[![Build Status](https://github.com/noHairMan/nhm-deepagents/actions/workflows/build.yml/badge.svg)](https://github.com/noHairMan/nhm-deepagents/actions/workflows/build.yml)[![Coverage badge](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/noHairMan/nhm-deepagents/python-coverage-comment-action-data/endpoint.json)](https://htmlpreview.github.io/?https://github.com/noHairMan/nhm-deepagents/blob/python-coverage-comment-action-data/htmlcov/index.html)[![Lint: Ruff](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/astral-sh/ruff/main/assets/badge/v2.json)](https://github.com/astral-sh/ruff)[![Python Version](https://img.shields.io/badge/python-3.14-blue.svg)](https://www.python.org/downloads/release/python-3140/)[![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)[![Repo Size](https://img.shields.io/github/repo-size/noHairMan/nhm-deepagents)](https://github.com/noHairMan/nhm-deepagents)[![Last Commit](https://img.shields.io/github/last-commit/noHairMan/nhm-deepagents)](https://github.com/noHairMan/nhm-deepagents)
 
 [簡体字中国語](/docs/README.zh.md)\|[英語](/docs/README.en.md)\|[日本語](/docs/README.ja.md)\|[繁体中文](/docs/README.zh-TW.md)
 
@@ -12,13 +12,13 @@
 
 ## 🌟プロジェクト概要
 
-`nhm-deepagents`は、ディープ エージェントに焦点を当てたプロフェッショナルな Python プロジェクトです。最新の Python 機能 (3.14 以降) と強力なツールを活用して、AI エージェントの研究とアプリケーションに高品質の開発エクスペリエンスを提供します。
+`nhm-deepagents`は、ディープ エージェントに焦点を当てたプロフェッショナルな Python プロジェクトです。 Python 3.14 と強力なツールを活用して、AI エージェントの研究とアプリケーションに高品質の開発エクスペリエンスを提供します。
 
 プロジェクトには 3 つの主要なモジュールが含まれています。
 
--   **`tomorrow`**: コアエージェントモジュール。コードネームはゲーム『デス・ストランディング2: オン・ザ・ビーチ』のキャラクターから取られています。**明日**（エル・ファニングが演じる）。プロットでは、彼女は主人公サム・ブリッジスの娘であり、前作のキャラクターでもあることが明らかになりました。**ルー**(BB-28)。
+-   **`tomorrow`**: コアエージェントモジュール。コードネームはゲーム『デス・ストランディング2: オン・ザ・ビーチ』のキャラクターから取られています。**明日**（エル・ファニングが演じる）。プロットでは、彼女は主人公サム・ブリッジスの娘であり、前作のキャラクターでもあることが明らかにされています。**ルー**(BB-28)。
 -   **`rainy`**: FastAPIをベースとしたAPIサービスモジュール。コードネームもデス・ストランディング2のキャラクターから取られています**雨が降る**（忽那汐里が演じる）。ゲーム内では「タイムフォール」と治癒の「コアフォール」を引き起こす魔法の力を持ち、傷つけることも治すこともできる「ファルマコン」として描かれている。
--   **`fragile`**: 基于 `asyncclick`Tomorrow エージェントに直接質問したり、対話型セッションを開始したりするための非同期コマンド ライン クライアント。名前は同作の登場人物から。**壊れやすい**。 Fragile は Fragile Express の創設者であり配達員です。彼は時の雨にさらされて急速に老化しましたが、危険な環境で常に重要な物資を他の人に届けてきました。つながりと届けという使命を主張しながらも、「壊れやすい」佇まいのイメージが、このクライアント名の背景となっている。
+-   **`fragile`**： に基づく`asyncclick`Tomorrow エージェントに直接質問したり、対話型セッションを開始したりするための非同期コマンド ライン クライアント。名前は同作の登場人物から。**壊れやすい**。 Fragile は Fragile Express の創設者であり配達員です。彼は時の雨にさらされて急速に老化しましたが、危険な環境で常に重要な物資を他の人に届けてきました。つながりと届けという使命を主張しながらも、「壊れやすい」佇まいのイメージが、このクライアント名の背景となっている。
 
 このプロジェクトは、`deepagents`フレームワークはユーザー入力を分析して渡します`rainy`このモジュールは外部同期を提供します (`/api/chat`）そして**ストリーミング (`/api/chat/stream`）**APIインターフェース。
 
@@ -30,18 +30,18 @@
 -   **再帰的制御**：サポートを通じて`TOMORROW_RECURSION_LIMIT`エージェントの再帰呼び出しの深さを制限します。
 -   **ライフサイクル管理**： 導入`AgentManager`エージェント インスタンスの作成と破棄を一元管理することで、リソースの適切な初期化が保証されます。
 -   **高性能 API**: FastAPI 上に構築され、同期応答と Server-Sent Events (SSE) ストリーミング出力をサポートします。
--   **交互式 CLI**:`fragile`支持`/new`新しいセッションを作成し、`/history`永続化された履歴セッションを参照して切り替えます。`/account`外部モデルアカウントを設定し、`/quit`終了、セッション回復、入力履歴、スラッシュコマンド補完、複数行編集。
--   **アカウント構成の永続性**: インタラクティブ コマンドによる Ollama、Anthropic、OpenAI の API 認証情報の保存と、後続のセッションでの自動的な復元をサポートします。
+-   **交互式 CLI**:`fragile`支持`/new`新しいセッションを作成し、`/history`永続化された履歴セッションを参照して切り替えます。`/account`外部モデルアカウントを設定し、`/model`モデルを選択し、`/quit`終了、セッション回復、入力履歴、スラッシュコマンド補完、複数行編集。
+-   **アカウント構成の永続性**: インタラクティブ コマンドによる Anthropic および OpenAI の API 認証情報の保存と、後続のセッションでの自動的な復元をサポートします。
 -   **信頼性の保証**: 強制型ヒント、Ruff 静的チェック、100% のテスト カバレッジ要件。
 
 ## 🛠️ テクノロジースタック
 
--   **言語**:[パイソン](https://www.python.org/)>= 3.14
+-   **语言**:[パイソン](https://www.python.org/)>= 3.14, &lt; 3.15
 -   **包管理器**:[紫外線](https://github.com/astral-sh/uv)
 -   **APIフレームワーク**:[早い](https://fastapi.tiangolo.com/)
 -   **ウェブサーバー**:[ユビコーン](https://www.uvicorn.org/)
 -   **エージェントフレームワーク**:[ディープエージェント](https://github.com/zongxuheng/deepagents)(LangGraph/LangChainに基づく)
--   **LLMプロバイダー**:[であること](https://ollama.com/)、[人間的](https://www.anthropic.com/)そして[OpenAI](https://openai.com/)
+-   **LLMプロバイダー**:[人間的](https://www.anthropic.com/)そして[OpenAI](https://openai.com/)
 -   **端末のインタラクション**:[非同期クリック](https://github.com/python-trio/asyncclick)非同期 CLI コマンド、パラメータ解析、およびヘルプ情報を提供します。[プロンプトツールキット](https://github.com/prompt-toolkit/python-prompt-toolkit)非同期入力、入力履歴、コマンド補完、複数行編集を提供します。[リッチ](https://github.com/Textualize/rich)端末出力スタイルを提供します。
 -   **配置管理**:[ピダンティックな設定](https://docs.pydantic.dev/latest/usage/settings/)
 -   **例外処理**: カスタム例外システム (`TomorrowError`とそのサブクラス)、モデル、バックエンド、ストレージ、チェックポイントのエラーをカバーします。
@@ -50,10 +50,10 @@
 
 ## 📋 環境要件
 
--   **Python 3.14+**
+-   **Python 3.14 (3.15 以降はサポートされていません)**
 -   **紫外線**: 高速な Python パッケージ インストーラーおよびパーサー。
--   **LLMプロバイダー**： 現在`.env`Anthropic 互換インターフェイスを使用すると、Ollama を実行する必要はありません。
--   **LLMモデル**: 現在の構成では次のように使用されます。`deepseek-v4-flash`;パスすることもできます`TOMORROW_MODEL`オラマに切り替えます。
+-   **LLMプロバイダー**: Anthropic および OpenAI 互換インターフェイスをサポートします。これらは環境変数または`.env`配置 API Key。
+-   **LLMモデル**: デフォルトで Anthropic を使用します`claude-sonnet-5`、渡すこともできます`TOMORROW_MODEL__TYPE`OpenAI に切り替えます。
 
 ## 🚀 クイックスタート
 
@@ -127,7 +127,7 @@ uv run fragile
 
 合格`--thread`または`-t`UUID を渡すと、既存のセッションを復元できます。渡されない場合、新しいスレッドが自動的に作成されます。インタラクション中の入力`/new`画面をクリアして新しいセッションを開始するには、次のように入力します。`/history`保存されたセッションを表示し、番号または UUID で切り替えるには、次のように入力します。`/quit`出口;続けて2回押すこともできます`Ctrl+C`セッションを短時間で終了するには、 を押します。`Esc`Enter キーを押して改行を挿入します。
 
-別のモデル プロバイダーを初めて使用する場合は、対話型セッションで入力できます。`/account`、プロンプトに従ってプロバイダーを選択し、ベース URL と API キーを入力します。モデル名などの他の構成は引き続き合格します`TOMORROW_MODEL`または、対応する環境変数設定。資格情報は、次回以降の起動のためにローカル データベースに保存されます。`fragile`実行中に自動的に復元します。設定を変更する必要がある場合は、再度実行してください`/account`それでおしまい。
+別のモデル プロバイダーを初めて使用する場合は、対話型セッションで入力できます。`/account`、プロンプトに従ってプロバイダーを選択し、ベース URL と API キーを入力します。モデル名などの他の構成は引き続き合格します`TOMORROW_MODEL`または、対応する環境変数設定。認証情報は、次回以降の起動のためにローカル データベースに保存されます。`fragile`実行中に自動的に復元します。設定を変更する必要がある場合は、再度実行してください`/account`それでおしまい。
 
 `fragile`CLI エントリと`purge`サブコマンドはすべて非同期コマンド関数を使用して、既に実行中のイベント ループでのネストされた呼び出しを回避します。`asyncio.run()`。永続化されたセッション レコードをクリーンアップします。
 
@@ -141,31 +141,31 @@ fragile purge
 
 ### 環境変数
 
-環境変数にはデフォルトで接頭辞が付けられます`TOMORROW_` (核心模块)、`RAINY_`(API モジュール) または`FRAGILE_`(CLI モジュール) が始まります。
+環境変数にはデフォルトで接頭辞が付けられます`TOMORROW_`(コアモジュール)、`RAINY_`(API モジュール) または`FRAGILE_`(CLI モジュール) が始まります。
 
 #### Tomorrow 配置 (核心)
 
-| 変数                                                  | 説明する                                       | デフォルト値                                    |
-| --------------------------------------------------- | ------------------------------------------ | ----------------------------------------- |
-| `TOMORROW_APP`                                      | アプリケーション名 (環境変数の接頭辞として使用)                  | `tomorrow`                                |
-| `TOMORROW_MODEL`                                    | モデル構成、OLLAMA、ANTHROPIC、OPENAI をサポート        | 現在`.env`使用`anthropic`/`deepseek-v4-flash` |
-| `TOMORROW_CHECKPOINT`                               | チェックポイント構成、MEMORY および SQLITE をサポート         | `{"type":"memory"}`                       |
-| `TOMORROW_BACKEND`                                  | バックエンド構成、FILESYSTEM および LOCAL_SHELL をサポート  | `{"type":"filesystem"}`                   |
-| `TOMORROW_STORE`                                    | ストレージ構成、MEMORY および SQLITE をサポート            | `{"type":"sqlite"}`                       |
-| `TOMORROW_SKILLS`                                   | スキルカタログ一覧                                  | `["skills/"]`                             |
-| `TOMORROW_SUBAGENTS`                                | サブエージェント構成リスト                              | `[]`                                      |
-| `TOMORROW_RECURSION_LIMIT`                          | エージェント再帰呼び出しの上限                            | `100`                                     |
-| `TOMORROW_MODEL__ANTHROPIC__THINKING_ENABLED`       | 人間的思考のアウトプットを要求するかどうか                      | `false`                                   |
-| `TOMORROW_MODEL__ANTHROPIC__THINKING_BUDGET_TOKENS` | 人間的思考のトークン予算 (有効な場合は必須)                    | 設定されていません                                 |
-| `TOMORROW_MODEL__OPENAI__REASONING_EFFORT`          | OpenAI 推論の強み:`low`、`medium`または`high`       | 設定されていません                                 |
-| `TOMORROW_MODEL__OPENAI__REASONING_SUMMARY`         | OpenAI 推論の要約:`auto`、`concise`または`detailed` | 設定されていません                                 |
+| 変数                                                  | 説明する                                       | デフォルト値                        |
+| --------------------------------------------------- | ------------------------------------------ | ----------------------------- |
+| `TOMORROW_APP`                                      | アプリケーション名 (環境変数の接頭辞として使用)                  | `tomorrow`                    |
+| `TOMORROW_MODEL`                                    | 模型配置，支持`ANTHROPIC`そして`OPENAI`              | `anthropic`/`claude-sonnet-5` |
+| `TOMORROW_CHECKPOINT`                               | チェックポイント構成、MEMORY および SQLITE をサポート         | `{"type":"memory"}`           |
+| `TOMORROW_BACKEND`                                  | バックエンド構成、FILESYSTEM および LOCAL_SHELL をサポート  | `{"type":"filesystem"}`       |
+| `TOMORROW_STORE`                                    | ストレージ構成、MEMORY および SQLITE をサポート            | `{"type":"sqlite"}`           |
+| `TOMORROW_SKILLS`                                   | スキルカタログ一覧                                  | `[]`                          |
+| `TOMORROW_SUBAGENTS`                                | サブエージェント構成リスト                              | `[]`                          |
+| `TOMORROW_RECURSION_LIMIT`                          | エージェント再帰呼び出しの上限                            | `100`                         |
+| `TOMORROW_MODEL__ANTHROPIC__THINKING_ENABLED`       | 人間的思考のアウトプットを要求するかどうか                      | `false`                       |
+| `TOMORROW_MODEL__ANTHROPIC__THINKING_BUDGET_TOKENS` | 人間的思考のトークン予算 (有効な場合は必須)                    | 設定されていません                     |
+| `TOMORROW_MODEL__OPENAI__REASONING_EFFORT`          | OpenAI 推論の強み:`low`、`medium`または`high`       | 設定されていません                     |
+| `TOMORROW_MODEL__OPENAI__REASONING_SUMMARY`         | OpenAI 推論の要約:`auto`、`concise`または`detailed` | 設定されていません                     |
 
-モデル設定が渡されました`TOMORROW_MODEL`または、ネストされた環境変数を渡します。現在`.env`Anthropic 互換インターフェイスを使用し、`deepseek-v4-flash`; Ollama を使用する場合は、それに応じて設定してください`ollama`物体。例えば：
+モデル設定が渡されました`TOMORROW_MODEL`または、ネストされた環境変数を渡します。デフォルトでは Anthropic が使用されます`claude-sonnet-5`, Anthropic 互換インターフェイスも設定できます。例えば：
 
 ```bash
 export TOMORROW_MODEL__TYPE="anthropic"
-export TOMORROW_MODEL__ANTHROPIC__BASE_URL="https://www.llmgateway.cn"
-export TOMORROW_MODEL__ANTHROPIC__MODEL="deepseek-v4-flash"
+export TOMORROW_MODEL__ANTHROPIC__BASE_URL="https://api.anthropic.com"
+export TOMORROW_MODEL__ANTHROPIC__MODEL="claude-sonnet-5"
 export TOMORROW_MODEL__ANTHROPIC__API_KEY="your-api-key"
 ```
 
@@ -212,11 +212,11 @@ export TOMORROW_SUBAGENTS='[{"name":"researcher","description":"负责资料检�
 
 #### Fragile 配置 (CLI)
 
-| 変数                                 | 説明する                      | デフォルト値                 |
-| ---------------------------------- | ------------------------- | ---------------------- |
-| `FRAGILE_APP`                      | アプリケーション名 (環境変数の接頭辞として使用) | `fragile`              |
-| `FRAGILE_INTERRUPT_EXIT_THRESHOLD` | 二度`Ctrl+C` 触发退出的最大间隔（秒）   | `0.5`                  |
-| `FRAGILE_ENABLED_COMMANDS`         | 有効な対話型コマンドのクラスパス リスト      | `quit`、`new`、`history` |
+| 変数                                 | 説明する                          | デフォルト値                                   |
+| ---------------------------------- | ----------------------------- | ---------------------------------------- |
+| `FRAGILE_APP`                      | アプリケーション名 (環境変数の接頭辞として使用)     | `fragile`                                |
+| `FRAGILE_INTERRUPT_EXIT_THRESHOLD` | 二度`Ctrl+C`終了をトリガーする間の最大間隔 (秒) | `0.5`                                    |
+| `FRAGILE_ENABLED_COMMANDS`         | 有効な対話型コマンドのクラスパス リスト          | `quit`、`new`、`history`、`account`、`model` |
 
 Fragile のその他の対話型動作は、コマンド ライン オプションと組み込みのスラッシュ コマンドによって制御されます。コマンドは、レジストリを通じて均一に検出され、処理されます。`FRAGILE_ENABLED_COMMANDS`有効なコマンドを調整します。アカウントの資格情報は次によって提供されます。`Account`モデルは Fragile のデータベースにシングルトンとして保存され、対話型セッションが開始されると、Tomorrow のモデル構成に復元されます。環境変数は引き続き構成ソースとして使用でき、優先度が高くなります。
 
