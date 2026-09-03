@@ -16,7 +16,7 @@ For development environment, project structure, code specifications and testing 
 
 The project contains three main modules:
 
--   **`tomorrow`**: Core agent module. The codename is taken from a character in the game "Death Stranding 2: On the Beach"**Tomorrow**(played by Elle Fanning). In the plot, she is the daughter of protagonist Sam Bridges, who was also revealed to be a character in the previous game.**Lou**(BB-28)。
+-   **`tomorrow`**: Core agent module. The code name is taken from a character in the game "Death Stranding 2: On the Beach"**Tomorrow**(played by Elle Fanning). In the plot, she is the daughter of protagonist Sam Bridges, who was also revealed to be a character in the previous game.**Lou**(BB-28)。
 -   **`rainy`**: API service module based on FastAPI. The codename is also taken from a character in Death Stranding 2**Rainy**(played by Shiori Kutsuna). In the game, she has the magical power to cause "Timefall" and the healing "Corefall", and is described as a "Pharmakon" that can both hurt and heal.
 -   **`fragile`**: based on`asyncclick`An asynchronous command line client for asking questions directly to the Tomorrow agent or starting interactive sessions. Its name is taken from a character in the same work**Fragile**. Fragile is the founder and courier of Fragile Express. He has aged rapidly due to exposure to the rain of time, but he has always delivered important supplies to others in dangerous environments. This image of a "fragile" appearance that still insists on the mission of connection and delivery is the background of the name of this client.
 
@@ -53,7 +53,7 @@ This project provides a general smart assistant agent that utilizes`deepagents`T
 -   **Python 3.14+**
 -   **uv**: A fast Python package installer and parser.
 -   **LLM provider**: current`.env`Using the Anthropic-compatible interface, there is no need to run Ollama.
--   **LLM model**: Current configuration uses`deepseek-v4-flash`;can also be passed`TOMORROW_MODEL`Switch to Ollama.
+-   **LLM model**: Current configuration uses`deepseek-v4-flash`;You can also pass`TOMORROW_MODEL`Switch to Ollama.
 
 ## 🚀 Quick Start
 
@@ -111,7 +111,7 @@ curl -X POST http://localhost:8000/api/chat \
   -d '{"message":"你好"}'
 ```
 
-When you need to receive replies step by step, you can call`/api/chat/stream` 获取 SSE 数据流；`/api/chat/stream/event`A more complete stream of LangGraph events is returned. The health check interface is`GET /api/health`。
+When you need to receive replies step by step, you can call`/api/chat/stream`Get SSE data stream;`/api/chat/stream/event`A more complete stream of LangGraph events is returned. The health check interface is`GET /api/health`。
 
 use`fragile`The command line client starts an interactive session:
 
@@ -145,16 +145,20 @@ Environment variables are prefixed by default`TOMORROW_`(core module),`RAINY_`(A
 
 #### Tomorrow configuration (core)
 
-| variable                   | describe                                                   | default value                                   |
-| -------------------------- | ---------------------------------------------------------- | ----------------------------------------------- |
-| `TOMORROW_APP`             | Application name (used as environment variable prefix)     | `tomorrow`                                      |
-| `TOMORROW_MODEL`           | Model configuration, supports OLLAMA, ANTHROPIC and OPENAI | current`.env`use`anthropic`/`deepseek-v4-flash` |
-| `TOMORROW_CHECKPOINT`      | Checkpoint configuration, supports MEMORY and SQLITE       | `{"type":"memory"}`                             |
-| `TOMORROW_BACKEND`         | Backend configuration, supports FILESYSTEM and LOCAL_SHELL | `{"type":"filesystem"}`                         |
-| `TOMORROW_STORE`           | Storage configuration, supports MEMORY and SQLITE          | `{"type":"sqlite"}`                             |
-| `TOMORROW_SKILLS`          | Skill Catalog List                                         | `["skills/"]`                                   |
-| `TOMORROW_SUBAGENTS`       | Subagent configuration list                                | `[]`                                            |
-| `TOMORROW_RECURSION_LIMIT` | The upper limit of agent recursive calls                   | `100`                                           |
+| variable                                            | describe                                                   | default value                                   |
+| --------------------------------------------------- | ---------------------------------------------------------- | ----------------------------------------------- |
+| `TOMORROW_APP`                                      | Application name (used as environment variable prefix)     | `tomorrow`                                      |
+| `TOMORROW_MODEL`                                    | Model configuration, supports OLLAMA, ANTHROPIC and OPENAI | current`.env`use`anthropic`/`deepseek-v4-flash` |
+| `TOMORROW_CHECKPOINT`                               | Checkpoint configuration, supports MEMORY and SQLITE       | `{"type":"memory"}`                             |
+| `TOMORROW_BACKEND`                                  | Backend configuration, supports FILESYSTEM and LOCAL_SHELL | `{"type":"filesystem"}`                         |
+| `TOMORROW_STORE`                                    | Storage configuration, supports MEMORY and SQLITE          | `{"type":"sqlite"}`                             |
+| `TOMORROW_SKILLS`                                   | Skill Catalog List                                         | `["skills/"]`                                   |
+| `TOMORROW_SUBAGENTS`                                | Subagent configuration list                                | `[]`                                            |
+| `TOMORROW_RECURSION_LIMIT`                          | The upper limit of agent recursive calls                   | `100`                                           |
+| `TOMORROW_MODEL__ANTHROPIC__THINKING_ENABLED`       | Whether to request Anthropic thinking output               | `false`                                         |
+| `TOMORROW_MODEL__ANTHROPIC__THINKING_BUDGET_TOKENS` | Anthropic thinking’s token budget (required when enabled)  | not set                                         |
+| `TOMORROW_MODEL__OPENAI__REASONING_EFFORT`          | OpenAI reasoning strength:`low`、`medium`or`high`           | not set                                         |
+| `TOMORROW_MODEL__OPENAI__REASONING_SUMMARY`         | OpenAI reasoning summary:`auto`、`concise`or`detailed`      | not set                                         |
 
 Model configuration passed`TOMORROW_MODEL`Or pass in nested environment variables. current`.env`Use Anthropic compatible interfaces and`deepseek-v4-flash`;When using Ollama, please configure accordingly`ollama`object. For example:
 
@@ -174,6 +178,18 @@ export TOMORROW_MODEL__OPENAI__API_KEY="your-api-key"
 export TOMORROW_MODEL__OPENAI__BASE_URL="https://api.openai.com/v1"
 export TOMORROW_MODEL__OPENAI__TEMPERATURE="0"
 ```
+
+thinking/reasoning is turned off by default. need to be in`fragile`When viewing the thinking or reasoning summary explicitly returned by the model in the CLI, configure the corresponding parameters according to the provider; this feature may increase token consumption and response latency. For example:
+
+```bash
+export TOMORROW_MODEL__ANTHROPIC__THINKING_ENABLED="true"
+export TOMORROW_MODEL__ANTHROPIC__THINKING_BUDGET_TOKENS="2048"
+
+export TOMORROW_MODEL__OPENAI__REASONING_EFFORT="medium"
+export TOMORROW_MODEL__OPENAI__REASONING_SUMMARY="auto"
+```
+
+Fragile only displays the thinking/reasoning content returned by the provider and does not generate or infer internal thinking not returned by the model; the existing response protocol of the Rainy API is not affected. When it is not configured or the model does not support the corresponding capability, only the final answer will be displayed.
 
 For specific fields and default values, please refer to`src/tomorrow/settings.py`。
 
@@ -196,7 +212,7 @@ export TOMORROW_SUBAGENTS='[{"name":"researcher","description":"负责资料检�
 
 #### Fragile configuration (CLI)
 
-| variable                           | describe                                                         | default value          |
+| variable                           | describe                                                         | 默认值                    |
 | ---------------------------------- | ---------------------------------------------------------------- | ---------------------- |
 | `FRAGILE_APP`                      | Application name (used as environment variable prefix)           | `fragile`              |
 | `FRAGILE_INTERRUPT_EXIT_THRESHOLD` | twice`Ctrl+C`Maximum interval between triggering exits (seconds) | `0.5`                  |
