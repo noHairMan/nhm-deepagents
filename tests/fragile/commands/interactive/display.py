@@ -5,6 +5,7 @@ from fragile.commands.interactive.display import (
     enter_fullscreen,
     leave_fullscreen,
     print_stream,
+    print_thinking,
     replay_outputs,
     show_connection_error,
     show_request_error,
@@ -46,6 +47,20 @@ class TestDisplay:
 
         assert capsys.readouterr().out == "[not-a-markup-tag]answer[/not-a-markup-tag]"
 
+    def test_print_thinking_uses_safe_distinct_style(self) -> None:
+        with patch("fragile.commands.interactive.display.console.print") as print_console:
+            print_thinking("[thinking]")
+
+        thinking_text = print_console.call_args.args[0]
+        assert thinking_text.plain == "[thinking]"
+        assert thinking_text.style == "dim yellow"
+
+    def test_print_thinking_ignores_empty_content(self) -> None:
+        with patch("fragile.commands.interactive.display.console.print") as print_console:
+            print_thinking("")
+
+        print_console.assert_not_called()
+
     def test_replay_outputs_preserves_markup(self, capsys) -> None:
         record = type("Record", (), {"user_input": "question", "assistant_output": "[bold]answer[/bold]"})()
 
@@ -53,6 +68,32 @@ class TestDisplay:
 
         output = capsys.readouterr().out
         assert "> question" in output
+        assert "answer" in output
+
+    def test_replay_outputs_shows_thinking_before_answer_safely(self, capsys) -> None:
+        record = type(
+            "Record",
+            (),
+            {
+                "user_input": "question",
+                "thinking_output": "[thinking]reasoning[/thinking]",
+                "assistant_output": "answer",
+            },
+        )()
+
+        replay_outputs([record])
+
+        output = capsys.readouterr().out
+        assert output.index("Thinking:") < output.index("reasoning") < output.index("answer")
+        assert "[thinking]reasoning[/thinking]" in output
+
+    def test_replay_outputs_supports_legacy_record_without_thinking(self, capsys) -> None:
+        record = type("Record", (), {"user_input": "question", "assistant_output": "answer"})()
+
+        replay_outputs([record])
+
+        output = capsys.readouterr().out
+        assert "Thinking:" not in output
         assert "answer" in output
 
     def test_replay_outputs_handles_empty_assistant_content(self, capsys) -> None:

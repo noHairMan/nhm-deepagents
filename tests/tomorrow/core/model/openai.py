@@ -25,3 +25,24 @@ class TestOpenAI:
                     temperature=model_config.get("temperature"),
                     callbacks=[llm_callback],
                 )
+
+    def test_get_model_with_reasoning(self):
+        with patch("tomorrow.core.model.openai.ChatOpenAI") as mock_openai:
+            from tomorrow.conf import settings
+            from tomorrow.settings import ModelConfig, OpenAIConfig
+
+            model_config = ModelConfig(
+                type=ModelType.OPENAI,
+                openai=OpenAIConfig(reasoning_effort="high", reasoning_summary="detailed"),
+            )
+            with patch("tomorrow.conf.settings.MODEL", model_config):
+                get_model()
+                mock_openai.assert_called_once_with(
+                    model=settings.MODEL.get(ModelType.OPENAI).get("model"),
+                    api_key=settings.MODEL.get(ModelType.OPENAI).get("api_key"),
+                    base_url=settings.MODEL.get(ModelType.OPENAI).get("base_url"),
+                    temperature=settings.MODEL.get(ModelType.OPENAI).get("temperature"),
+                    callbacks=[llm_callback],
+                    reasoning_effort="high",
+                    reasoning={"summary": "detailed"},
+                )

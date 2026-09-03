@@ -1,7 +1,13 @@
 import pytest
 from sqlalchemy import create_engine, inspect, text
 
-from fragile.models.base import _migrate_account_model, _migrate_account_provider, create_tables, get_engine
+from fragile.models.base import (
+    _migrate_account_model,
+    _migrate_account_provider,
+    _migrate_session_output_thinking,
+    create_tables,
+    get_engine,
+)
 
 
 class TestDatabase:
@@ -45,4 +51,27 @@ class TestDatabase:
         sync_engine = create_engine(f"sqlite:///{tmp_path / 'empty-model.db'}")
         with sync_engine.begin() as connection:
             _migrate_account_model(connection)
+        sync_engine.dispose()
+
+    def test_migrate_session_output_thinking_adds_missing_column_idempotently(self, tmp_path) -> None:
+        database_path = tmp_path / "legacy-output.db"
+        sync_engine = create_engine(f"sqlite:///{database_path}")
+        with sync_engine.begin() as connection:
+            connection.execute(
+                text(
+                    "CREATE TABLE fragile_session_output "
+                    "(id INTEGER PRIMARY KEY, user_input VARCHAR NOT NULL, "
+                    "assistant_output VARCHAR NOT NULL, style_payload VARCHAR NOT NULL)"
+                )
+            )
+            _migrate_session_output_thinking(connection)
+            _migrate_session_output_thinking(connection)
+            columns = {column["name"] for column in inspect(connection).get_columns("fragile_session_output")}
+        sync_engine.dispose()
+        assert "thinking_output" in columns
+
+    def test_migrate_session_output_thinking_ignores_missing_table(self, tmp_path) -> None:
+        sync_engine = create_engine(f"sqlite:///{tmp_path / 'empty-output.db'}")
+        with sync_engine.begin() as connection:
+            _migrate_session_output_thinking(connection)
         sync_engine.dispose()

@@ -37,6 +37,7 @@ async def create_tables(async_engine: AsyncEngine) -> None:
         await connection.run_sync(Base.metadata.create_all)
         await connection.run_sync(_migrate_account_provider)
         await connection.run_sync(_migrate_account_model)
+        await connection.run_sync(_migrate_session_output_thinking)
 
 
 def _migrate_account_provider(connection: object) -> None:
@@ -59,6 +60,16 @@ def _migrate_account_model(connection: object) -> None:
     columns = {column["name"] for column in inspector.get_columns("fragile_account")}
     if "model" not in columns:
         connection.execute(text("ALTER TABLE fragile_account ADD COLUMN model VARCHAR(256)"))
+
+
+def _migrate_session_output_thinking(connection: object) -> None:
+    """Add the thinking output column to legacy session output databases."""
+    inspector = inspect(connection)
+    if "fragile_session_output" not in inspector.get_table_names():
+        return
+    columns = {column["name"] for column in inspector.get_columns("fragile_session_output")}
+    if "thinking_output" not in columns:
+        connection.execute(text("ALTER TABLE fragile_session_output ADD COLUMN thinking_output VARCHAR"))
 
 
 async def get_initialized_session_factory() -> async_sessionmaker[AsyncSession]:

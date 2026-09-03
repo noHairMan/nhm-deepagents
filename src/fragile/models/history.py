@@ -47,6 +47,7 @@ class SessionOutput(Base):
     user_input: Mapped[str] = mapped_column(String, nullable=False)
     assistant_output: Mapped[str] = mapped_column(String, nullable=False)
     style_payload: Mapped[str] = mapped_column(String, nullable=False, default="")
+    thinking_output: Mapped[str | None] = mapped_column(String, nullable=True)
 
     @classmethod
     async def save_output(
@@ -55,6 +56,7 @@ class SessionOutput(Base):
         user_input: str,
         assistant_output: str,
         style_payload: str = "",
+        thinking_output: str | None = None,
     ) -> None:
         """Save a completed turn without blocking the event loop."""
         session_factory = await get_initialized_session_factory()
@@ -65,6 +67,7 @@ class SessionOutput(Base):
                     user_input=user_input,
                     assistant_output=assistant_output,
                     style_payload=style_payload,
+                    thinking_output=thinking_output,
                 )
             )
             await session.commit()

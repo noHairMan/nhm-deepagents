@@ -1,8 +1,8 @@
 import os
 from pathlib import Path
-from typing import ClassVar
+from typing import ClassVar, Literal
 
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, model_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 from tomorrow.models.constants import BackendType, CheckpointType, ModelType, StoreType
@@ -35,6 +35,14 @@ class AnthropicConfig(BaseConfigModel):
     api_key: str | None = None
     base_url: str | None = None
     temperature: float = 0
+    thinking_enabled: bool = False
+    thinking_budget_tokens: int | None = Field(default=None, gt=0)
+
+    @model_validator(mode="after")
+    def validate_thinking_budget(self) -> AnthropicConfig:
+        if self.thinking_enabled and self.thinking_budget_tokens is None:
+            raise ValueError("thinking_budget_tokens is required when thinking_enabled is true")
+        return self
 
 
 class OpenAIConfig(BaseConfigModel):
@@ -42,6 +50,8 @@ class OpenAIConfig(BaseConfigModel):
     api_key: str | None = None
     base_url: str | None = None
     temperature: float = 0
+    reasoning_effort: Literal["low", "medium", "high"] | None = None
+    reasoning_summary: Literal["auto", "concise", "detailed"] | None = None
 
 
 class ModelConfig(BaseConfigModel):

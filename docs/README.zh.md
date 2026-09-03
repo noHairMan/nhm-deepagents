@@ -153,6 +153,10 @@ fragile purge
 | `TOMORROW_SKILLS` | 技能目录列表 | `["skills/"]` |
 | `TOMORROW_SUBAGENTS` | 子代理配置列表 | `[]` |
 | `TOMORROW_RECURSION_LIMIT` | 智能体递归调用上限 | `100` |
+| `TOMORROW_MODEL__ANTHROPIC__THINKING_ENABLED` | 是否请求 Anthropic thinking 输出 | `false` |
+| `TOMORROW_MODEL__ANTHROPIC__THINKING_BUDGET_TOKENS` | Anthropic thinking 的 token 预算（启用时必填） | 未设置 |
+| `TOMORROW_MODEL__OPENAI__REASONING_EFFORT` | OpenAI reasoning 强度：`low`、`medium` 或 `high` | 未设置 |
+| `TOMORROW_MODEL__OPENAI__REASONING_SUMMARY` | OpenAI reasoning 摘要：`auto`、`concise` 或 `detailed` | 未设置 |
 
 模型配置通过 `TOMORROW_MODEL` 或嵌套环境变量传入。当前 `.env` 使用 Anthropic 兼容接口和 `deepseek-v4-flash`；使用 Ollama 时，请相应配置 `ollama` 对象。例如：
 
@@ -172,6 +176,18 @@ export TOMORROW_MODEL__OPENAI__API_KEY="your-api-key"
 export TOMORROW_MODEL__OPENAI__BASE_URL="https://api.openai.com/v1"
 export TOMORROW_MODEL__OPENAI__TEMPERATURE="0"
 ```
+
+thinking/reasoning 默认关闭。需要在 `fragile` CLI 中查看模型明确返回的 thinking 或 reasoning 摘要时，按提供商配置对应参数；该功能可能增加 token 消耗和响应延迟。例如：
+
+```bash
+export TOMORROW_MODEL__ANTHROPIC__THINKING_ENABLED="true"
+export TOMORROW_MODEL__ANTHROPIC__THINKING_BUDGET_TOKENS="2048"
+
+export TOMORROW_MODEL__OPENAI__REASONING_EFFORT="medium"
+export TOMORROW_MODEL__OPENAI__REASONING_SUMMARY="auto"
+```
+
+Fragile 只展示提供商返回的 thinking/reasoning 内容，不会生成或推断模型未返回的内部思考；Rainy API 的现有响应协议不受影响。未配置或模型不支持对应能力时，仍只显示最终答案。
 
 具体字段和默认值请参阅 `src/tomorrow/settings.py`。
 

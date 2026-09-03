@@ -34,6 +34,12 @@ def print_stream(content: str) -> None:
     console.print(content, end="", markup=False)
 
 
+def print_thinking(content: str) -> None:
+    """Print model-provided thinking in a distinct, safe terminal style."""
+    if content:
+        console.print(Text(content, style="dim yellow"), end="")
+
+
 def show_connection_error(provider: str | None = None, model: str | None = None, base_url: str | None = None) -> None:
     """Show a prominent, actionable model connection error."""
     details = ""
@@ -61,7 +67,11 @@ def replay_outputs(records: list[object]) -> None:
     for record in records:
         user_input = getattr(record, "user_input", "")
         assistant_output = getattr(record, "assistant_output", "")
+        thinking_output = getattr(record, "thinking_output", "") or ""
         console.print(Text(f"> {user_input}"))
+        if thinking_output:
+            console.print(Text("Thinking:", style="dim yellow"))
+            console.print(Text(thinking_output, style="dim yellow"))
         if assistant_output:
             console.print(Text.from_markup(assistant_output), end="")
             console.print()

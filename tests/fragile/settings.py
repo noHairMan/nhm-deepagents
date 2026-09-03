@@ -24,10 +24,12 @@ class TestFragileSettings:
         assert log_filename.name == "fragile.log"
         assert log_filename.parent.name == "logs"
         assert settings.LOGGING["handlers"]["fragile"]["class"] == "logging.handlers.RotatingFileHandler"
+        assert settings.LOGGING["handlers"]["fragile"]["encoding"] == "utf-8"
         assert settings.LOGGING["handlers"]["fragile"]["level"] == settings.LOG_LEVEL
         llm_logging = settings.LOGGING["handlers"]["llm"]
         assert Path(llm_logging["filename"]).name == "llm.log"
         assert llm_logging["class"] == "logging.handlers.RotatingFileHandler"
+        assert llm_logging["encoding"] == "utf-8"
         assert llm_logging["level"] == logging.DEBUG
         assert settings.LOGGING["loggers"]["tomorrow.llm"] == {
             "handlers": ["llm"],

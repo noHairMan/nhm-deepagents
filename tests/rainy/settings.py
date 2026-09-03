@@ -22,8 +22,10 @@ class TestRainySettings:
         assert "console" in logging_config["handlers"]
         assert "root" in logging_config["handlers"]
         assert "llm" in logging_config["handlers"]
+        assert logging_config["handlers"]["root"]["encoding"] == "utf-8"
         assert Path(logging_config["handlers"]["llm"]["filename"]).name == "llm.log"
         assert logging_config["handlers"]["llm"]["class"] == "logging.handlers.RotatingFileHandler"
+        assert logging_config["handlers"]["llm"]["encoding"] == "utf-8"
         assert logging_config["handlers"]["llm"]["level"] == logging.DEBUG
         assert "rainy" in logging_config["loggers"]
         assert logging_config["loggers"]["tomorrow.llm"] == {

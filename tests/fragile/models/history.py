@@ -90,14 +90,20 @@ class TestHistory:
         assert stored.title == "新对话"
 
     @pytest.mark.asyncio
-    async def test_session_output_round_trip_preserves_order_and_style(self, tmp_path, monkeypatch) -> None:
+    async def test_session_output_round_trip_preserves_order_style_and_thinking(self, tmp_path, monkeypatch) -> None:
         database_path = tmp_path / "output.db"
         monkeypatch.setattr("fragile.models.base.settings.CHECKPOINT.sqlite.path", database_path)
         async_engine = get_engine()
         monkeypatch.setattr("fragile.models.base.engine", async_engine)
         thread_id = UUID(int=5)
 
-        await SessionOutput.save_output(thread_id, "第一问", "[bold]第一答[/bold]", "markup")
+        await SessionOutput.save_output(
+            thread_id,
+            "第一问",
+            "[bold]第一答[/bold]",
+            "markup",
+            thinking_output="第一想法",
+        )
         await SessionOutput.save_output(thread_id, "第二问", "第二答")
         records = await SessionOutput.list_for_thread(thread_id)
 
@@ -106,6 +112,8 @@ class TestHistory:
             ("第二问", "第二答"),
         ]
         assert records[0].style_payload == "markup"
+        assert records[0].thinking_output == "第一想法"
+        assert records[1].thinking_output is None
         await async_engine.dispose()
 
     @pytest.mark.asyncio
