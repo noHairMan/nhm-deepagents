@@ -1,6 +1,6 @@
 # nhm-deepagents
 
-[![Build Status](https://github.com/noHairMan/nhm-deepagents/actions/workflows/build.yml/badge.svg)](https://github.com/noHairMan/nhm-deepagents/actions/workflows/build.yml)[![Coverage badge](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/noHairMan/nhm-deepagents/python-coverage-comment-action-data/endpoint.json)](https://htmlpreview.github.io/?https://github.com/noHairMan/nhm-deepagents/blob/python-coverage-comment-action-data/htmlcov/index.html)[![Lint: Ruff](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/astral-sh/ruff/main/assets/badge/v2.json)](https://github.com/astral-sh/ruff)[![Python Version](https://img.shields.io/badge/python-3.14+-blue.svg)](https://www.python.org/downloads/release/python-3140/)[![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)[![Repo Size](https://img.shields.io/github/repo-size/noHairMan/nhm-deepagents)](https://github.com/noHairMan/nhm-deepagents)[![Last Commit](https://img.shields.io/github/last-commit/noHairMan/nhm-deepagents)](https://github.com/noHairMan/nhm-deepagents)
+[![Build Status](https://github.com/noHairMan/nhm-deepagents/actions/workflows/build.yml/badge.svg)](https://github.com/noHairMan/nhm-deepagents/actions/workflows/build.yml)[![Coverage badge](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/noHairMan/nhm-deepagents/python-coverage-comment-action-data/endpoint.json)](https://htmlpreview.github.io/?https://github.com/noHairMan/nhm-deepagents/blob/python-coverage-comment-action-data/htmlcov/index.html)[![Lint: Ruff](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/astral-sh/ruff/main/assets/badge/v2.json)](https://github.com/astral-sh/ruff)[![Python Version](https://img.shields.io/badge/python-3.14-blue.svg)](https://www.python.org/downloads/release/python-3140/)[![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)[![Repo Size](https://img.shields.io/github/repo-size/noHairMan/nhm-deepagents)](https://github.com/noHairMan/nhm-deepagents)[![Last Commit](https://img.shields.io/github/last-commit/noHairMan/nhm-deepagents)](https://github.com/noHairMan/nhm-deepagents)
 
 [Simplified Chinese](/docs/README.zh.md)\|[English](/docs/README.en.md)\|[Japanese](/docs/README.ja.md)\|[Traditional Chinese](/docs/README.zh-TW.md)
 
@@ -12,11 +12,11 @@ For development environment, project structure, code specifications and testing 
 
 ## 🌟 Project Overview
 
-`nhm-deepagents`is a professional Python project focusing on deep agents. It leverages modern Python features (3.14+) and powerful tools to provide a high-quality development experience for AI agent research and applications.
+`nhm-deepagents`is a professional Python project focusing on deep agents. It leverages Python 3.14 and powerful tools to provide a high-quality development experience for AI agent research and applications.
 
 The project contains three main modules:
 
--   **`tomorrow`**: Core agent module. The code name is taken from a character in the game "Death Stranding 2: On the Beach"**Tomorrow**(played by Elle Fanning). In the plot, she is the daughter of protagonist Sam Bridges, who was also revealed to be a character in the previous game.**Lou**(BB-28)。
+-   **`tomorrow`**: Core agent module. The code name is taken from a character in the game "Death Stranding 2: On the Beach"**Tomorrow**(played by Elle Fanning). In the plot, she is the daughter of protagonist Sam Bridges, and is also revealed to be a character in the previous game.**Lou**(BB-28)。
 -   **`rainy`**: API service module based on FastAPI. The codename is also taken from a character in Death Stranding 2**Rainy**(played by Shiori Kutsuna). In the game, she has the magical power to cause "Timefall" and the healing "Corefall", and is described as a "Pharmakon" that can both hurt and heal.
 -   **`fragile`**: based on`asyncclick`An asynchronous command line client for asking questions directly to the Tomorrow agent or starting interactive sessions. Its name is taken from a character in the same work**Fragile**. Fragile is the founder and courier of Fragile Express. He has aged rapidly due to exposure to the rain of time, but he has always delivered important supplies to others in dangerous environments. This image of a "fragile" appearance that still insists on the mission of connection and delivery is the background of the name of this client.
 
@@ -30,18 +30,18 @@ This project provides a general smart assistant agent that utilizes`deepagents`T
 -   **recursive control**: support through`TOMORROW_RECURSION_LIMIT`Limit the depth of agent recursive calls.
 -   **life cycle management**: introduction`AgentManager`Unified management of the creation and destruction of agent instances ensures graceful initialization of resources.
 -   **High performance API**: Built on FastAPI, supports synchronous responses and Server-Sent Events (SSE) streaming output.
--   **Interactive CLI**:`fragile`support`/new`Create new session,`/history`Browse and switch between persisted historical sessions,`/account`Configure external model account,`/quit`Exit, session recovery, input history, slash command completion and multi-line editing.
--   **Account configuration persistence**: Supports saving API credentials for Ollama, Anthropic, and OpenAI via interactive commands and automatically restoring them in subsequent sessions.
+-   **Interactive CLI**:`fragile`support`/new`Create new session,`/history`Browse and switch between persisted historical sessions,`/account`Configure external model account,`/model`Select model,`/quit`Exit, session recovery, input history, slash command completion and multi-line editing.
+-   **Account configuration persistence**: Supports saving API credentials for Anthropic and OpenAI via interactive commands and automatically restoring them in subsequent sessions.
 -   **Reliability guaranteed**: Forced type hints, Ruff static checking, 100% test coverage requirement.
 
 ## 🛠️ Technology stack
 
--   **language**:[Python](https://www.python.org/)>= 3.14
+-   **language**:[Python](https://www.python.org/)>= 3.14, &lt; 3.15
 -   **Package manager**:[uv](https://github.com/astral-sh/uv)
 -   **API framework**:[speedy](https://fastapi.tiangolo.com/)
 -   **Web server**:[Uvicorn](https://www.uvicorn.org/)
 -   **agent framework**:[deepagents](https://github.com/zongxuheng/deepagents)(Based on LangGraph/LangChain)
--   **LLM provider**:[To be](https://ollama.com/)、[Anthropic](https://www.anthropic.com/)and[OpenAI](https://openai.com/)
+-   **LLM provider**:[Anthropic](https://www.anthropic.com/)and[OpenAI](https://openai.com/)
 -   **Terminal interaction**:[asyncclick](https://github.com/python-trio/asyncclick)Provide asynchronous CLI commands, parameter parsing and help information;[prompt-toolkit](https://github.com/prompt-toolkit/python-prompt-toolkit)Provides asynchronous input, input history, command completion and multi-line editing;[Rich](https://github.com/Textualize/rich)Provides terminal output styles.
 -   **Configuration management**:[Pydantic Settings](https://docs.pydantic.dev/latest/usage/settings/)
 -   **Exception handling**: Custom exception system (`TomorrowError`and its subclasses), covering model, backend, storage, and checkpoint errors.
@@ -50,10 +50,10 @@ This project provides a general smart assistant agent that utilizes`deepagents`T
 
 ## 📋 Environmental requirements
 
--   **Python 3.14+**
+-   **Python 3.14 (3.15 and above are not supported)**
 -   **uv**: A fast Python package installer and parser.
--   **LLM provider**: current`.env`Using the Anthropic-compatible interface, there is no need to run Ollama.
--   **LLM model**: Current configuration uses`deepseek-v4-flash`;You can also pass`TOMORROW_MODEL`Switch to Ollama.
+-   **LLM provider**: Supports Anthropic and OpenAI compatible interfaces, which need to be passed through environment variables or`.env`Configure API Key.
+-   **LLM model**: Use Anthropic by default`claude-sonnet-5`, you can also pass`TOMORROW_MODEL__TYPE`Switch to OpenAI.
 
 ## 🚀 Quick Start
 
@@ -111,7 +111,7 @@ curl -X POST http://localhost:8000/api/chat \
   -d '{"message":"你好"}'
 ```
 
-When you need to receive replies step by step, you can call`/api/chat/stream`Get SSE data stream;`/api/chat/stream/event`A more complete stream of LangGraph events is returned. The health check interface is`GET /api/health`。
+When you need to receive replies step by step, you can call`/api/chat/stream` 获取 SSE 数据流；`/api/chat/stream/event`A more complete stream of LangGraph events is returned. The health check interface is`GET /api/health`。
 
 use`fragile`The command line client starts an interactive session:
 
@@ -145,27 +145,27 @@ Environment variables are prefixed by default`TOMORROW_`(core module),`RAINY_`(A
 
 #### Tomorrow configuration (core)
 
-| variable                                            | describe                                                   | default value                                   |
-| --------------------------------------------------- | ---------------------------------------------------------- | ----------------------------------------------- |
-| `TOMORROW_APP`                                      | Application name (used as environment variable prefix)     | `tomorrow`                                      |
-| `TOMORROW_MODEL`                                    | Model configuration, supports OLLAMA, ANTHROPIC and OPENAI | current`.env`use`anthropic`/`deepseek-v4-flash` |
-| `TOMORROW_CHECKPOINT`                               | Checkpoint configuration, supports MEMORY and SQLITE       | `{"type":"memory"}`                             |
-| `TOMORROW_BACKEND`                                  | Backend configuration, supports FILESYSTEM and LOCAL_SHELL | `{"type":"filesystem"}`                         |
-| `TOMORROW_STORE`                                    | Storage configuration, supports MEMORY and SQLITE          | `{"type":"sqlite"}`                             |
-| `TOMORROW_SKILLS`                                   | Skill Catalog List                                         | `["skills/"]`                                   |
-| `TOMORROW_SUBAGENTS`                                | Subagent configuration list                                | `[]`                                            |
-| `TOMORROW_RECURSION_LIMIT`                          | The upper limit of agent recursive calls                   | `100`                                           |
-| `TOMORROW_MODEL__ANTHROPIC__THINKING_ENABLED`       | Whether to request Anthropic thinking output               | `false`                                         |
-| `TOMORROW_MODEL__ANTHROPIC__THINKING_BUDGET_TOKENS` | Anthropic thinking’s token budget (required when enabled)  | not set                                         |
-| `TOMORROW_MODEL__OPENAI__REASONING_EFFORT`          | OpenAI reasoning strength:`low`、`medium`or`high`           | not set                                         |
-| `TOMORROW_MODEL__OPENAI__REASONING_SUMMARY`         | OpenAI reasoning summary:`auto`、`concise`or`detailed`      | not set                                         |
+| variable                                            | describe                                                   | default value                 |
+| --------------------------------------------------- | ---------------------------------------------------------- | ----------------------------- |
+| `TOMORROW_APP`                                      | Application name (used as environment variable prefix)     | `tomorrow`                    |
+| `TOMORROW_MODEL`                                    | Model configuration, support`ANTHROPIC`and`OPENAI`         | `anthropic`/`claude-sonnet-5` |
+| `TOMORROW_CHECKPOINT`                               | Checkpoint configuration, supports MEMORY and SQLITE       | `{"type":"memory"}`           |
+| `TOMORROW_BACKEND`                                  | Backend configuration, supports FILESYSTEM and LOCAL_SHELL | `{"type":"filesystem"}`       |
+| `TOMORROW_STORE`                                    | Storage configuration, supports MEMORY and SQLITE          | `{"type":"sqlite"}`           |
+| `TOMORROW_SKILLS`                                   | Skill Catalog List                                         | `[]`                          |
+| `TOMORROW_SUBAGENTS`                                | Subagent configuration list                                | `[]`                          |
+| `TOMORROW_RECURSION_LIMIT`                          | The upper limit of agent recursive calls                   | `100`                         |
+| `TOMORROW_MODEL__ANTHROPIC__THINKING_ENABLED`       | Whether to request Anthropic thinking output               | `false`                       |
+| `TOMORROW_MODEL__ANTHROPIC__THINKING_BUDGET_TOKENS` | Anthropic thinking’s token budget (required when enabled)  | not set                       |
+| `TOMORROW_MODEL__OPENAI__REASONING_EFFORT`          | OpenAI reasoning strength:`low`、`medium`or`high`           | not set                       |
+| `TOMORROW_MODEL__OPENAI__REASONING_SUMMARY`         | OpenAI reasoning summary:`auto`、`concise`or`detailed`      | not set                       |
 
-Model configuration passed`TOMORROW_MODEL`Or pass in nested environment variables. current`.env`Use Anthropic compatible interfaces and`deepseek-v4-flash`;When using Ollama, please configure accordingly`ollama`object. For example:
+Model configuration passed`TOMORROW_MODEL`Or pass in nested environment variables. By default Anthropic is used`claude-sonnet-5`, Anthropic compatible interfaces can also be configured. For example:
 
 ```bash
 export TOMORROW_MODEL__TYPE="anthropic"
-export TOMORROW_MODEL__ANTHROPIC__BASE_URL="https://www.llmgateway.cn"
-export TOMORROW_MODEL__ANTHROPIC__MODEL="deepseek-v4-flash"
+export TOMORROW_MODEL__ANTHROPIC__BASE_URL="https://api.anthropic.com"
+export TOMORROW_MODEL__ANTHROPIC__MODEL="claude-sonnet-5"
 export TOMORROW_MODEL__ANTHROPIC__API_KEY="your-api-key"
 ```
 
@@ -212,11 +212,11 @@ export TOMORROW_SUBAGENTS='[{"name":"researcher","description":"负责资料检�
 
 #### Fragile configuration (CLI)
 
-| variable                           | describe                                                         | 默认值                    |
-| ---------------------------------- | ---------------------------------------------------------------- | ---------------------- |
-| `FRAGILE_APP`                      | Application name (used as environment variable prefix)           | `fragile`              |
-| `FRAGILE_INTERRUPT_EXIT_THRESHOLD` | twice`Ctrl+C`Maximum interval between triggering exits (seconds) | `0.5`                  |
-| `FRAGILE_ENABLED_COMMANDS`         | Enabled interactive command classpath list                       | `quit`、`new`、`history` |
+| variable                           | describe                                                         | default value                            |
+| ---------------------------------- | ---------------------------------------------------------------- | ---------------------------------------- |
+| `FRAGILE_APP`                      | Application name (used as environment variable prefix)           | `fragile`                                |
+| `FRAGILE_INTERRUPT_EXIT_THRESHOLD` | twice`Ctrl+C`Maximum interval between triggering exits (seconds) | `0.5`                                    |
+| `FRAGILE_ENABLED_COMMANDS`         | Enabled interactive command classpath list                       | `quit`、`new`、`history`、`account`、`model` |
 
 Other interactive behavior of Fragile is controlled through command line options and built-in slash commands. Commands are discovered and processed uniformly through the registry, using`FRAGILE_ENABLED_COMMANDS`Adjust enabled commands. Account credentials are provided by`Account`The model is saved in Fragile's database as a singleton, and will be restored to Tomorrow's model configuration when an interactive session is started; environment variables can still be used as a configuration source and have higher priority.
 
