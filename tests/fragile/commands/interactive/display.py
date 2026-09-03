@@ -2,6 +2,7 @@ from unittest.mock import patch
 from uuid import UUID
 
 from fragile.commands.interactive.display import (
+    TimelineRenderer,
     enter_fullscreen,
     leave_fullscreen,
     print_stream,
@@ -11,6 +12,7 @@ from fragile.commands.interactive.display import (
     show_request_error,
     show_startup,
 )
+from fragile.commands.interactive.trace import TraceEvent, trace_to_json
 
 
 class TestDisplay:
@@ -61,6 +63,66 @@ class TestDisplay:
 
         print_console.assert_not_called()
 
+    def test_timeline_merges_adjacent_model_content(self, capsys) -> None:
+        renderer = TimelineRenderer()
+
+        renderer.render(TraceEvent(0, "thinking", content="first"))
+        renderer.render(TraceEvent(1, "thinking", content=" second"))
+        renderer.render(TraceEvent(2, "text", content="[bold]answer"))
+        renderer.render(TraceEvent(3, "text", content="[/bold]"))
+        renderer.finish()
+
+        output = capsys.readouterr().out
+        assert output.count("Thinking (provider summary)") == 1
+        assert output.count("Assistant") == 1
+        assert "[bold]answer[/bold]" in output
+
+    def test_timeline_renders_tool_command_result_and_failure(self, capsys) -> None:
+        renderer = TimelineRenderer()
+        renderer.render(
+            TraceEvent(
+                0,
+                "tool_start",
+                name="execute",
+                content="echo [bold]safe[/bold]",
+                input={"command": "echo [bold]safe[/bold]"},
+                status="running",
+            )
+        )
+        renderer.render(TraceEvent(1, "tool_end", name="execute", output="done", status="completed"))
+        renderer.render(TraceEvent(2, "tool_error", name="read_file", content="missing", status="failed"))
+
+        output = capsys.readouterr().out
+        assert "Tool: execute  [running]" in output
+        assert "Command:" in output
+        assert "Completed: execute" in output
+        assert "Result:" in output
+        assert "Failed: read_file" in output
+        assert "[bold]safe[/bold]" in output
+
+    def test_timeline_marks_long_blocks_as_truncated(self, capsys) -> None:
+        renderer = TimelineRenderer()
+        renderer.render(TraceEvent(0, "tool_end", name="read_file", output="x" * 5000, status="completed"))
+
+        assert "… [truncated]" in capsys.readouterr().out
+
+    def test_timeline_renders_stage_input_and_fallback_body(self, capsys) -> None:
+        renderer = TimelineRenderer()
+        renderer.render(TraceEvent(0, "stage", name="agent", content="phase", input={"task": "work"}, status="running"))
+        renderer.render(TraceEvent(1, "stage", name="tools", status="completed"))
+
+        output = capsys.readouterr().out
+        assert "Stage: agent  [running]" in output
+        assert "phase" in output
+        assert '"task": "work"' in output
+        assert "Stage: tools  [completed]" in output
+        assert "Stage updated" in output
+
+    def test_timeline_ignores_unknown_event_kind(self, capsys) -> None:
+        TimelineRenderer().render(TraceEvent(0, "unknown"))
+
+        assert capsys.readouterr().out == ""
+
     def test_replay_outputs_preserves_markup(self, capsys) -> None:
         record = type("Record", (), {"user_input": "question", "assistant_output": "[bold]answer[/bold]"})()
 
@@ -84,8 +146,22 @@ class TestDisplay:
         replay_outputs([record])
 
         output = capsys.readouterr().out
-        assert output.index("Thinking:") < output.index("reasoning") < output.index("answer")
+        assert output.index("Thinking (provider summary)") < output.index("reasoning") < output.index("answer")
         assert "[thinking]reasoning[/thinking]" in output
+
+    def test_replay_outputs_uses_persisted_trace(self, capsys) -> None:
+        trace_payload = trace_to_json(
+            [
+                TraceEvent(2, "text", content="answer"),
+                TraceEvent(1, "tool_end", name="read_file", output="result", status="completed"),
+            ]
+        )
+        record = type("Record", (), {"user_input": "question", "trace_payload": trace_payload})()
+
+        replay_outputs([record])
+
+        output = capsys.readouterr().out
+        assert output.index("Completed: read_file") < output.index("answer")
 
     def test_replay_outputs_supports_legacy_record_without_thinking(self, capsys) -> None:
         record = type("Record", (), {"user_input": "question", "assistant_output": "answer"})()

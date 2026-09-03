@@ -15,6 +15,7 @@ from fragile.commands.interactive.agent import (
     load_agent_factory,
     stream_events,
 )
+from fragile.commands.interactive.trace import TraceEvent, trace_from_json
 from fragile.exceptions import AgentFactoryImportError, AgentFactoryTypeError, AgentGraphTypeError, AgentResponseError
 
 
@@ -51,11 +52,34 @@ class TestAgent:
         agent.astream_events = stream
 
         assert [value async for value in stream_events(agent, "prompt", UUID(int=1))] == [
-            StreamSegment("text", "ok"),
-            StreamSegment("thinking", "先想"),
-            StreamSegment("text", "你好"),
-            StreamSegment("thinking", "再想"),
-            StreamSegment("text", "呀"),
+            TraceEvent(0, "text", content="ok"),
+            TraceEvent(1, "thinking", content="先想"),
+            TraceEvent(2, "text", content="你好"),
+            TraceEvent(3, "thinking", content="再想"),
+            TraceEvent(4, "text", content="呀"),
+        ]
+
+    @pytest.mark.asyncio
+    async def test_events_normalize_tool_and_stage_lifecycle(self) -> None:
+        agent = MagicMock()
+
+        async def stream(*args, **kwargs):
+            yield {"event": "on_chain_start", "name": "agent", "data": {"input": {}}}
+            yield {"event": "on_tool_start", "name": "read_file", "data": {"input": {"path": "README.md"}}}
+            yield {"event": "on_tool_end", "name": "read_file", "data": {"output": "contents"}}
+            yield {"event": "on_chain_end", "name": "agent", "data": {"output": {}}}
+
+        agent.astream_events = stream
+
+        actual = [
+            (event.sequence, event.kind, event.status) async for event in stream_events(agent, "prompt", UUID(int=1))
+        ]
+
+        assert actual == [
+            (0, "stage", "running"),
+            (1, "tool_start", "running"),
+            (2, "tool_end", "completed"),
+            (3, "stage", "completed"),
         ]
 
     @pytest.mark.asyncio
@@ -147,9 +171,9 @@ class TestAgent:
         with (
             patch(
                 "fragile.commands.interactive.agent.stream_events",
-                return_value=self.async_values(StreamSegment("text", "answer")),
+                return_value=self.async_values(TraceEvent(0, "text", content="answer")),
             ),
-            patch("fragile.commands.interactive.agent.print_stream") as output,
+            patch("fragile.commands.interactive.display.print_stream") as output,
             patch("fragile.commands.interactive.agent.SessionOutput.save_output", new_callable=AsyncMock),
         ):
             await chat(agent, "prompt", UUID(int=1))
@@ -160,19 +184,48 @@ class TestAgent:
         agent = MagicMock(spec=CompiledStateGraph)
 
         async def segments():
-            yield StreamSegment("thinking", "先想")
-            yield StreamSegment("text", "答案")
+            yield TraceEvent(0, "thinking", content="先想")
+            yield TraceEvent(1, "text", content="答案")
 
         save_output = AsyncMock()
         with (
             patch("fragile.commands.interactive.agent.stream_events", return_value=segments()),
-            patch("fragile.commands.interactive.agent.print_thinking") as thinking,
-            patch("fragile.commands.interactive.agent.print_stream"),
+            patch("fragile.commands.interactive.display.print_thinking") as thinking,
+            patch("fragile.commands.interactive.display.print_stream"),
             patch("fragile.commands.interactive.agent.SessionOutput.save_output", save_output),
         ):
             await chat(agent, "prompt", UUID(int=1))
         thinking.assert_called_once_with("先想")
-        save_output.assert_awaited_once_with(UUID(int=1), "prompt", "答案", "答案", thinking_output="先想")
+        save_output.assert_awaited_once()
+        saved_args = save_output.await_args.args
+        saved_kwargs = save_output.await_args.kwargs
+        assert saved_args == (UUID(int=1), "prompt", "答案", "答案")
+        assert saved_kwargs["thinking_output"] == "先想"
+        assert trace_from_json(saved_kwargs["trace_payload"]) == [
+            TraceEvent(0, "thinking", content="先想"),
+            TraceEvent(1, "text", content="答案"),
+        ]
+
+    @pytest.mark.asyncio
+    async def test_chat_renders_non_text_events_without_adding_them_to_answer(self) -> None:
+        agent = MagicMock(spec=CompiledStateGraph)
+
+        async def events():
+            yield TraceEvent(0, "tool_start", name="read_file", input={"path": "README.md"}, status="running")
+            yield TraceEvent(1, "text", content="answer")
+
+        save_output = AsyncMock()
+        with (
+            patch("fragile.commands.interactive.agent.stream_events", return_value=events()),
+            patch("fragile.commands.interactive.agent.SessionOutput.save_output", save_output),
+        ):
+            await chat(agent, "prompt", UUID(int=1))
+
+        assert save_output.await_args.args[2] == "answer"
+        assert trace_from_json(save_output.await_args.kwargs["trace_payload"]) == [
+            TraceEvent(0, "tool_start", name="read_file", input={"path": "README.md"}, status="running"),
+            TraceEvent(1, "text", content="answer"),
+        ]
 
     @pytest.mark.asyncio
     async def test_agent_runtime_initializes_and_releases_once(self) -> None:

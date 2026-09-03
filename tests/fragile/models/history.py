@@ -4,6 +4,7 @@ import pytest
 from sqlalchemy import create_engine, select
 from sqlalchemy.orm import Session
 
+from fragile.commands.interactive.trace import TraceEvent, trace_from_json
 from fragile.models import Base, ConversationHistory, SessionOutput
 from fragile.models.base import create_tables, get_engine
 
@@ -103,6 +104,7 @@ class TestHistory:
             "[bold]第一答[/bold]",
             "markup",
             thinking_output="第一想法",
+            trace_payload='[{"sequence": 1, "kind": "text", "content": "第一答"}]',
         )
         await SessionOutput.save_output(thread_id, "第二问", "第二答")
         records = await SessionOutput.list_for_thread(thread_id)
@@ -113,6 +115,7 @@ class TestHistory:
         ]
         assert records[0].style_payload == "markup"
         assert records[0].thinking_output == "第一想法"
+        assert trace_from_json(records[0].trace_payload) == [TraceEvent(1, "text", content="第一答")]
         assert records[1].thinking_output is None
         await async_engine.dispose()
 

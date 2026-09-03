@@ -1,5 +1,6 @@
 """Terminal display handling."""
 
+import json
 from urllib.parse import urlsplit, urlunsplit
 from uuid import UUID
 
@@ -7,6 +8,8 @@ import asyncclick as click
 from rich.console import Console
 from rich.panel import Panel
 from rich.text import Text
+
+from fragile.commands.interactive.trace import TraceEvent, safe_value, trace_from_json
 
 STARTUP_BANNER = """\
   ███████╗██████╗  █████╗  ██████╗ ██╗██╗     ███████╗
@@ -17,6 +20,7 @@ STARTUP_BANNER = """\
   ╚═╝     ╚═╝  ╚═╝╚═╝  ╚═╝ ╚═════╝ ╚═╝╚══════╝╚══════╝
 """
 console = Console()
+MAX_DISPLAY_CHARS = 4000
 
 
 def enter_fullscreen() -> None:
@@ -38,6 +42,90 @@ def print_thinking(content: str) -> None:
     """Print model-provided thinking in a distinct, safe terminal style."""
     if content:
         console.print(Text(content, style="dim yellow"), end="")
+
+
+def _truncate(content: str, limit: int = MAX_DISPLAY_CHARS) -> str:
+    """Limit one terminal block while keeping a clear indication of truncation."""
+    if len(content) <= limit:
+        return content
+    suffix = "\n… [truncated]"
+    return content[: max(0, limit - len(suffix))] + suffix
+
+
+def _plain_value(value: object) -> str:
+    """Format normalized values as safe plain text rather than Rich markup."""
+    normalized = safe_value(value)
+    if isinstance(normalized, str):
+        return _truncate(normalized)
+    return _truncate(json.dumps(normalized, ensure_ascii=False, indent=2, sort_keys=True))
+
+
+class TimelineRenderer:
+    """Append normalized trace events to the terminal without screen redraws."""
+
+    def __init__(self) -> None:
+        self._active_text_kind: str | None = None
+
+    def _close_text(self) -> None:
+        if self._active_text_kind is not None:
+            print_stream("\n")
+            self._active_text_kind = None
+
+    def _open_text(self, kind: str, title: str, style: str) -> None:
+        if self._active_text_kind == kind:
+            return
+        self._close_text()
+        console.print(Text(title, style=style))
+        self._active_text_kind = kind
+
+    def _print_panel(self, body: str, title: str, border_style: str) -> None:
+        self._close_text()
+        console.print(Panel(Text(_truncate(body)), title=Text(title), border_style=border_style))
+
+    def render(self, event: TraceEvent) -> None:
+        """Render one trace event and merge adjacent model content blocks."""
+        if event.kind == "thinking":
+            self._open_text("thinking", "Thinking (provider summary)", "dim yellow")
+            print_thinking(event.content or "")
+        elif event.kind == "text":
+            self._open_text("text", "Assistant", "bold cyan")
+            print_stream(event.content or "")
+        elif event.kind == "tool_start":
+            details = f"Input:\n{_plain_value(event.input)}"
+            if event.content:
+                details = f"Command:\n{_truncate(event.content)}\n\n{details}"
+            self._print_panel(details, f"Tool: {event.name or 'unknown'}  [running]", "yellow")
+        elif event.kind == "tool_end":
+            self._print_panel(
+                f"Result:\n{_plain_value(event.output)}",
+                f"Completed: {event.name or 'unknown'}",
+                "green",
+            )
+        elif event.kind == "tool_error":
+            self._print_panel(
+                f"Error:\n{_truncate(event.content or _plain_value(event.output))}",
+                f"Failed: {event.name or 'unknown'}",
+                "red",
+            )
+        elif event.kind == "stage":
+            status = event.status or "updated"
+            body = event.content or ""
+            if event.input is not None:
+                input_text = _plain_value(event.input)
+                body = f"Input:\n{input_text}" if not body else f"{body}\n\nInput:\n{input_text}"
+            self._print_panel(body or "Stage updated", f"Stage: {event.name or 'unknown'}  [{status}]", "blue")
+
+    def finish(self) -> None:
+        """Terminate an open streamed text block with one stable newline."""
+        self._close_text()
+
+
+def render_trace(events: list[TraceEvent]) -> None:
+    """Replay normalized events using the same renderer as live output."""
+    renderer = TimelineRenderer()
+    for event in sorted(events, key=lambda item: item.sequence):
+        renderer.render(event)
+    renderer.finish()
 
 
 def show_connection_error(provider: str | None = None, model: str | None = None, base_url: str | None = None) -> None:
@@ -63,18 +151,22 @@ def show_request_error(error: str) -> None:
 
 
 def replay_outputs(records: list[object]) -> None:
-    """Replay persisted user prompts and Rich-markup assistant responses."""
+    """Replay persisted user prompts and safe assistant timeline responses."""
     for record in records:
         user_input = getattr(record, "user_input", "")
         assistant_output = getattr(record, "assistant_output", "")
         thinking_output = getattr(record, "thinking_output", "") or ""
         console.print(Text(f"> {user_input}"))
+        events = trace_from_json(getattr(record, "trace_payload", None))
+        if events:
+            render_trace(events)
+            continue
+        renderer = TimelineRenderer()
         if thinking_output:
-            console.print(Text("Thinking:", style="dim yellow"))
-            console.print(Text(thinking_output, style="dim yellow"))
+            renderer.render(TraceEvent(0, "thinking", content=thinking_output))
         if assistant_output:
-            console.print(Text.from_markup(assistant_output), end="")
-            console.print()
+            renderer.render(TraceEvent(1, "text", content=assistant_output))
+        renderer.finish()
 
 
 def show_startup(thread_id: UUID, resumed: bool) -> None:

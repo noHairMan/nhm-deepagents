@@ -34,7 +34,7 @@
 - **递归控制**: 支持通过 `TOMORROW_RECURSION_LIMIT` 限制智能体递归调用深度。
 - **生命周期管理**: 引入 `AgentManager` 统一管理智能体实例的创建与销毁，确保资源的优雅初始化。
 - **高性能 API**: 基于 FastAPI 构建，支持同步响应与 Server-Sent Events (SSE) 流式输出。
-- **交互式 CLI**: `fragile` 支持 `/new` 创建新会话、`/history` 浏览并切换已持久化的历史会话、`/account` 配置外部模型账户、`/model` 选择模型、`/quit` 退出、会话恢复、输入历史、斜线命令补全和多行编辑。
+- **交互式 CLI**: `fragile` 支持 `/new` 创建新会话、`/history` 浏览并切换已持久化的历史会话、`/account` 配置外部模型账户、`/model` 选择模型、`/quit` 退出、会话恢复、输入历史、斜线命令补全和多行编辑，并以追加式时间线显示模型摘要、工具调用、命令结果和最终答案。
 - **账户配置持久化**: 支持通过交互式命令保存 Anthropic 和 OpenAI 的 API 凭据，并在后续会话中自动恢复。
 - **可靠性保障**: 强制类型提示、Ruff 静态检查、100% 测试覆盖率要求。
 
@@ -126,6 +126,17 @@ uv run fragile
 
 通过 `--thread` 或 `-t` 传入 UUID 可以恢复已有会话；不传入时会自动创建新的线程。交互过程中输入 `/new` 可清屏并开始新会话，输入 `/history` 可查看已保存的会话并按编号或 UUID 切换，输入 `/quit` 退出；也可以连续两次按 `Ctrl+C` 在短时间内退出会话，按 `Esc` 后回车可插入换行。
 
+#### Fragile 输出时间线
+
+每次普通对话都会按执行顺序追加显示以下区块：
+
+- `Thinking (provider summary)`：仅显示模型提供商明确返回的 thinking/reasoning 摘要，不推断或生成私有思维链。
+- `Tool`：显示工具名称、脱敏后的参数和运行状态；`execute` 还会突出显示实际命令。
+- `Completed` / `Failed`：显示工具结果或失败信息；过长内容会在终端中标记截断。
+- `Assistant`：最终答案仍按模型返回的片段连续流式输出。
+
+工具、命令、阶段和模型摘要会与答案一起保存，使用 `/history` 切换会话时按原顺序回放。时间线采用与全屏输入兼容的追加式输出，不使用动态分屏面板；参数、结果和错误中的 API Key、Authorization、密码及 URL 凭据会先脱敏后显示和保存。
+
 首次使用其他模型提供商时，可在交互会话中输入 `/account`，按提示选择提供商并填写 Base URL 和 API Key。模型名称等其他配置仍通过 `TOMORROW_MODEL` 或对应的环境变量设置。凭据会持久化到本地数据库，后续启动 `fragile` 时自动恢复；如需修改配置，再次执行 `/account` 即可。
 
 `fragile` 的 CLI 入口和 `purge` 子命令均使用异步命令函数，避免在已运行的事件循环中嵌套调用 `asyncio.run()`。清理已持久化的会话记录：
@@ -187,7 +198,7 @@ export TOMORROW_MODEL__OPENAI__REASONING_EFFORT="medium"
 export TOMORROW_MODEL__OPENAI__REASONING_SUMMARY="auto"
 ```
 
-Fragile 只展示提供商返回的 thinking/reasoning 内容，不会生成或推断模型未返回的内部思考；Rainy API 的现有响应协议不受影响。未配置或模型不支持对应能力时，仍只显示最终答案。
+Fragile 只展示提供商返回的 thinking/reasoning 内容，不会生成或推断模型未返回的内部思考；Rainy API 的现有响应协议不受影响。未配置或模型不支持对应能力时，仍只显示最终答案。thinking/reasoning 可能增加 token 消耗和响应延迟，具体内容取决于模型提供商。
 
 具体字段和默认值请参阅 `src/tomorrow/settings.py`。
 
