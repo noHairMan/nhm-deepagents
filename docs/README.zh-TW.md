@@ -1,6 +1,6 @@
 # NHM-深度代理
 
-[![Build Status](https://github.com/noHairMan/nhm-deepagents/actions/workflows/build.yml/badge.svg)](https://github.com/noHairMan/nhm-deepagents/actions/workflows/build.yml)[![Coverage badge](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/noHairMan/nhm-deepagents/python-coverage-comment-action-data/endpoint.json)](https://htmlpreview.github.io/?https://github.com/noHairMan/nhm-deepagents/blob/python-coverage-comment-action-data/htmlcov/index.html)[![Lint: Ruff](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/astral-sh/ruff/main/assets/badge/v2.json)](https://github.com/astral-sh/ruff)[![Python Version](https://img.shields.io/badge/python-3.14+-blue.svg)](https://www.python.org/downloads/release/python-3140/)[![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)[![Repo Size](https://img.shields.io/github/repo-size/noHairMan/nhm-deepagents)](https://github.com/noHairMan/nhm-deepagents)[![Last Commit](https://img.shields.io/github/last-commit/noHairMan/nhm-deepagents)](https://github.com/noHairMan/nhm-deepagents)
+[![Build Status](https://github.com/noHairMan/nhm-deepagents/actions/workflows/build.yml/badge.svg)](https://github.com/noHairMan/nhm-deepagents/actions/workflows/build.yml)[![Coverage badge](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/noHairMan/nhm-deepagents/python-coverage-comment-action-data/endpoint.json)](https://htmlpreview.github.io/?https://github.com/noHairMan/nhm-deepagents/blob/python-coverage-comment-action-data/htmlcov/index.html)[![Lint: Ruff](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/astral-sh/ruff/main/assets/badge/v2.json)](https://github.com/astral-sh/ruff)[![Python Version](https://img.shields.io/badge/python-3.14-blue.svg)](https://www.python.org/downloads/release/python-3140/)[![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)[![Repo Size](https://img.shields.io/github/repo-size/noHairMan/nhm-deepagents)](https://github.com/noHairMan/nhm-deepagents)[![Last Commit](https://img.shields.io/github/last-commit/noHairMan/nhm-deepagents)](https://github.com/noHairMan/nhm-deepagents)
 
 [簡體中文](/docs/README.zh.md)\|[英語](/docs/README.en.md)\|[日本人](/docs/README.ja.md)\|[繁體中文](/docs/README.zh-TW.md)
 
@@ -12,7 +12,7 @@
 
 ## 🌟 專案概覽
 
-`nhm-deepagents`是一個專注於深度智能體的專業 Python 專案。它利用現代 Python 特性 (3.14+) 和強大的工具，為 AI 智能體研究和應用提供高品質的開發體驗。
+`nhm-deepagents`是一個專注於深度智能體的專業 Python 專案。它利用 Python 3.14 和強大的工具，為 AI 智能體研究和應用提供高品質的開發體驗。
 
 專案內部包含三個主要模組：
 
@@ -30,18 +30,18 @@
 -   **遞迴控制**: 支持透過`TOMORROW_RECURSION_LIMIT`限制智能體遞歸調用深度。
 -   **生命週期管理**: 引入`AgentManager`統一管理智能體實例的創建與銷毀，確保資源的優雅初始化。
 -   **高效能 API**: 基於 FastAPI 構建，支援同步回應與 Server-Sent Events (SSE) 串流輸出。
--   **互動式 CLI**:`fragile` 支持 `/new`建立新會話、`/history`瀏覽並切換已持久化的歷史會話、`/account`配置外部模型帳戶、`/quit`退出、會話恢復、輸入歷史記錄、斜線命令補全和多行編輯。
--   **帳戶配置持久化**: 支援透過互動式指令保存 Ollama、Anthropic 和 OpenAI 的 API 憑證，並在後續會話中自動復原。
+-   **互動式 CLI**:`fragile`支援`/new`建立新會話、`/history`瀏覽並切換已持久化的歷史會話、`/account`配置外部模型帳戶、`/model`選擇模型、`/quit`退出、會話恢復、輸入歷史記錄、斜線命令補全和多行編輯。
+-   **帳戶配置持久化**: 支援透過互動式指令保存 Anthropic 和 OpenAI 的 API 憑證，並在後續會話中自動復原。
 -   **可靠性保障**: 強制類型提示、Ruff 靜態檢查、100% 測試覆蓋率要求。
 
 ## 🛠️ 技術棧
 
--   **語言**:[Python](https://www.python.org/)>= 3.14
+-   **語言**:[Python](https://www.python.org/)>= 3.14, &lt; 3.15
 -   **套件管理器**:[紫外線](https://github.com/astral-sh/uv)
 -   **API 框架**:[迅速](https://fastapi.tiangolo.com/)
 -   **Web 伺服器**:[獨角獸](https://www.uvicorn.org/)
 -   **智能體框架**:[深度代理](https://github.com/zongxuheng/deepagents)(基於 LangGraph/LangChain)
--   **LLM 提供者**:[成為](https://ollama.com/)、[人擇](https://www.anthropic.com/)和[開放人工智慧](https://openai.com/)
+-   **LLM 提供者**:[人擇](https://www.anthropic.com/)和[開放人工智慧](https://openai.com/)
 -   **終端交互**:[非同步點擊](https://github.com/python-trio/asyncclick)提供非同步 CLI 命令、參數解析和幫助資訊；[提示工具包](https://github.com/prompt-toolkit/python-prompt-toolkit)提供非同步輸入、輸入歷史記錄、命令補全和多行編輯；[富有的](https://github.com/Textualize/rich)提供終端輸出樣式。
 -   **配置管理**:[金字塔設置](https://docs.pydantic.dev/latest/usage/settings/)
 -   **例外處理**: 自訂異常體系 (`TomorrowError`及其子類)，涵蓋模型、後端、儲存和檢查點錯誤。
@@ -50,10 +50,10 @@
 
 ## 📋 環境要求
 
--   **Python 3.14+**
+-   **Python 3.14（不支援 3.15 及更高版本）**
 -   **紫外線**: 一個快速的 Python 套件安裝和解析器。
--   **LLM 提供者**: 目前`.env`使用 Anthropic 相容接口，無需運行 Ollama。
--   **LLM 模型**: 目前配置使用`deepseek-v4-flash`；也可以透過`TOMORROW_MODEL` 切换到 Ollama。
+-   **LLM 提供者**: 支援 Anthropic 和 OpenAI 相容接口，需要透過環境變數或`.env`配置 API Key。
+-   **LLM 模型**: 預設使用 Anthropic 的`claude-sonnet-5`，也可以透過`TOMORROW_MODEL__TYPE`切換到 O​​penAI。
 
 ## 🚀 快速入門
 
@@ -137,7 +137,7 @@ fragile purge
 
 ## ⚙️ 配置
 
-該項目使用**金字塔設置**進行配置管理。設定分別定義在`src/tomorrow/settings.py`（明天），`src/rainy/settings.py`(Rainy) 和`src/fragile/settings.py`(Fragile) 中，可以透過環境變數或`.env`文件進行覆蓋。環境變數優先權最高，三個模組分別使用`TOMORROW_`、`RAINY_`和`FRAGILE_`前綴；也可以透過`TOMORROW_ENV_FILE`、`RAINY_ENV_FILE`或`FRAGILE_ENV_FILE`指定設定檔路徑。
+該項目使用**金字塔設置**進行配置管理。設定分別定義在`src/tomorrow/settings.py`（明天），`src/rainy/settings.py`(Rainy) 和`src/fragile/settings.py`(Fragile) 中，可以透過環境變數或`.env` 文件进行覆盖。环境变量优先级最高，三个模块分别使用 `TOMORROW_`、`RAINY_`和`FRAGILE_`前綴；也可以透過`TOMORROW_ENV_FILE`、`RAINY_ENV_FILE`或`FRAGILE_ENV_FILE`指定設定檔路徑。
 
 ### 環境變數
 
@@ -145,27 +145,27 @@ fragile purge
 
 #### Tomorrow 配置 (核心)
 
-| 變數                                                  | 描述                                              | 預設值                                       |
-| --------------------------------------------------- | ----------------------------------------------- | ----------------------------------------- |
-| `TOMORROW_APP`                                      | 應用名稱（用作環境變數前綴）                                  | `tomorrow`                                |
-| `TOMORROW_MODEL`                                    | 模型配置，支援 OLLAMA、ANTHROPIC 和 OPENAI               | 目前`.env`使用`anthropic`/`deepseek-v4-flash` |
-| `TOMORROW_CHECKPOINT`                               | 檢查點配置，支援 MEMORY 和 SQLITE                        | `{"type":"memory"}`                       |
-| `TOMORROW_BACKEND`                                  | 後端配置，支援 FILESYSTEM 和 LOCAL_SHELL                | `{"type":"filesystem"}`                   |
-| `TOMORROW_STORE`                                    | 儲存配置，支援 MEMORY 和 SQLITE                         | `{"type":"sqlite"}`                       |
-| `TOMORROW_SKILLS`                                   | 技能目錄列表                                          | `["skills/"]`                             |
-| `TOMORROW_SUBAGENTS`                                | 子代理配置列表                                         | `[]`                                      |
-| `TOMORROW_RECURSION_LIMIT`                          | 智能體遞歸調用上限                                       | `100`                                     |
-| `TOMORROW_MODEL__ANTHROPIC__THINKING_ENABLED`       | 是否請求 Anthropic thinking 輸出                      | `false`                                   |
-| `TOMORROW_MODEL__ANTHROPIC__THINKING_BUDGET_TOKENS` | Anthropic thinking 的 token 預算（啟用時必填）            | 未設定                                       |
-| `TOMORROW_MODEL__OPENAI__REASONING_EFFORT`          | OpenAI reasoning 強度：`low`、`medium`或`high`       | 未設定                                       |
-| `TOMORROW_MODEL__OPENAI__REASONING_SUMMARY`         | OpenAI reasoning 摘要：`auto`、`concise`或`detailed` | 未設定                                       |
+| 變數                                                  | 描述                                              | 預設值                           |
+| --------------------------------------------------- | ----------------------------------------------- | ----------------------------- |
+| `TOMORROW_APP`                                      | 應用名稱（用作環境變數前綴）                                  | `tomorrow`                    |
+| `TOMORROW_MODEL`                                    | 模型配置，支持`ANTHROPIC`和`OPENAI`                     | `anthropic`/`claude-sonnet-5` |
+| `TOMORROW_CHECKPOINT`                               | 檢查點配置，支援 MEMORY 和 SQLITE                        | `{"type":"memory"}`           |
+| `TOMORROW_BACKEND`                                  | 後端配置，支援 FILESYSTEM 和 LOCAL_SHELL                | `{"type":"filesystem"}`       |
+| `TOMORROW_STORE`                                    | 儲存配置，支援 MEMORY 和 SQLITE                         | `{"type":"sqlite"}`           |
+| `TOMORROW_SKILLS`                                   | 技能目錄列表                                          | `[]`                          |
+| `TOMORROW_SUBAGENTS`                                | 子代理配置列表                                         | `[]`                          |
+| `TOMORROW_RECURSION_LIMIT`                          | 智能體遞歸調用上限                                       | `100`                         |
+| `TOMORROW_MODEL__ANTHROPIC__THINKING_ENABLED`       | 是否請求 Anthropic thinking 輸出                      | `false`                       |
+| `TOMORROW_MODEL__ANTHROPIC__THINKING_BUDGET_TOKENS` | Anthropic thinking 的 token 預算（啟用時必填）            | 未設定                           |
+| `TOMORROW_MODEL__OPENAI__REASONING_EFFORT`          | OpenAI reasoning 強度：`low`、`medium`或`high`       | 未設定                           |
+| `TOMORROW_MODEL__OPENAI__REASONING_SUMMARY`         | OpenAI reasoning 摘要：`auto`、`concise`或`detailed` | 未設定                           |
 
-模型配置透過`TOMORROW_MODEL`或嵌套環境變數傳入。目前`.env`使用 Anthropic 相容介面和`deepseek-v4-flash`；使用 Ollama 時，請相應配置`ollama`對象。例如：
+模型配置透過`TOMORROW_MODEL`或嵌套環境變數傳入。預設使用 Anthropic 的`claude-sonnet-5`，也可以設定 Anthropic 相容介面。例如：
 
 ```bash
 export TOMORROW_MODEL__TYPE="anthropic"
-export TOMORROW_MODEL__ANTHROPIC__BASE_URL="https://www.llmgateway.cn"
-export TOMORROW_MODEL__ANTHROPIC__MODEL="deepseek-v4-flash"
+export TOMORROW_MODEL__ANTHROPIC__BASE_URL="https://api.anthropic.com"
+export TOMORROW_MODEL__ANTHROPIC__MODEL="claude-sonnet-5"
 export TOMORROW_MODEL__ANTHROPIC__API_KEY="your-api-key"
 ```
 
@@ -212,11 +212,11 @@ export TOMORROW_SUBAGENTS='[{"name":"researcher","description":"负责资料检�
 
 #### Fragile 設定 (CLI)
 
-| 變數                                 | 描述                     | 預設值                    |
-| ---------------------------------- | ---------------------- | ---------------------- |
-| `FRAGILE_APP`                      | 應用名稱（用作環境變數前綴）         | `fragile`              |
-| `FRAGILE_INTERRUPT_EXIT_THRESHOLD` | 兩次`Ctrl+C`觸發退出的最大間隔（秒） | `0.5`                  |
-| `FRAGILE_ENABLED_COMMANDS`         | 啟用的互動式命令類別路徑列表         | `quit`、`new`、`history` |
+| 變數                                 | 描述                     | 預設值                                      |
+| ---------------------------------- | ---------------------- | ---------------------------------------- |
+| `FRAGILE_APP`                      | 應用名稱（用作環境變數前綴）         | `fragile`                                |
+| `FRAGILE_INTERRUPT_EXIT_THRESHOLD` | 兩次`Ctrl+C`觸發退出的最大間隔（秒） | `0.5`                                    |
+| `FRAGILE_ENABLED_COMMANDS`         | 啟用的互動式命令類別路徑列表         | `quit`、`new`、`history`、`account`、`model` |
 
 Fragile 的其他互動行為透過命令列選項和內建斜線命令控制。命令透過註冊表統一發現和處理，可使用`FRAGILE_ENABLED_COMMANDS`調整啟用的命令。帳戶憑證由`Account`模型以單例形式保存於 Fragile 的資料庫中，啟動交互會話時會恢復到 Tomorrow 的模型配置；環境變數仍可作為配置來源並擁有更高優先權。
 
