@@ -93,7 +93,7 @@ class TestDisplay:
         renderer.render(TraceEvent(2, "tool_error", name="read_file", content="missing", status="failed"))
 
         output = capsys.readouterr().out
-        assert "Tool: execute  [running]" in output
+        assert "⠋ Tool: execute" in output
         assert "Command:" in output
         assert "Completed: execute" in output
         assert "Result:" in output
@@ -106,17 +106,27 @@ class TestDisplay:
 
         assert "… [truncated]" in capsys.readouterr().out
 
-    def test_timeline_renders_stage_input_and_fallback_body(self, capsys) -> None:
+    def test_timeline_renders_real_subagent_stage_input(self, capsys) -> None:
         renderer = TimelineRenderer()
-        renderer.render(TraceEvent(0, "stage", name="agent", content="phase", input={"task": "work"}, status="running"))
-        renderer.render(TraceEvent(1, "stage", name="tools", status="completed"))
+        renderer.render(
+            TraceEvent(0, "stage", name="research_subagent", content="phase", input={"task": "work"}, status="running")
+        )
 
         output = capsys.readouterr().out
-        assert "Stage: agent  [running]" in output
+        assert "⠋ Subagent: research_subagent" in output
         assert "phase" in output
         assert '"task": "work"' in output
-        assert "Stage: tools  [completed]" in output
-        assert "Stage updated" in output
+
+    def test_timeline_omits_generic_stage_without_tool_or_skill_call(self, capsys) -> None:
+        TimelineRenderer().render(TraceEvent(0, "stage", name="agent", status="running"))
+
+        assert capsys.readouterr().out == ""
+
+    def test_timeline_renders_skill_status_without_details(self, capsys) -> None:
+        TimelineRenderer().render(TraceEvent(0, "stage", name="format_skill", status="completed"))
+
+        output = capsys.readouterr().out
+        assert "✓ Skill: format_skill" in output
 
     def test_timeline_ignores_unknown_event_kind(self, capsys) -> None:
         TimelineRenderer().render(TraceEvent(0, "unknown"))

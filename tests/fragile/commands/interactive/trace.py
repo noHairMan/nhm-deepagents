@@ -146,8 +146,12 @@ class TestTrace:
         assert list(normalize_event(model_event, 0)) == []
 
     def test_normalize_stage_end_and_error_events(self) -> None:
-        end = {"event": "on_chain_end", "name": "model", "data": {"output": {"answer": "ok"}}}
-        error = {"event": "on_chain_error", "name": "agent", "data": {"error": ValueError("failed")}}
+        end = {"event": "on_chain_end", "name": "research_subagent", "data": {"output": {"answer": "ok"}}}
+        error = {
+            "event": "on_chain_error",
+            "name": "research_subagent",
+            "data": {"error": ValueError("failed")},
+        }
         no_name = {"event": "on_chain_start", "data": {"input": {}}}
 
         assert list(normalize_event(end, 0))[0].status == "completed"

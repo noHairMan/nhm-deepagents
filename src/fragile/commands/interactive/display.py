@@ -78,9 +78,18 @@ class TimelineRenderer:
         console.print(Text(title, style=style))
         self._active_text_kind = kind
 
-    def _print_panel(self, body: str, title: str, border_style: str) -> None:
+    def _print_activity(self, title: str, style: str, details: str = "") -> None:
         self._close_text()
-        console.print(Panel(Text(_truncate(body)), title=Text(title), border_style=border_style))
+        console.print(Text(title, style=style))
+        if details:
+            console.print(Text(_truncate(details), style="dim"))
+
+    @staticmethod
+    def _stage_title(event: TraceEvent, status: str) -> str:
+        name = event.name or "unknown"
+        if "skill" in name.lower():
+            return f"{status} Skill: {name}"
+        return f"{status} Subagent: {name}"
 
     def render(self, event: TraceEvent) -> None:
         """Render one trace event and merge adjacent model content blocks."""
@@ -91,29 +100,30 @@ class TimelineRenderer:
             self._open_text("text", "Assistant", "bold cyan")
             print_stream(event.content or "")
         elif event.kind == "tool_start":
-            details = f"Input:\n{_plain_value(event.input)}"
+            details = f"  Input: {_plain_value(event.input)}"
             if event.content:
-                details = f"Command:\n{_truncate(event.content)}\n\n{details}"
-            self._print_panel(details, f"Tool: {event.name or 'unknown'}  [running]", "yellow")
+                details = f"  Command: {_truncate(event.content)}\n{details}"
+            self._print_activity(f"⠋ Tool: {event.name or 'unknown'}", "yellow", details)
         elif event.kind == "tool_end":
-            self._print_panel(
-                f"Result:\n{_plain_value(event.output)}",
-                f"Completed: {event.name or 'unknown'}",
-                "green",
+            self._print_activity(
+                f"✓ Completed: {event.name or 'unknown'}", "green", f"  Result: {_plain_value(event.output)}"
             )
         elif event.kind == "tool_error":
-            self._print_panel(
-                f"Error:\n{_truncate(event.content or _plain_value(event.output))}",
-                f"Failed: {event.name or 'unknown'}",
+            self._print_activity(
+                f"✗ Failed: {event.name or 'unknown'}",
                 "red",
+                f"  Error: {_truncate(event.content or _plain_value(event.output))}",
             )
         elif event.kind == "stage":
+            if not event.name or ("subagent" not in event.name.lower() and "skill" not in event.name.lower()):
+                return
             status = event.status or "updated"
             body = event.content or ""
             if event.input is not None:
                 input_text = _plain_value(event.input)
-                body = f"Input:\n{input_text}" if not body else f"{body}\n\nInput:\n{input_text}"
-            self._print_panel(body or "Stage updated", f"Stage: {event.name or 'unknown'}  [{status}]", "blue")
+                body = f"  Input: {input_text}" if not body else f"{body}\n  Input: {input_text}"
+            title = self._stage_title(event, "⠋" if status == "running" else "✓")
+            self._print_activity(title, "blue", body)
 
     def finish(self) -> None:
         """Terminate an open streamed text block with one stable newline."""

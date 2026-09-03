@@ -183,11 +183,7 @@ def _stage_event_kind(event_name: str, name: str | None) -> tuple[TraceKind, Tra
     normalized_name = name.lower()
     if normalized_name in _IGNORED_STAGE_NAMES or normalized_name.startswith("__"):
         return None
-    if (
-        "agent" not in normalized_name
-        and "subagent" not in normalized_name
-        and normalized_name not in {"tools", "model"}
-    ):
+    if "subagent" not in normalized_name and "skill" not in normalized_name:
         return None
     status: TraceStatus = {
         "on_chain_start": "running",

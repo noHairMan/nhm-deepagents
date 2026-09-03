@@ -67,7 +67,7 @@ class TestAgent:
             yield {"event": "on_chain_start", "name": "agent", "data": {"input": {}}}
             yield {"event": "on_tool_start", "name": "read_file", "data": {"input": {"path": "README.md"}}}
             yield {"event": "on_tool_end", "name": "read_file", "data": {"output": "contents"}}
-            yield {"event": "on_chain_end", "name": "agent", "data": {"output": {}}}
+            yield {"event": "on_chain_start", "name": "research_subagent", "data": {"input": {}}}
 
         agent.astream_events = stream
 
@@ -76,10 +76,9 @@ class TestAgent:
         ]
 
         assert actual == [
-            (0, "stage", "running"),
-            (1, "tool_start", "running"),
-            (2, "tool_end", "completed"),
-            (3, "stage", "completed"),
+            (0, "tool_start", "running"),
+            (1, "tool_end", "completed"),
+            (2, "stage", "running"),
         ]
 
     @pytest.mark.asyncio
