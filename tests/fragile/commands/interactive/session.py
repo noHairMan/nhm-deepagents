@@ -107,7 +107,10 @@ class TestSession:
         assert session.thread_id == thread_id
         assert session.state.thread_id == thread_id
         assert session.is_running
-        create_session.assert_called_once_with()
+        create_session.assert_called_once()
+        assert create_session.call_args.kwargs["thread_id"] == thread_id
+        assert create_session.call_args.kwargs["model_provider"]() == "unknown"
+        assert create_session.call_args.kwargs["model"]() == "unknown"
 
     @pytest.mark.asyncio
     async def test_interactive_session_stops_on_exit_result(self) -> None:
@@ -133,12 +136,44 @@ class TestSession:
                 "fragile.commands.interactive.session.create_agent",
                 side_effect=lambda _checkpointer: events.append("create") or replacement_agent,
             ),
+            patch(
+                "fragile.commands.interactive.session.Account.get_credentials",
+                new_callable=AsyncMock,
+                return_value=("openai", "key", "https://example.com"),
+            ),
+            patch(
+                "fragile.commands.interactive.session.Account.get_model_selection",
+                new_callable=AsyncMock,
+                return_value=("openai", "gpt-5"),
+            ),
         ):
             session = InteractiveSession(None)
             agent = await session.handle_result(MagicMock(), MagicMock(), CommandResult.MODEL_CHANGED, "/model")
 
         assert agent is replacement_agent
         assert events == ["restore", "create"]
+        assert session.toolbar_model == {"provider": "openai", "model": "gpt-5"}
+
+    @pytest.mark.asyncio
+    async def test_refresh_toolbar_model_reads_fragile_account_state(self) -> None:
+        with patch("fragile.commands.interactive.session.create_prompt_session"):
+            session = InteractiveSession(None)
+
+        with (
+            patch(
+                "fragile.commands.interactive.session.Account.get_credentials",
+                new_callable=AsyncMock,
+                return_value=("anthropic", "key", "https://example.com"),
+            ),
+            patch(
+                "fragile.commands.interactive.session.Account.get_model_selection",
+                new_callable=AsyncMock,
+                return_value=("anthropic", "claude-test"),
+            ),
+        ):
+            await session.refresh_toolbar_model()
+
+        assert session.toolbar_model == {"provider": "anthropic", "model": "claude-test"}
 
     @pytest.mark.asyncio
     async def test_chat_connection_error_is_logged_and_shown_without_stopping_session(self, capsys) -> None:
@@ -457,7 +492,7 @@ class TestSession:
             patch("fragile.commands.interactive.session.leave_fullscreen"),
             patch("fragile.commands.interactive.session.show_startup"),
             patch("fragile.commands.interactive.session.create_prompt_session", return_value=prompt_session),
-            patch("fragile.commands.interactive.session.time.monotonic", side_effect=[1.0, 1.1]),
+            patch("fragile.commands.interactive.session.time.monotonic", return_value=1.0),
         ):
             await interactive(None)
 

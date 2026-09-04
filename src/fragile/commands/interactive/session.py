@@ -25,7 +25,7 @@ from fragile.commands.interactive.input import (
 )
 from fragile.conf import settings
 from fragile.exceptions import AgentResponseError
-from fragile.models import ConversationHistory, SessionState, restore_account_configuration
+from fragile.models import Account, ConversationHistory, SessionState, restore_account_configuration
 from fragile.models.constants import CommandResult
 from fragile.utils.uid import resolve_thread_id
 from tomorrow.conf import settings as tomorrow_settings
@@ -39,7 +39,12 @@ class InteractiveSession:
     def __init__(self, thread: str | None) -> None:
         self.thread = thread
         self.thread_id = resolve_thread_id(thread)
-        self.session = create_prompt_session()
+        self.toolbar_model: dict[str, str] = {"provider": "unknown", "model": "unknown"}
+        self.session = create_prompt_session(
+            thread_id=self.thread_id,
+            model_provider=lambda: self.toolbar_model["provider"],
+            model=lambda: self.toolbar_model["model"],
+        )
         self.state = SessionState(thread_id=self.thread_id)
         self.is_running = True
         self.last_keyboard_interrupt: float | None = None
@@ -50,6 +55,7 @@ class InteractiveSession:
         try:
             show_startup(self.thread_id, self.thread is not None)
             async with agent_runtime() as (agent, checkpointer):
+                await self.refresh_toolbar_model()
                 while self.is_running:
                     agent = await self.run_iteration(agent, checkpointer)
         finally:
@@ -93,6 +99,15 @@ class InteractiveSession:
         self.last_keyboard_interrupt = None
         return user_input.strip()
 
+    async def refresh_toolbar_model(self) -> None:
+        """Refresh the toolbar from Fragile's persisted account model selection."""
+        credentials = await Account.get_credentials()
+        selection = await Account.get_model_selection()
+        provider = selection[0] if selection is not None else credentials[0] if credentials is not None else None
+        model = selection[1] if selection is not None else None
+        self.toolbar_model["provider"] = provider or "unknown"
+        self.toolbar_model["model"] = model or "unknown"
+
     async def handle_result(
         self,
         agent: CompiledStateGraph,
@@ -105,6 +120,7 @@ class InteractiveSession:
             self.is_running = False
         elif result is CommandResult.MODEL_CHANGED:
             await restore_account_configuration()
+            await self.refresh_toolbar_model()
             return create_agent(checkpointer)
         elif result is CommandResult.NOT_HANDLED and user_input:
             await ConversationHistory.register_conversation(self.state.thread_id, user_input)

@@ -142,7 +142,7 @@ def build_model_options(
     """Build provider-grouped labels for the discovered model catalog."""
     options: list[tuple[ModelSelection, str]] = []
     for provider in ModelType:
-        for model in catalog.get(provider, ()):
+        for model in sorted(catalog.get(provider, ()), key=lambda model: model.model_id):
             selection = provider, model.model_id
             current_marker = "  Current model" if selection == current else ""
             options.append((selection, f"{provider.label:<10} {model.model_id}{current_marker}"))

@@ -83,18 +83,27 @@ class TestModelCommand:
         assert format_model_details(None) == ""
 
     def test_build_model_options_groups_providers_and_marks_current_model(self) -> None:
-        options = build_model_options(
-            {
-                ModelType.ANTHROPIC: (ModelRecord(ModelType.ANTHROPIC, "claude"),),
-                ModelType.OPENAI: (ModelRecord(ModelType.OPENAI, "gpt"),),
-            },
-            (ModelType.OPENAI, "gpt"),
-        )
+        catalog = {
+            ModelType.ANTHROPIC: (
+                ModelRecord(ModelType.ANTHROPIC, "claude-z"),
+                ModelRecord(ModelType.ANTHROPIC, "claude-a"),
+            ),
+            ModelType.OPENAI: (
+                ModelRecord(ModelType.OPENAI, "gpt-z"),
+                ModelRecord(ModelType.OPENAI, "gpt-a"),
+            ),
+        }
+
+        options = build_model_options(catalog, (ModelType.OPENAI, "gpt-z"))
 
         assert options == [
-            ((ModelType.ANTHROPIC, "claude"), "Anthropic  claude"),
-            ((ModelType.OPENAI, "gpt"), "OpenAI     gpt  Current model"),
+            ((ModelType.ANTHROPIC, "claude-a"), "Anthropic  claude-a"),
+            ((ModelType.ANTHROPIC, "claude-z"), "Anthropic  claude-z"),
+            ((ModelType.OPENAI, "gpt-a"), "OpenAI     gpt-a"),
+            ((ModelType.OPENAI, "gpt-z"), "OpenAI     gpt-z  Current model"),
         ]
+        assert tuple(record.model_id for record in catalog[ModelType.ANTHROPIC]) == ("claude-z", "claude-a")
+        assert tuple(record.model_id for record in catalog[ModelType.OPENAI]) == ("gpt-z", "gpt-a")
 
     @pytest.mark.asyncio
     async def test_choose_model_returns_none_for_empty_options(self, capsys) -> None:
