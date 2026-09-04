@@ -97,6 +97,7 @@ class HistoryCommand(BaseCommand):
     """Select a persisted conversation."""
 
     name = "history"
+    clears_output_after_handling = True
 
     async def handle(self, prompt: Optional[str], state: SessionState) -> CommandResult:
         """Handle history selection within the active event loop."""

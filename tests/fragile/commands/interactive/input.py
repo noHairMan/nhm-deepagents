@@ -5,10 +5,36 @@ from prompt_toolkit.document import Document
 from prompt_toolkit.keys import Keys
 from prompt_toolkit.output import DummyOutput
 
-from fragile.commands.interactive.input import CommandCompleter, create_prompt_session
+from fragile.commands.interactive.input import (
+    CommandCompleter,
+    clear_submitted_input,
+    clear_submitted_input_after_interaction,
+    create_prompt_session,
+)
 
 
 class TestInput:
+    def test_clear_submitted_input_erases_each_multiline_input_line(self) -> None:
+        output = DummyOutput()
+
+        clear_submitted_input(output, "first\nsecond")
+
+    def test_clear_submitted_input_writes_cleanup_sequences(self) -> None:
+        output = MagicMock()
+
+        clear_submitted_input(output, "first\nsecond")
+
+        output.write_raw.assert_called_once_with("\r\033[2K\033[1A\r\033[2K")
+        output.flush.assert_called_once_with()
+
+    def test_clear_submitted_input_after_interaction_clears_returned_screen_line(self) -> None:
+        output = MagicMock()
+
+        clear_submitted_input_after_interaction(output, "/history")
+
+        output.write_raw.assert_called_once_with("\r\033[2K\033[1A\r\033[2K")
+        output.flush.assert_called_once_with()
+
     def testprompt_session_configuresinteractive_features(self) -> None:
 
         session = create_prompt_session(output=DummyOutput())

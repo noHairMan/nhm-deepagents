@@ -18,7 +18,11 @@ from fragile.commands.interactive.display import (
     show_request_error,
     show_startup,
 )
-from fragile.commands.interactive.input import create_prompt_session
+from fragile.commands.interactive.input import (
+    clear_submitted_input,
+    clear_submitted_input_after_interaction,
+    create_prompt_session,
+)
 from fragile.conf import settings
 from fragile.exceptions import AgentResponseError
 from fragile.models import ConversationHistory, SessionState, restore_account_configuration
@@ -58,8 +62,18 @@ class InteractiveSession:
         user_input = await self.read_input()
         if user_input is None:
             return agent
-        result = await command_registry.handle(user_input, self.state)
-        return await self.handle_result(agent, checkpointer, result, user_input)
+        is_registered_command = command_registry.is_registered(user_input)
+        if is_registered_command:
+            clear_submitted_input(self.session.output, user_input)
+        try:
+            result = await command_registry.handle(user_input, self.state)
+            return await self.handle_result(agent, checkpointer, result, user_input)
+        finally:
+            if is_registered_command:
+                if command_registry.clears_output_after_handling(user_input):
+                    clear_submitted_input_after_interaction(self.session.output, user_input)
+                else:
+                    clear_submitted_input(self.session.output, user_input)
 
     async def read_input(self) -> str | None:
         """Read one prompt, handling retryable and terminating interrupts."""

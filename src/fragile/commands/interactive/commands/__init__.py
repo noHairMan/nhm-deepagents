@@ -26,6 +26,17 @@ class CommandRegistry:
         """Return the registered commands."""
         return tuple(self._handlers.values())
 
+    def is_registered(self, prompt: str) -> bool:
+        """Return whether a prompt addresses a registered command."""
+        parsed_prompt = extract_prompt(prompt)
+        return parsed_prompt.command in self._handlers
+
+    def clears_output_after_handling(self, prompt: str) -> bool:
+        """Return whether handling a prompt may leave a nested screen behind."""
+        parsed_prompt = extract_prompt(prompt)
+        handler = self._handlers.get(parsed_prompt.command)
+        return handler is not None and handler.clears_output_after_handling
+
     async def handle(self, prompt: str, state: SessionState) -> CommandResult:
         """Dispatch a prompt without blocking the active event loop."""
         parsed_prompt = extract_prompt(prompt)

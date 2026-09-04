@@ -1,4 +1,4 @@
-from unittest.mock import AsyncMock, MagicMock, patch
+from unittest.mock import AsyncMock, MagicMock, call, patch
 from uuid import UUID
 
 import asyncclick as click
@@ -31,6 +31,73 @@ class TestSession:
     def test_command_registry_rejects_non_command_registration(self) -> None:
         with pytest.raises(TypeError, match="command must be a Command instance"):
             CommandRegistry().register(object())
+
+    def test_command_registry_only_recognizes_registered_commands(self) -> None:
+        registry = CommandRegistry()
+        registry.register(QuitCommand())
+
+        assert registry.is_registered("/QUIT")
+        assert not registry.is_registered("/unknown")
+        assert not registry.is_registered("ordinary prompt")
+
+    @pytest.mark.asyncio
+    async def test_run_iteration_clears_registered_command_before_handling(self) -> None:
+        with (
+            patch("fragile.commands.interactive.session.create_prompt_session"),
+            patch.object(command_registry, "is_registered", return_value=True),
+            patch.object(command_registry, "clears_output_after_handling", return_value=False),
+            patch.object(command_registry, "handle", new_callable=AsyncMock, return_value=CommandResult.EXIT) as handle,
+            patch("fragile.commands.interactive.session.clear_submitted_input") as clear,
+        ):
+            session = InteractiveSession(None)
+            session.read_input = AsyncMock(return_value="/quit")
+
+            agent = MagicMock()
+            await session.run_iteration(agent, MagicMock())
+
+        assert clear.call_args_list == [
+            call(session.session.output, "/quit"),
+            call(session.session.output, "/quit"),
+        ]
+        handle.assert_awaited_once_with("/quit", session.state)
+
+    @pytest.mark.asyncio
+    async def test_run_iteration_does_not_clear_unknown_slash_input(self) -> None:
+        with (
+            patch("fragile.commands.interactive.session.create_prompt_session"),
+            patch.object(command_registry, "is_registered", return_value=False),
+            patch.object(command_registry, "handle", new_callable=AsyncMock, return_value=CommandResult.NOT_HANDLED),
+            patch("fragile.commands.interactive.session.clear_submitted_input") as clear,
+            patch(
+                "fragile.commands.interactive.session.ConversationHistory.register_conversation",
+                new_callable=AsyncMock,
+            ),
+            patch("fragile.commands.interactive.session.chat", new_callable=AsyncMock),
+        ):
+            session = InteractiveSession(None)
+            session.read_input = AsyncMock(return_value="/unknown")
+
+            await session.run_iteration(MagicMock(), MagicMock())
+
+        clear.assert_not_called()
+
+    @pytest.mark.asyncio
+    async def test_run_iteration_clears_history_after_selector_returns(self) -> None:
+        with (
+            patch("fragile.commands.interactive.session.create_prompt_session"),
+            patch.object(command_registry, "is_registered", return_value=True),
+            patch.object(command_registry, "clears_output_after_handling", return_value=True),
+            patch.object(command_registry, "handle", new_callable=AsyncMock, return_value=CommandResult.CONTINUE),
+            patch("fragile.commands.interactive.session.clear_submitted_input") as clear_before,
+            patch("fragile.commands.interactive.session.clear_submitted_input_after_interaction") as clear_after,
+        ):
+            session = InteractiveSession(None)
+            session.read_input = AsyncMock(return_value="/history")
+
+            await session.run_iteration(MagicMock(), MagicMock())
+
+        clear_before.assert_called_once_with(session.session.output, "/history")
+        clear_after.assert_called_once_with(session.session.output, "/history")
 
     def test_interactive_session_initializes_thread_state(self) -> None:
         thread_id = UUID(int=1)

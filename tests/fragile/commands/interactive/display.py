@@ -142,6 +142,20 @@ class TestDisplay:
         assert "> question" in output
         assert "answer" in output
 
+    def test_replay_outputs_skips_registered_system_commands(self, capsys) -> None:
+        records = [
+            type("Record", (), {"user_input": "/model", "assistant_output": "hidden"})(),
+            type("Record", (), {"user_input": "question", "assistant_output": "answer"})(),
+        ]
+
+        replay_outputs(records)
+
+        output = capsys.readouterr().out
+        assert "> /model" not in output
+        assert "hidden" not in output
+        assert "> question" in output
+        assert "answer" in output
+
     def test_replay_outputs_shows_thinking_before_answer_safely(self, capsys) -> None:
         record = type(
             "Record",

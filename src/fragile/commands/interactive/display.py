@@ -162,8 +162,12 @@ def show_request_error(error: str) -> None:
 
 def replay_outputs(records: list[object]) -> None:
     """Replay persisted user prompts and safe assistant timeline responses."""
+    from fragile.commands.interactive.commands import command_registry
+
     for record in records:
         user_input = getattr(record, "user_input", "")
+        if command_registry.is_registered(user_input):
+            continue
         assistant_output = getattr(record, "assistant_output", "")
         thinking_output = getattr(record, "thinking_output", "") or ""
         console.print(Text(f"> {user_input}"))

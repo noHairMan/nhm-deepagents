@@ -27,6 +27,7 @@ _IGNORED_STAGE_NAMES = {
     "runnablesequence",
     "channelwrite",
 }
+_SKILLS_MIDDLEWARE_NAME = "skillsmiddleware"
 
 
 @dataclass(frozen=True)
@@ -181,7 +182,12 @@ def _stage_event_kind(event_name: str, name: str | None) -> tuple[TraceKind, Tra
     if event_name not in {"on_chain_start", "on_chain_end", "on_chain_error"} or not name:
         return None
     normalized_name = name.lower()
-    if normalized_name in _IGNORED_STAGE_NAMES or normalized_name.startswith("__"):
+    if (
+        normalized_name in _IGNORED_STAGE_NAMES
+        or normalized_name.startswith("__")
+        or normalized_name == _SKILLS_MIDDLEWARE_NAME
+        or normalized_name.startswith(f"{_SKILLS_MIDDLEWARE_NAME}.")
+    ):
         return None
     if "subagent" not in normalized_name and "skill" not in normalized_name:
         return None

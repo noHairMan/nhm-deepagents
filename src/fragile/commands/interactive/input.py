@@ -15,6 +15,24 @@ from fragile.commands.interactive.commands import command_registry
 PROMPT_STYLE = Style.from_dict({"prompt": "#00aa00 bold"})
 
 
+def clear_submitted_input(output: Output, user_input: str) -> None:
+    """Erase a submitted prompt from the active terminal screen."""
+    line_count = max(1, user_input.count("\n") + 1)
+    sequences = ["\r\033[2K"]
+    sequences.extend("\033[1A\r\033[2K" for _ in range(line_count - 1))
+    output.write_raw("".join(sequences))
+    output.flush()
+
+
+def clear_submitted_input_after_interaction(output: Output, user_input: str) -> None:
+    """Erase a prompt after a nested full-screen interaction has returned."""
+    line_count = max(1, user_input.count("\n") + 1)
+    sequences = ["\r\033[2K"]
+    sequences.extend("\033[1A\r\033[2K" for _ in range(line_count))
+    output.write_raw("".join(sequences))
+    output.flush()
+
+
 class CommandCompleter(Completer):
     """补全 Fragile 的内置斜杠命令。"""
 

@@ -134,6 +134,15 @@ class TestTrace:
         assert list(normalize_event(stage, 2))[0].status == "running"
         assert list(normalize_event(noise, 3)) == []
 
+    def test_normalize_stage_events_ignores_skills_middleware_hooks(self) -> None:
+        events = [
+            {"event": "on_chain_start", "name": "SkillsMiddleware.before_agent", "data": {"input": {}}},
+            {"event": "on_chain_end", "name": "SkillsMiddleware.before_agent", "data": {"output": {}}},
+            {"event": "on_chain_error", "name": "SkillsMiddleware.before_agent", "data": {"error": "failed"}},
+        ]
+
+        assert [list(normalize_event(event, sequence)) for sequence, event in enumerate(events)] == [[], [], []]
+
     def test_normalize_event_ignores_malformed_events(self) -> None:
         assert list(normalize_event(None, 0)) == []
         assert list(normalize_event({}, 0)) == []

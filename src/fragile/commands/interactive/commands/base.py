@@ -32,6 +32,7 @@ class Command(ABC):
     """Base class for an interactive command."""
 
     name: str
+    clears_output_after_handling: bool = False
 
     @abstractmethod
     async def handle(self, prompt: Optional[str], state: SessionState) -> CommandResult:
