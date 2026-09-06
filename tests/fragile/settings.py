@@ -18,6 +18,8 @@ class TestFragileSettings:
 
         assert settings.APP == "fragile"
         assert settings.AGENT == "tomorrow.core.agent.AgentManager.create_agent"
+        assert Path(".fragile_history") == settings.INPUT_HISTORY_FILE
+        assert settings.INPUT_HISTORY_LIMIT == 100
         assert settings.LOG_LEVEL == 20
         assert settings.LOG_ROOT.name == "logs"
         log_filename = Path(settings.LOGGING["handlers"]["fragile"]["filename"])

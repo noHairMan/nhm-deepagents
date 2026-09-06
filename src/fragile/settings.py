@@ -12,6 +12,8 @@ class FragileSettings(BaseSettings):
     APP: str = "fragile"
     AGENT: str = "tomorrow.core.agent.AgentManager.create_agent"
     BASE_DIR: ClassVar[Path] = Path(__file__).resolve().parent.parent
+    INPUT_HISTORY_FILE: Path = Path(".fragile_history")
+    INPUT_HISTORY_LIMIT: int = Field(default=100, gt=0)
     INTERRUPT_EXIT_THRESHOLD: float = Field(default=0.5, gt=0)
     LOG_LEVEL: int = logging.INFO
     LOG_ROOT: ClassVar[Path] = Path(__file__).resolve().parent.parent.parent / "logs"

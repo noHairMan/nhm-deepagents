@@ -10,6 +10,7 @@ from sqlalchemy import create_engine
 from fragile.commands.interactive.commands import CommandRegistry, command_registry
 from fragile.commands.interactive.commands.base import extract_prompt
 from fragile.commands.interactive.commands.quit import QuitCommand
+from fragile.commands.interactive.input import BoundedFileHistory
 from fragile.commands.interactive.session import InteractiveSession, interactive
 from fragile.exceptions import AgentResponseError, FragileError, InvalidThreadIdError
 from fragile.models import Base, SessionState
@@ -39,6 +40,32 @@ class TestSession:
         assert registry.is_registered("/QUIT")
         assert not registry.is_registered("/unknown")
         assert not registry.is_registered("ordinary prompt")
+
+    @pytest.mark.parametrize(
+        ("user_input", "is_registered", "should_record"),
+        [("ordinary prompt", False, True), ("/unknown", False, True), ("/new", True, False), ("", False, False)],
+    )
+    @pytest.mark.asyncio
+    async def test_run_iteration_records_only_nonempty_unregistered_input(
+        self, user_input: str, is_registered: bool, should_record: bool
+    ) -> None:
+        prompt_session = MagicMock()
+        prompt_session.history = MagicMock(spec=BoundedFileHistory)
+        with (
+            patch("fragile.commands.interactive.session.create_prompt_session", return_value=prompt_session),
+            patch.object(command_registry, "is_registered", return_value=is_registered),
+            patch.object(command_registry, "clears_output_after_handling", return_value=False),
+            patch.object(command_registry, "handle", new_callable=AsyncMock, return_value=CommandResult.CONTINUE),
+            patch("fragile.commands.interactive.session.clear_submitted_input"),
+        ):
+            session = InteractiveSession(None)
+            session.read_input = AsyncMock(return_value=user_input)
+            await session.run_iteration(MagicMock(), MagicMock())
+
+        if should_record:
+            prompt_session.history.record_string.assert_called_once_with(user_input)
+        else:
+            prompt_session.history.record_string.assert_not_called()
 
     @pytest.mark.asyncio
     async def test_run_iteration_clears_registered_command_before_handling(self) -> None:

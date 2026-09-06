@@ -6,6 +6,7 @@ from prompt_toolkit.keys import Keys
 from prompt_toolkit.output import DummyOutput
 
 from fragile.commands.interactive.input import (
+    BoundedFileHistory,
     CommandCompleter,
     clear_submitted_input,
     clear_submitted_input_after_interaction,
@@ -15,6 +16,35 @@ from fragile.commands.interactive.input import (
 
 
 class TestInput:
+    def test_bounded_file_history_restores_multiline_unicode_in_recent_first_order(self, tmp_path) -> None:
+        history_file = tmp_path / "nested" / "history.jsonl"
+        history = BoundedFileHistory(history_file, 100)
+
+        history.record_string("first")
+        history.record_string("第二行\nthird")
+
+        restored = BoundedFileHistory(history_file, 100)
+        assert list(restored.load_history_strings()) == ["第二行\nthird", "first"]
+
+    def test_bounded_file_history_trims_oldest_entries(self, tmp_path) -> None:
+        history_file = tmp_path / "history.jsonl"
+        history = BoundedFileHistory(history_file, 2)
+
+        history.record_string("first")
+        history.record_string("second")
+        history.record_string("third")
+
+        assert list(BoundedFileHistory(history_file, 2).load_history_strings()) == ["third", "second"]
+        assert history.get_strings() == ["second", "third"]
+
+    def test_bounded_file_history_handles_missing_file_and_ignores_automatic_append(self, tmp_path) -> None:
+        history = BoundedFileHistory(tmp_path / "missing" / "history.jsonl", 100)
+
+        assert list(history.load_history_strings()) == []
+        history.append_string("registered command")
+
+        assert not history.filename.exists()
+
     def test_clear_submitted_input_erases_each_multiline_input_line(self) -> None:
         output = DummyOutput()
 
@@ -40,6 +70,7 @@ class TestInput:
 
         session = create_prompt_session(output=DummyOutput())
         assert session.multiline is True
+        assert isinstance(session.history, BoundedFileHistory)
         assert isinstance(session.completer, CommandCompleter)
         assert session.bottom_toolbar is not None
         assert {binding.keys for binding in session.key_bindings.bindings} == {

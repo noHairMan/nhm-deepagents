@@ -19,6 +19,7 @@ from fragile.commands.interactive.display import (
     show_startup,
 )
 from fragile.commands.interactive.input import (
+    BoundedFileHistory,
     clear_submitted_input,
     clear_submitted_input_after_interaction,
     create_prompt_session,
@@ -69,6 +70,8 @@ class InteractiveSession:
         if user_input is None:
             return agent
         is_registered_command = command_registry.is_registered(user_input)
+        if not is_registered_command and user_input and isinstance(self.session.history, BoundedFileHistory):
+            self.session.history.record_string(user_input)
         if is_registered_command:
             clear_submitted_input(self.session.output, user_input)
         try:

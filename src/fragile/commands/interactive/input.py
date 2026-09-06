@@ -1,21 +1,63 @@
 """Prompt-toolkit input handling."""
 
+import json
+import os
 from collections.abc import Callable, Iterator
+from pathlib import Path
 from typing import Any
+from uuid import uuid4
 
 from prompt_toolkit import PromptSession
 from prompt_toolkit.application import get_app
 from prompt_toolkit.completion import Completer, Completion
-from prompt_toolkit.history import InMemoryHistory
+from prompt_toolkit.history import History
 from prompt_toolkit.key_binding import KeyBindings
 from prompt_toolkit.output import Output
 from prompt_toolkit.styles import Style
 
 from fragile.commands.interactive.commands import command_registry
+from fragile.conf import settings
 
 PROMPT_STYLE = Style.from_dict({"prompt": "#00aa00 bold"})
 TOOLBAR_FALLBACK = "unknown"
 TOOLBAR_MAX_WIDTH = 120
+
+
+class BoundedFileHistory(History):
+    """Persist a bounded number of prompt entries in a JSON-lines file."""
+
+    def __init__(self, filename: Path, limit: int) -> None:
+        super().__init__()
+        self.filename = filename
+        self.limit = limit
+
+    def load_history_strings(self) -> Iterator[str]:
+        if not self.filename.exists():
+            return
+        entries = [json.loads(line) for line in self.filename.read_text(encoding="utf-8").splitlines() if line]
+        yield from reversed(entries[-self.limit :])
+
+    def store_string(self, string: str) -> None:
+        entries = list(reversed(list(self.load_history_strings())))
+        entries.append(string)
+        entries = entries[-self.limit :]
+        self.filename.parent.mkdir(parents=True, exist_ok=True)
+        temporary_path = self.filename.with_name(f".{self.filename.name}.{uuid4().hex}.tmp")
+        try:
+            with temporary_path.open("w", encoding="utf-8") as temporary_file:
+                for entry in entries:
+                    temporary_file.write(f"{json.dumps(entry, ensure_ascii=False)}\n")
+            os.replace(temporary_path, self.filename)
+        finally:
+            temporary_path.unlink(missing_ok=True)
+
+    def append_string(self, string: str) -> None:
+        """Ignore prompt-toolkit's automatic submission recording."""
+
+    def record_string(self, string: str) -> None:
+        """Explicitly add an accepted ordinary input to history."""
+        super().append_string(string)
+        del self._loaded_strings[self.limit :]
 
 
 def _single_line(value: object, default: str = TOOLBAR_FALLBACK) -> str:
@@ -110,7 +152,7 @@ def create_prompt_session(
         event.current_buffer.insert_text("\n")
 
     return PromptSession(
-        history=InMemoryHistory(),
+        history=BoundedFileHistory(settings.INPUT_HISTORY_FILE, settings.INPUT_HISTORY_LIMIT),
         completer=CommandCompleter(),
         style=PROMPT_STYLE,
         multiline=True,
