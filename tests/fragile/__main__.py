@@ -1,8 +1,10 @@
 import logging
 import runpy
 from pathlib import Path
-from unittest.mock import patch
+from unittest.mock import Mock, patch
 
+import fragile.commands.purge as purge_module
+import fragile.models.base as base_module
 from fragile.__main__ import configure_checkpoint, configure_logging, main
 from fragile.conf import settings as fragile_settings
 from tomorrow.conf import settings
@@ -16,16 +18,32 @@ class TestMain:
 
     def test_sqlite_checkpoint_path_is_current_directory(self, tmp_path, monkeypatch) -> None:
         monkeypatch.chdir(tmp_path)
+        database_file = tmp_path / "fragile-data" / "fragile.db"
+        monkeypatch.setattr(fragile_settings, "DATABASE_FILE", database_file)
+        store_path = settings.STORE.sqlite.path
+        filesystem_root = settings.BACKEND.filesystem.root_dir
+        local_shell_root = settings.BACKEND.local_shell.root_dir
+
         configure_checkpoint()
+
         assert settings.CHECKPOINT.type == CheckpointType.SQLITE
-        assert settings.CHECKPOINT.sqlite.path == tmp_path / "fragile.db"
+        assert settings.CHECKPOINT.sqlite.path == database_file
+        assert settings.STORE.sqlite.path == store_path
+        assert settings.BACKEND.filesystem.root_dir == filesystem_root
+        assert settings.BACKEND.local_shell.root_dir == local_shell_root
 
     def test_configure_checkpoint_rebinds_fragile_database_engine(self, tmp_path, monkeypatch) -> None:
         monkeypatch.chdir(tmp_path)
+        monkeypatch.setattr(base_module, "engine", base_module.engine)
+        monkeypatch.setattr(purge_module, "engine", purge_module.engine)
+        engine = Mock()
         with patch("fragile.models.base.get_engine") as get_engine:
+            get_engine.return_value = engine
             configure_checkpoint()
 
         get_engine.assert_called_once_with()
+        assert base_module.engine is engine
+        assert purge_module.engine is engine
 
     def test_configure_logging_uses_fragile_settings(self) -> None:
         with (

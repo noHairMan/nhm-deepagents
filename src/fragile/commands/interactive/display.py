@@ -160,6 +160,12 @@ def show_request_error(error: str) -> None:
     console.print(Text(f"模型请求失败：{error}，请检查请求参数后重试。", style="bold red"))
 
 
+def show_internal_error(error: str) -> None:
+    """Show a concise internal error without exposing a traceback."""
+    message = error.strip() or "未知错误"
+    console.print(Text(f"✗ Failed: {message}", style="bold red"))
+
+
 def replay_outputs(records: list[object]) -> None:
     """Replay persisted user prompts and safe assistant timeline responses."""
     from fragile.commands.interactive.commands import command_registry

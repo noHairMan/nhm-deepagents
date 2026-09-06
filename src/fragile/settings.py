@@ -12,11 +12,13 @@ class FragileSettings(BaseSettings):
     APP: str = "fragile"
     AGENT: str = "tomorrow.core.agent.AgentManager.create_agent"
     BASE_DIR: ClassVar[Path] = Path(__file__).resolve().parent.parent
+    DATA_ROOT: Path = Field(default_factory=lambda: Path.home() / ".fragile")
+    DATABASE_FILE: Path = Path("fragile.db")
     INPUT_HISTORY_FILE: Path = Path(".fragile_history")
     INPUT_HISTORY_LIMIT: int = Field(default=100, gt=0)
     INTERRUPT_EXIT_THRESHOLD: float = Field(default=0.5, gt=0)
     LOG_LEVEL: int = logging.INFO
-    LOG_ROOT: ClassVar[Path] = Path(__file__).resolve().parent.parent.parent / "logs"
+    LOG_ROOT: Path = Path("logs")
     _LOGGING: ClassVar[dict] = {
         "version": 1,
         "disable_existing_loggers": True,
@@ -30,7 +32,6 @@ class FragileSettings(BaseSettings):
         "handlers": {
             "fragile": {
                 "class": "logging.handlers.RotatingFileHandler",
-                "filename": os.path.join(LOG_ROOT, "fragile.log"),
                 "formatter": "verbose",
                 "encoding": "utf-8",
                 "maxBytes": 100 * 1024 * 1024,
@@ -38,7 +39,6 @@ class FragileSettings(BaseSettings):
             },
             "llm": {
                 "class": "logging.handlers.RotatingFileHandler",
-                "filename": os.path.join(LOG_ROOT, "llm.log"),
                 "formatter": "verbose",
                 "encoding": "utf-8",
                 "maxBytes": 100 * 1024 * 1024,
@@ -75,6 +75,8 @@ class FragileSettings(BaseSettings):
     def LOGGING(self) -> dict:
         """Return logging configuration using the configured log level."""
         logging_config = copy.deepcopy(self._LOGGING)
+        logging_config["handlers"]["fragile"]["filename"] = str(self.LOG_ROOT / "fragile.log")
+        logging_config["handlers"]["llm"]["filename"] = str(self.LOG_ROOT / "llm.log")
         logging_config["handlers"]["fragile"]["level"] = self.LOG_LEVEL
         logging_config["root"]["level"] = self.LOG_LEVEL
         for logger_config in logging_config["loggers"].values():
@@ -83,6 +85,15 @@ class FragileSettings(BaseSettings):
         logging_config["loggers"]["tomorrow.llm"]["level"] = logging.DEBUG
         return logging_config
 
-    def __init__(self, **values):
-        super().__init__(**values)
-        os.makedirs(self.LOG_ROOT, exist_ok=True)
+    def model_post_init(self, __context: object) -> None:
+        if "DATABASE_FILE" not in self.model_fields_set:
+            self.DATABASE_FILE = self.DATA_ROOT / "fragile.db"
+        if "INPUT_HISTORY_FILE" not in self.model_fields_set:
+            self.INPUT_HISTORY_FILE = self.DATA_ROOT / ".fragile_history"
+        if "LOG_ROOT" not in self.model_fields_set:
+            self.LOG_ROOT = self.DATA_ROOT / "logs"
+
+        self.DATA_ROOT.mkdir(parents=True, exist_ok=True)
+        self.DATABASE_FILE.parent.mkdir(parents=True, exist_ok=True)
+        self.INPUT_HISTORY_FILE.parent.mkdir(parents=True, exist_ok=True)
+        self.LOG_ROOT.mkdir(parents=True, exist_ok=True)

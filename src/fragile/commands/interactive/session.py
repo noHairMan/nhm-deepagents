@@ -15,6 +15,7 @@ from fragile.commands.interactive.display import (
     enter_fullscreen,
     leave_fullscreen,
     show_connection_error,
+    show_internal_error,
     show_request_error,
     show_startup,
 )
@@ -69,20 +70,25 @@ class InteractiveSession:
         user_input = await self.read_input()
         if user_input is None:
             return agent
-        is_registered_command = command_registry.is_registered(user_input)
-        if not is_registered_command and user_input and isinstance(self.session.history, BoundedFileHistory):
-            self.session.history.record_string(user_input)
-        if is_registered_command:
-            clear_submitted_input(self.session.output, user_input)
         try:
-            result = await command_registry.handle(user_input, self.state)
-            return await self.handle_result(agent, checkpointer, result, user_input)
-        finally:
+            is_registered_command = command_registry.is_registered(user_input)
+            if not is_registered_command and user_input and isinstance(self.session.history, BoundedFileHistory):
+                self.session.history.record_string(user_input)
             if is_registered_command:
-                if command_registry.clears_output_after_handling(user_input):
-                    clear_submitted_input_after_interaction(self.session.output, user_input)
-                else:
-                    clear_submitted_input(self.session.output, user_input)
+                clear_submitted_input(self.session.output, user_input)
+            try:
+                result = await command_registry.handle(user_input, self.state)
+                return await self.handle_result(agent, checkpointer, result, user_input)
+            finally:
+                if is_registered_command:
+                    if command_registry.clears_output_after_handling(user_input):
+                        clear_submitted_input_after_interaction(self.session.output, user_input)
+                    else:
+                        clear_submitted_input(self.session.output, user_input)
+        except Exception as error:
+            logger.exception("交互命令处理失败 error=%s", error)
+            show_internal_error(str(error))
+            return agent
 
     async def read_input(self) -> str | None:
         """Read one prompt, handling retryable and terminating interrupts."""

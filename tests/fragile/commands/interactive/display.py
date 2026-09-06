@@ -9,6 +9,7 @@ from fragile.commands.interactive.display import (
     print_thinking,
     replay_outputs,
     show_connection_error,
+    show_internal_error,
     show_request_error,
     show_startup,
 )
@@ -38,6 +39,20 @@ class TestDisplay:
 
         error_text = print_console.call_args.args[0]
         assert error_text.style == "bold red"
+
+    def test_show_internal_error_uses_failed_marker_and_red_style(self) -> None:
+        with patch("fragile.commands.interactive.display.console.print") as print_console:
+            show_internal_error("unexpected failure")
+
+        error_text = print_console.call_args.args[0]
+        assert error_text.plain == "✗ Failed: unexpected failure"
+        assert error_text.style == "bold red"
+
+    def test_show_internal_error_replaces_empty_message(self) -> None:
+        with patch("fragile.commands.interactive.display.console.print") as print_console:
+            show_internal_error("  ")
+
+        assert print_console.call_args.args[0].plain == "✗ Failed: 未知错误"
 
     def test_print_stream(self, capsys) -> None:
         print_stream("answer")

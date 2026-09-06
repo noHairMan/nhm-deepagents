@@ -126,6 +126,40 @@ class TestSession:
         clear_before.assert_called_once_with(session.session.output, "/history")
         clear_after.assert_called_once_with(session.session.output, "/history")
 
+    @pytest.mark.asyncio
+    async def test_run_iteration_logs_and_shows_unexpected_error_while_preserving_agent(self) -> None:
+        error = RuntimeError("command failed")
+        agent = MagicMock()
+        with (
+            patch("fragile.commands.interactive.session.create_prompt_session"),
+            patch.object(command_registry, "is_registered", return_value=False),
+            patch.object(command_registry, "handle", new_callable=AsyncMock, side_effect=error),
+            patch("fragile.commands.interactive.session.logger.exception") as log_exception,
+            patch("fragile.commands.interactive.session.show_internal_error") as show_error,
+        ):
+            session = InteractiveSession(None)
+            session.read_input = AsyncMock(return_value="hello")
+
+            result = await session.run_iteration(agent, MagicMock())
+
+        assert result is agent
+        assert session.is_running
+        log_exception.assert_called_once_with("交互命令处理失败 error=%s", error)
+        show_error.assert_called_once_with("command failed")
+
+    @pytest.mark.asyncio
+    async def test_run_iteration_does_not_catch_base_exception(self) -> None:
+        with (
+            patch("fragile.commands.interactive.session.create_prompt_session"),
+            patch.object(command_registry, "is_registered", return_value=False),
+            patch.object(command_registry, "handle", new_callable=AsyncMock, side_effect=KeyboardInterrupt),
+        ):
+            session = InteractiveSession(None)
+            session.read_input = AsyncMock(return_value="hello")
+
+            with pytest.raises(KeyboardInterrupt):
+                await session.run_iteration(MagicMock(), MagicMock())
+
     def test_interactive_session_initializes_thread_state(self) -> None:
         thread_id = UUID(int=1)
         with patch("fragile.commands.interactive.session.create_prompt_session") as create_session:
@@ -421,6 +455,31 @@ class TestSession:
 
         register.assert_awaited_once_with(state.thread_id, "hello")
         chat.assert_awaited_once_with(chat.call_args.args[0], "hello", state.thread_id)
+        leave_fullscreen.assert_called_once_with()
+
+    @pytest.mark.asyncio
+    async def test_interactive_continues_to_quit_after_iteration_error(self) -> None:
+        prompt_session = MagicMock()
+        prompt_session.prompt_async = AsyncMock(side_effect=["hello", "/quit"])
+        error = RuntimeError("command failed")
+        with (
+            patch("fragile.commands.interactive.session.enter_fullscreen"),
+            patch("fragile.commands.interactive.session.leave_fullscreen") as leave_fullscreen,
+            patch("fragile.commands.interactive.session.show_startup"),
+            patch("fragile.commands.interactive.session.create_prompt_session", return_value=prompt_session),
+            patch.object(
+                command_registry,
+                "handle",
+                new_callable=AsyncMock,
+                side_effect=[error, CommandResult.EXIT],
+            ) as handle,
+            patch("fragile.commands.interactive.session.logger.exception"),
+            patch("fragile.commands.interactive.session.show_internal_error") as show_error,
+        ):
+            await interactive(None)
+
+        assert handle.await_count == 2
+        show_error.assert_called_once_with("command failed")
         leave_fullscreen.assert_called_once_with()
 
     @pytest.mark.asyncio

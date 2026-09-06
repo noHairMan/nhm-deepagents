@@ -224,8 +224,14 @@ export TOMORROW_SUBAGENTS='[{"name":"researcher","description":"负责资料检�
 | 变量 | 描述 | 默认值 |
 |----------|-------------|---------|
 | `FRAGILE_APP` | 应用名称（用作环境变量前缀） | `fragile` |
+| `FRAGILE_DATA_ROOT` | Fragile 数据根目录 | `~/.fragile` |
+| `FRAGILE_DATABASE_FILE` | Fragile checkpoint 与 ORM 数据库文件 | `~/.fragile/fragile.db` |
+| `FRAGILE_INPUT_HISTORY_FILE` | 交互式输入历史文件 | `~/.fragile/.fragile_history` |
+| `FRAGILE_LOG_ROOT` | `fragile.log`、`llm.log` 及轮转文件目录 | `~/.fragile/logs` |
 | `FRAGILE_INTERRUPT_EXIT_THRESHOLD` | 两次 `Ctrl+C` 触发退出的最大间隔（秒） | `0.5` |
 | `FRAGILE_ENABLED_COMMANDS` | 启用的交互式命令类路径列表 | `quit`、`new`、`history`、`account`、`model` |
+
+Fragile 默认在启动时按需创建 `~/.fragile` 及日志目录。设置 `FRAGILE_DATA_ROOT` 会同步改变数据库、输入历史和日志的默认位置，也可以分别覆盖对应路径。此行为只影响 Fragile 自身的文件，不改变 Tomorrow 的 store 或 filesystem/local-shell workspace 配置，也不会自动迁移或删除旧目录中的文件。
 
 Fragile 的其他交互行为通过命令行选项和内置斜线命令控制。命令通过注册表统一发现和处理，可使用 `FRAGILE_ENABLED_COMMANDS` 调整启用的命令。账户凭据由 `Account` 模型以单例形式保存于 Fragile 的数据库中，启动交互会话时会恢复到 Tomorrow 的模型配置；环境变量仍可作为配置来源并拥有更高优先级。
 
