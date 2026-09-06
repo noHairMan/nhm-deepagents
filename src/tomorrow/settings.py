@@ -35,8 +35,8 @@ class AnthropicConfig(BaseConfigModel):
     api_key: str | None = None
     base_url: str | None = None
     temperature: float = 0
-    thinking_enabled: bool = False
-    thinking_budget_tokens: int | None = Field(default=None, gt=0)
+    thinking_enabled: bool = True
+    thinking_budget_tokens: int | None = Field(default=2048, gt=0)
 
     @model_validator(mode="after")
     def validate_thinking_budget(self) -> AnthropicConfig:

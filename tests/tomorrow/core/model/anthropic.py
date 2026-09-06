@@ -24,6 +24,8 @@ class TestAnthropic:
                     base_url=model_config.get("base_url"),
                     temperature=model_config.get("temperature"),
                     callbacks=[llm_callback],
+                    stream_usage=False,
+                    thinking={"type": "enabled", "budget_tokens": 2048},
                 )
 
     def test_get_model_with_thinking(self):
@@ -43,5 +45,26 @@ class TestAnthropic:
                     base_url=settings.MODEL.get(ModelType.ANTHROPIC).get("base_url"),
                     temperature=settings.MODEL.get(ModelType.ANTHROPIC).get("temperature"),
                     callbacks=[llm_callback],
+                    stream_usage=False,
                     thinking={"type": "enabled", "budget_tokens": 2048},
+                )
+
+    def test_get_model_with_thinking_disabled(self):
+        with patch("tomorrow.core.model.anthropic.ChatAnthropic") as mock_anthropic:
+            from tomorrow.conf import settings
+            from tomorrow.settings import AnthropicConfig, ModelConfig
+
+            model_config = ModelConfig(
+                type=ModelType.ANTHROPIC,
+                anthropic=AnthropicConfig(thinking_enabled=False, thinking_budget_tokens=None),
+            )
+            with patch("tomorrow.conf.settings.MODEL", model_config):
+                get_model()
+                mock_anthropic.assert_called_once_with(
+                    model=settings.MODEL.get(ModelType.ANTHROPIC).get("model"),
+                    api_key=settings.MODEL.get(ModelType.ANTHROPIC).get("api_key"),
+                    base_url=settings.MODEL.get(ModelType.ANTHROPIC).get("base_url"),
+                    temperature=settings.MODEL.get(ModelType.ANTHROPIC).get("temperature"),
+                    callbacks=[llm_callback],
+                    stream_usage=False,
                 )

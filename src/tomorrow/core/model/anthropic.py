@@ -13,6 +13,7 @@ def get_model() -> ChatAnthropic:
         "base_url": model_config.get("base_url"),
         "temperature": model_config.get("temperature", 0),
         "callbacks": [llm_callback],
+        "stream_usage": False,
     }
     if model_config.get("thinking_enabled"):
         model_kwargs["thinking"] = {

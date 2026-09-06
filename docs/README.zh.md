@@ -164,8 +164,8 @@ fragile purge
 | `TOMORROW_SKILLS` | 技能目录列表 | `[]` |
 | `TOMORROW_SUBAGENTS` | 子代理配置列表 | `[]` |
 | `TOMORROW_RECURSION_LIMIT` | 智能体递归调用上限 | `100` |
-| `TOMORROW_MODEL__ANTHROPIC__THINKING_ENABLED` | 是否请求 Anthropic thinking 输出 | `false` |
-| `TOMORROW_MODEL__ANTHROPIC__THINKING_BUDGET_TOKENS` | Anthropic thinking 的 token 预算（启用时必填） | 未设置 |
+| `TOMORROW_MODEL__ANTHROPIC__THINKING_ENABLED` | 是否请求 Anthropic thinking 输出 | `true` |
+| `TOMORROW_MODEL__ANTHROPIC__THINKING_BUDGET_TOKENS` | Anthropic thinking 的 token 预算（必须为正数） | `2048` |
 | `TOMORROW_MODEL__OPENAI__REASONING_EFFORT` | OpenAI reasoning 强度：`low`、`medium` 或 `high` | 未设置 |
 | `TOMORROW_MODEL__OPENAI__REASONING_SUMMARY` | OpenAI reasoning 摘要：`auto`、`concise` 或 `detailed` | 未设置 |
 
@@ -188,7 +188,7 @@ export TOMORROW_MODEL__OPENAI__BASE_URL="https://api.openai.com/v1"
 export TOMORROW_MODEL__OPENAI__TEMPERATURE="0"
 ```
 
-thinking/reasoning 默认关闭。需要在 `fragile` CLI 中查看模型明确返回的 thinking 或 reasoning 摘要时，按提供商配置对应参数；该功能可能增加 token 消耗和响应延迟。例如：
+Anthropic thinking 默认开启，预算默认为 `2048`；也可以通过以下环境变量覆盖预算，或将 `THINKING_ENABLED` 设为 `false` 显式关闭。OpenAI reasoning 仍默认关闭。thinking/reasoning 可能增加 token 消耗和响应延迟。例如：
 
 ```bash
 export TOMORROW_MODEL__ANTHROPIC__THINKING_ENABLED="true"

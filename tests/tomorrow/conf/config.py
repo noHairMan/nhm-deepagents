@@ -18,8 +18,8 @@ class TestConfig:
         assert settings.MODEL["type"] == "anthropic"
         assert settings.MODEL["anthropic"]["model"] == "claude-sonnet-5"
         assert settings.MODEL["anthropic"]["base_url"] is None
-        assert settings.MODEL["anthropic"]["thinking_enabled"] is False
-        assert settings.MODEL["anthropic"]["thinking_budget_tokens"] is None
+        assert settings.MODEL["anthropic"]["thinking_enabled"] is True
+        assert settings.MODEL["anthropic"]["thinking_budget_tokens"] == 2048
         assert settings.MODEL["openai"]["reasoning_effort"] is None
         assert settings.MODEL["openai"]["reasoning_summary"] is None
         assert settings.SKILLS == []
@@ -46,10 +46,26 @@ class TestConfig:
             assert new_settings.MODEL["openai"]["reasoning_effort"] == "high"
             assert new_settings.MODEL["openai"]["reasoning_summary"] == "detailed"
 
+        with patch.dict(
+            os.environ,
+            {
+                "TOMORROW_MODEL__ANTHROPIC__THINKING_ENABLED": "false",
+            },
+        ):
+            new_settings = TomorrowSettings(_env_file=None)
+            assert new_settings.MODEL["anthropic"]["thinking_enabled"] is False
+            assert new_settings.MODEL["anthropic"]["thinking_budget_tokens"] == 2048
+
         with pytest.raises(ValueError, match="thinking_budget_tokens"):
             TomorrowSettings(
                 _env_file=None,
-                MODEL={"anthropic": {"thinking_enabled": True}},
+                MODEL={"anthropic": {"thinking_enabled": True, "thinking_budget_tokens": None}},
+            )
+
+        with pytest.raises(ValueError):
+            TomorrowSettings(
+                _env_file=None,
+                MODEL={"anthropic": {"thinking_budget_tokens": 0}},
             )
 
         with pytest.raises(ValueError):
