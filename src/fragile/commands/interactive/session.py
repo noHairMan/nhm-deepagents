@@ -14,6 +14,7 @@ from fragile.commands.interactive.commands import command_registry
 from fragile.commands.interactive.display import (
     enter_fullscreen,
     leave_fullscreen,
+    show_account_required,
     show_connection_error,
     show_internal_error,
     show_request_error,
@@ -87,7 +88,7 @@ class InteractiveSession:
                         clear_submitted_input(self.session.output, user_input)
         except Exception as error:
             logger.exception("交互命令处理失败 error=%s", error)
-            show_internal_error(str(error))
+            show_internal_error()
             return agent
 
     async def read_input(self) -> str | None:
@@ -132,6 +133,9 @@ class InteractiveSession:
             await self.refresh_toolbar_model()
             return create_agent(checkpointer)
         elif result is CommandResult.NOT_HANDLED and user_input:
+            if await Account.get_credentials() is None:
+                show_account_required()
+                return agent
             await ConversationHistory.register_conversation(self.state.thread_id, user_input)
             try:
                 await chat(agent, user_input, self.state.thread_id)
@@ -161,7 +165,7 @@ class InteractiveSession:
                     base_url,
                     error,
                 )
-                show_request_error(str(error))
+                show_request_error()
         return agent
 
 

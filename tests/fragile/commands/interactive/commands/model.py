@@ -284,11 +284,14 @@ class TestModelCommand:
             result = await ModelCommand().handle(None, SessionState(thread_id=UUID(int=1)))
 
         assert result is CommandResult.CONTINUE
-        assert "Could not retrieve models" in capsys.readouterr().out
+        output = capsys.readouterr().out
+        assert "Could not retrieve models" in output
+        assert "/account" in output
+        assert "/model" in output
         save.assert_not_awaited()
 
     @pytest.mark.asyncio
-    async def test_handle_returns_continue_for_an_unsupported_provider(self) -> None:
+    async def test_handle_guides_account_reconfiguration_for_an_unsupported_provider(self, capsys) -> None:
         with patch(
             "fragile.commands.interactive.commands.model.Account.get_credentials",
             new_callable=AsyncMock,
@@ -297,6 +300,9 @@ class TestModelCommand:
             result = await ModelCommand().handle(None, SessionState(thread_id=UUID(int=1)))
 
         assert result is CommandResult.CONTINUE
+        output = capsys.readouterr().out
+        assert "unsupported" in output
+        assert "/account" in output
 
     @pytest.mark.asyncio
     async def test_handle_ignores_empty_cancelled_or_unchanged_selection(self) -> None:
@@ -371,7 +377,7 @@ class TestModelCommand:
         save.assert_awaited_once_with(ModelType.OPENAI, "gpt-5")
 
     @pytest.mark.asyncio
-    async def test_handle_returns_continue_when_saving_fails(self) -> None:
+    async def test_handle_returns_continue_with_recovery_action_when_saving_fails(self, capsys) -> None:
         command = ModelCommand()
         with (
             patch(
@@ -404,6 +410,11 @@ class TestModelCommand:
             result = await command.handle(None, SessionState(thread_id=UUID(int=1)))
 
         assert result is CommandResult.CONTINUE
+        output = capsys.readouterr().out
+        assert "Could not save model selection" in output
+        assert "/account" in output
+        assert "/model" in output
+        assert "invalid" not in output
 
     @pytest.mark.asyncio
     async def test_current_selection_returns_provider_default_without_saved_selection(self) -> None:

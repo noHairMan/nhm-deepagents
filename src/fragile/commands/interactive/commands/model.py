@@ -212,7 +212,7 @@ def build_model_application(
 async def choose_model(records: list[ModelRecord], current: ModelSelection | None) -> ModelSelection | None:
     """Display the full-screen model selector and return the chosen model."""
     if not records:
-        click.echo("No models are available for the current account.")
+        click.echo("No models are available. Check the service and account with /account, then retry /model.")
         return None
     key_bindings = KeyBindings()
 
@@ -244,11 +244,16 @@ class ModelCommand(BaseCommand):
             provider = ModelType(provider_name.strip().lower())
         except ValueError:
             logger.exception("Configured account has an unsupported provider: %s", provider_name)
+            click.echo(
+                "The configured account provider is unsupported. Run /account to configure a supported provider."
+            )
             return CommandResult.CONTINUE
         current = await self._current_selection(provider)
         models = await discover_models(provider, api_key, base_url)
         if models is None:
-            click.echo("Could not retrieve models for the current account.")
+            click.echo(
+                "Could not retrieve models. Check credentials and the service address with /account, then retry /model."
+            )
             return CommandResult.CONTINUE
         selected = await choose_model(models, current)
         if selected is None or selected == current:
@@ -257,6 +262,7 @@ class ModelCommand(BaseCommand):
             await Account.save_model_selection(selected[0], selected[1])
         except InvalidAccountError as error:
             logger.exception("Model selection could not be saved: %s", error)
+            click.echo("Could not save model selection. Verify the account with /account, then retry /model.")
             return CommandResult.CONTINUE
         return CommandResult.MODEL_CHANGED
 

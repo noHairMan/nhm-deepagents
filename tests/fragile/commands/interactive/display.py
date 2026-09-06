@@ -8,6 +8,7 @@ from fragile.commands.interactive.display import (
     print_stream,
     print_thinking,
     replay_outputs,
+    show_account_required,
     show_connection_error,
     show_internal_error,
     show_request_error,
@@ -17,8 +18,20 @@ from fragile.commands.interactive.trace import TraceEvent, trace_to_json
 
 
 class TestDisplay:
+    def test_show_account_required_guides_account_setup(self) -> None:
+        with patch("fragile.commands.interactive.display.console.print") as print_console:
+            show_account_required()
+
+        error_text = print_console.call_args.args[0]
+        assert error_text.plain == "尚未配置账户，请先执行 /account 设置账户后重试。"
+        assert error_text.style == "bold red"
+
     def test_show_connection_error_redacts_credentials(self, capsys) -> None:
-        show_connection_error("anthropic", "claude-test", "https://user:secret@example.test:443/api")
+        show_connection_error(
+            "anthropic",
+            "claude-test",
+            "https://user:secret@example.test:443/api?api_key=secret-query",
+        )
 
         output = capsys.readouterr().out
         assert "provider: anthropic" in output
@@ -33,26 +46,23 @@ class TestDisplay:
         error_text = print_console.call_args.args[0]
         assert error_text.style == "bold red"
 
-    def test_show_request_error_uses_red_style(self) -> None:
+    def test_show_request_error_is_actionable_and_does_not_echo_provider_error(self) -> None:
         with patch("fragile.commands.interactive.display.console.print") as print_console:
-            show_request_error("invalid request")
+            show_request_error()
 
         error_text = print_console.call_args.args[0]
+        assert "/account" in error_text.plain
+        assert "/model" in error_text.plain
+        assert "ANTHROPIC_API_KEY" not in error_text.plain
         assert error_text.style == "bold red"
 
-    def test_show_internal_error_uses_failed_marker_and_red_style(self) -> None:
+    def test_show_internal_error_is_safe_actionable_and_uses_red_style(self) -> None:
         with patch("fragile.commands.interactive.display.console.print") as print_console:
-            show_internal_error("unexpected failure")
+            show_internal_error()
 
         error_text = print_console.call_args.args[0]
-        assert error_text.plain == "✗ Failed: unexpected failure"
+        assert error_text.plain == "✗ 内部错误：请重试；如果问题持续，请查看日志获取诊断信息。"
         assert error_text.style == "bold red"
-
-    def test_show_internal_error_replaces_empty_message(self) -> None:
-        with patch("fragile.commands.interactive.display.console.print") as print_console:
-            show_internal_error("  ")
-
-        assert print_console.call_args.args[0].plain == "✗ Failed: 未知错误"
 
     def test_print_stream(self, capsys) -> None:
         print_stream("answer")

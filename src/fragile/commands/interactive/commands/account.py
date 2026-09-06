@@ -48,6 +48,10 @@ class AccountCommand(BaseCommand):
             await Account.save_credentials(provider, api_key, base_url)
         except (InvalidAccountError, ValueError) as error:
             logger.exception("Account settings could not be saved: %s", error)
+            click.echo(
+                "Account settings are invalid or could not be saved. "
+                "Check the provider, base URL, and API key, then run /account again."
+            )
             return CommandResult.CONTINUE
         click.echo("Account settings saved.")
         return CommandResult.CONTINUE

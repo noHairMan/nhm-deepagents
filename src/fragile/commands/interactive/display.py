@@ -138,6 +138,11 @@ def render_trace(events: list[TraceEvent]) -> None:
     renderer.finish()
 
 
+def show_account_required() -> None:
+    """Guide the user to configure the account required for model requests."""
+    console.print(Text("尚未配置账户，请先执行 /account 设置账户后重试。", style="bold red"))
+
+
 def show_connection_error(provider: str | None = None, model: str | None = None, base_url: str | None = None) -> None:
     """Show a prominent, actionable model connection error."""
     details = ""
@@ -145,7 +150,7 @@ def show_connection_error(provider: str | None = None, model: str | None = None,
         parsed_url = urlsplit(base_url)
         hostname = parsed_url.hostname or parsed_url.netloc
         port = f":{parsed_url.port}" if parsed_url.port is not None else ""
-        safe_url = urlunsplit((parsed_url.scheme, f"{hostname}{port}", parsed_url.path, parsed_url.query, ""))
+        safe_url = urlunsplit((parsed_url.scheme, f"{hostname}{port}", parsed_url.path, "", ""))
         details = f"（provider: {provider}，模型: {model}，地址: {safe_url}）"
     console.print(
         Text(
@@ -155,15 +160,14 @@ def show_connection_error(provider: str | None = None, model: str | None = None,
     )
 
 
-def show_request_error(error: str) -> None:
-    """Show an actionable model request error."""
-    console.print(Text(f"模型请求失败：{error}，请检查请求参数后重试。", style="bold red"))
+def show_request_error() -> None:
+    """Show safe recovery actions for a rejected model request."""
+    console.print(Text("模型请求失败：请执行 /account 或 /model 检查账户和模型配置后重试。", style="bold red"))
 
 
-def show_internal_error(error: str) -> None:
-    """Show a concise internal error without exposing a traceback."""
-    message = error.strip() or "未知错误"
-    console.print(Text(f"✗ Failed: {message}", style="bold red"))
+def show_internal_error() -> None:
+    """Show a safe recovery action without exposing diagnostic details."""
+    console.print(Text("✗ 内部错误：请重试；如果问题持续，请查看日志获取诊断信息。", style="bold red"))
 
 
 def replay_outputs(records: list[object]) -> None:

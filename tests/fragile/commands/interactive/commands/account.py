@@ -249,7 +249,7 @@ class TestAccountCommand:
         assert capsys.readouterr().out == ""
 
     @pytest.mark.asyncio
-    async def test_handle_logs_validation_error_without_terminal_output(self, monkeypatch, capsys) -> None:
+    async def test_handle_logs_validation_error_and_shows_recovery_action(self, monkeypatch, capsys) -> None:
         async def select_provider(self) -> str:
             return "Anthropic"
 
@@ -262,4 +262,7 @@ class TestAccountCommand:
         with patch.object(account.logger, "exception") as log_exception:
             await AccountCommand().handle(None, SessionState(thread_id=UUID(int=1)))
         log_exception.assert_called_once()
-        assert capsys.readouterr().out == ""
+        output = capsys.readouterr().out
+        assert "could not be saved" in output
+        assert "/account" in output
+        assert "not-a-url" not in output

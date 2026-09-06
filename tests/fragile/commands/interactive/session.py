@@ -24,6 +24,10 @@ class TestSession:
         engine = create_engine(f"sqlite:///{tmp_path / 'history.db'}")
         Base.metadata.create_all(engine)
         monkeypatch.setattr("fragile.commands.interactive.commands.history.engine", engine)
+        monkeypatch.setattr(
+            "fragile.commands.interactive.session.Account.get_credentials",
+            AsyncMock(return_value=("anthropic", "key", "https://example.com")),
+        )
         runtime = MagicMock()
         runtime.__aenter__ = AsyncMock(return_value=(MagicMock(), MagicMock()))
         runtime.__aexit__ = AsyncMock(return_value=None)
@@ -145,7 +149,7 @@ class TestSession:
         assert result is agent
         assert session.is_running
         log_exception.assert_called_once_with("交互命令处理失败 error=%s", error)
-        show_error.assert_called_once_with("command failed")
+        show_error.assert_called_once_with()
 
     @pytest.mark.asyncio
     async def test_run_iteration_does_not_catch_base_exception(self) -> None:
@@ -237,6 +241,33 @@ class TestSession:
         assert session.toolbar_model == {"provider": "anthropic", "model": "claude-test"}
 
     @pytest.mark.asyncio
+    async def test_chat_without_account_is_blocked_before_history_or_model_request(self) -> None:
+        with (
+            patch("fragile.commands.interactive.session.create_prompt_session"),
+            patch(
+                "fragile.commands.interactive.session.Account.get_credentials",
+                new_callable=AsyncMock,
+                return_value=None,
+            ),
+            patch(
+                "fragile.commands.interactive.session.ConversationHistory.register_conversation",
+                new_callable=AsyncMock,
+            ) as register,
+            patch("fragile.commands.interactive.session.chat", new_callable=AsyncMock) as chat,
+            patch("fragile.commands.interactive.session.show_account_required") as show_account_required,
+        ):
+            session = InteractiveSession(None)
+            agent = MagicMock()
+
+            result = await session.handle_result(agent, MagicMock(), CommandResult.NOT_HANDLED, "hello")
+
+        assert result is agent
+        assert session.is_running
+        show_account_required.assert_called_once_with()
+        register.assert_not_awaited()
+        chat.assert_not_awaited()
+
+    @pytest.mark.asyncio
     async def test_chat_connection_error_is_logged_and_shown_without_stopping_session(self, capsys) -> None:
         with (
             patch("fragile.commands.interactive.session.create_prompt_session"),
@@ -306,7 +337,9 @@ class TestSession:
         )
         output = capsys.readouterr().out
         assert "模型请求失败" in output
-        assert "tools[0].type is invalid" in output
+        assert "/account" in output
+        assert "/model" in output
+        assert "tools[0].type is invalid" not in output
         assert session.is_running
 
     @pytest.mark.asyncio
@@ -335,7 +368,7 @@ class TestSession:
 
         output = capsys.readouterr().out
         assert "模型请求失败" in output
-        assert "tools[0].type is invalid" in output
+        assert "tools[0].type is invalid" not in output
         log_exception.assert_called_once_with(
             "模型请求失败 provider=%s model=%s base_url=%s error=%s",
             "anthropic",
@@ -380,7 +413,7 @@ class TestSession:
         )
         output = capsys.readouterr().out
         assert "模型请求失败" in output
-        assert "No generations found in stream." in output
+        assert "No generations found in stream." not in output
         assert session.is_running
 
     @pytest.mark.asyncio
@@ -479,7 +512,7 @@ class TestSession:
             await interactive(None)
 
         assert handle.await_count == 2
-        show_error.assert_called_once_with("command failed")
+        show_error.assert_called_once_with()
         leave_fullscreen.assert_called_once_with()
 
     @pytest.mark.asyncio
