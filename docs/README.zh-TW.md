@@ -30,7 +30,8 @@
 -   **遞迴控制**: 支持透過`TOMORROW_RECURSION_LIMIT`限制智能體遞歸調用深度。
 -   **生命週期管理**: 引入`AgentManager`統一管理智能體實例的創建與銷毀，確保資源的優雅初始化。
 -   **高效能 API**: 基於 FastAPI 構建，支援同步回應與 Server-Sent Events (SSE) 串流輸出。
--   **互動式 CLI**:`fragile`支援`/new`建立新會話、`/history`瀏覽並切換已持久化的歷史會話、`/account`配置外部模型帳戶、`/model`選擇模型、`/quit`退出、會話恢復、輸入歷史記錄、斜線命令補全和多行編輯，並以追加式時間軸顯示模型摘要、工具呼叫、命令結果和最終答案。
+-   **互動式 CLI**:`fragile`支援`/new`建立新會話、`/history`瀏覽並切換已持久化的歷史會話、`/account`配置外部模型帳戶、`/model`選擇模型、`/quit`退出、會話恢復、輸入歷史記錄、斜線命令補全和多行編輯，並以追加式時間軸顯示模型摘要、工具呼叫、命令結果和最終答案；交互運行期間統一複用帳戶、對話和會話服務。
+-   **分層持久化**:`fragile`透過`repositories`儲存層統一處理帳戶、對話、會話輸出及清理作業，再由`services`應用服務層協調業務邏輯；互動式執行時間共享同一個初始化的資料庫會話工廠，避免各流程重複管理持久化依賴。
 -   **帳戶配置持久化**: 支援透過互動式指令保存 Anthropic 和 OpenAI 的 API 憑證，並在後續會話中自動復原。
 -   **可靠性保障**: 強制類型提示、Ruff 靜態檢查、100% 測試覆蓋率要求。
 
@@ -43,12 +44,12 @@
 -   **智能體框架**:[深度代理](https://github.com/zongxuheng/deepagents)(基於 LangGraph/LangChain)
 -   **LLM 提供者**:[人擇](https://www.anthropic.com/)和[開放人工智慧](https://openai.com/)
 -   **終端交互**:[非同步點擊](https://github.com/python-trio/asyncclick)提供非同步 CLI 命令、參數解析和幫助資訊；[提示工具包](https://github.com/prompt-toolkit/python-prompt-toolkit)提供非同步輸入、輸入歷史記錄、命令補全和多行編輯；[富有的](https://github.com/Textualize/rich)提供終端輸出樣式。
--   **配置管理**:[懸垂設定](https://docs.pydantic.dev/latest/usage/settings/)
+-   **配置管理**:[金字塔設置](https://docs.pydantic.dev/latest/usage/settings/)
 -   **例外處理**: 自訂異常體系 (`TomorrowError`及其子類)，涵蓋模型、後端、儲存和檢查點錯誤。
 -   **代碼品質**:[拉夫](https://github.com/astral-sh/ruff)(替代 Black 和 Isort)、`pre-commit`、強制型別提示 (Strict Type Hinting)
 -   **測試與覆蓋率**:`pytest`,`coverage`
 
-## 📋 環境要求
+## 📋 环境要求
 
 -   **Python 3.14（不支援 3.15 及更高版本）**
 -   **紫外線**: 一個快速的 Python 套件安裝和解析器。
@@ -125,7 +126,7 @@ fragile
 uv run fragile
 ```
 
-透過`--thread`或`-t`傳入 UUID 可以恢復已有會話；不傳入時會自動建立新的執行緒。互動過程中輸入`/new`可清屏並開始新會話，輸入`/history`可查看已儲存的會話並按編號或 UUID 切換，輸入`/quit`退出；也可以連續兩次按`Ctrl+C`在短時間內退出會話，按`Esc`後回車可插入換行。
+透過`--thread`或`-t`傳入 UUID 可以恢復已有會話；不傳入時會自動建立新的執行緒。互動過程中輸入`/new`可清屏並開始新會話，輸入`/history`可查看已儲存的會話並按編號或 UUID 切換，輸入`/quit`退出；也可以連續兩次按`Ctrl+C`在短時間內退出會話，按`Esc`後回車可插入換行。輸入歷史會在會話開始時非同步加載，並在會話過程中非同步保存；保存操作會按順序執行，避免並發寫入衝突。
 
 #### Fragile 輸出時間軸
 
@@ -148,7 +149,7 @@ fragile purge
 
 ## ⚙️ 配置
 
-該項目使用**懸垂設定**進行配置管理。設定分別定義在`src/tomorrow/settings.py`（明天），`src/rainy/settings.py`(Rainy) 和`src/fragile/settings.py`(Fragile) 中，可以透過環境變數或`.env`文件進行覆蓋。環境變數優先權最高，三個模組分別使用`TOMORROW_`、`RAINY_`和`FRAGILE_`前綴；也可以透過`TOMORROW_ENV_FILE`、`RAINY_ENV_FILE`或`FRAGILE_ENV_FILE`指定設定檔路徑。
+該項目使用**金字塔設置**進行配置管理。設定分別定義在`src/tomorrow/settings.py`（明天），`src/rainy/settings.py`(Rainy) 和`src/fragile/settings.py`(Fragile) 中，可以透過環境變數或`.env`文件進行覆蓋。環境變數優先權最高，三個模組分別使用`TOMORROW_`、`RAINY_`和`FRAGILE_`前綴；也可以透過`TOMORROW_ENV_FILE`、`RAINY_ENV_FILE`或`FRAGILE_ENV_FILE`指定設定檔路徑。
 
 ### 環境變數
 
@@ -166,8 +167,8 @@ fragile purge
 | `TOMORROW_SKILLS`                                   | 技能目錄列表                                          | `[]`                          |
 | `TOMORROW_SUBAGENTS`                                | 子代理配置列表                                         | `[]`                          |
 | `TOMORROW_RECURSION_LIMIT`                          | 智能體遞歸調用上限                                       | `100`                         |
-| `TOMORROW_MODEL__ANTHROPIC__THINKING_ENABLED`       | 是否請求 Anthropic thinking 輸出                      | `false`                       |
-| `TOMORROW_MODEL__ANTHROPIC__THINKING_BUDGET_TOKENS` | Anthropic thinking 的 token 預算（啟用時必填）            | 未設定                           |
+| `TOMORROW_MODEL__ANTHROPIC__THINKING_ENABLED`       | 是否請求 Anthropic thinking 輸出                      | `true`                        |
+| `TOMORROW_MODEL__ANTHROPIC__THINKING_BUDGET_TOKENS` | Anthropic thinking 的 token 預算（必須為正數）            | `2048`                        |
 | `TOMORROW_MODEL__OPENAI__REASONING_EFFORT`          | OpenAI reasoning 強度：`low`、`medium`或`high`       | 未設定                           |
 | `TOMORROW_MODEL__OPENAI__REASONING_SUMMARY`         | OpenAI reasoning 摘要：`auto`、`concise`或`detailed` | 未設定                           |
 
@@ -190,7 +191,7 @@ export TOMORROW_MODEL__OPENAI__BASE_URL="https://api.openai.com/v1"
 export TOMORROW_MODEL__OPENAI__TEMPERATURE="0"
 ```
 
-thinking/reasoning 預設為關閉。需要在`fragile`CLI 中查看模型明確傳回的 thinking 或 reasoning 摘要時，按提供者配置對應參數；此功能可能會增加 token 消耗和回應延遲。例如：
+Anthropic thinking 預設開啟，預算預設為`2048`；也可以透過以下環境變數覆蓋預算，或將`THINKING_ENABLED`設為`false`顯式關閉。 OpenAI reasoning 仍預設為關閉。 thinking/reasoning 可能會增加 token 消耗和回應延遲。例如：
 
 ```bash
 export TOMORROW_MODEL__ANTHROPIC__THINKING_ENABLED="true"
@@ -223,11 +224,17 @@ export TOMORROW_SUBAGENTS='[{"name":"researcher","description":"负责资料检�
 
 #### Fragile 設定 (CLI)
 
-| 變數                                 | 描述                     | 預設值                                      |
-| ---------------------------------- | ---------------------- | ---------------------------------------- |
-| `FRAGILE_APP`                      | 應用名稱（用作環境變數前綴）         | `fragile`                                |
-| `FRAGILE_INTERRUPT_EXIT_THRESHOLD` | 兩次`Ctrl+C`觸發退出的最大間隔（秒） | `0.5`                                    |
-| `FRAGILE_ENABLED_COMMANDS`         | 啟用的互動式命令類別路徑列表         | `quit`、`new`、`history`、`account`、`model` |
+| 變數                                 | 描述                             | 預設值                                      |
+| ---------------------------------- | ------------------------------ | ---------------------------------------- |
+| `FRAGILE_APP`                      | 應用名稱（用作環境變數前綴）                 | `fragile`                                |
+| `FRAGILE_DATA_ROOT`                | Fragile 資料根目錄                  | `~/.fragile`                             |
+| `FRAGILE_DATABASE_FILE`            | Fragile checkpoint 與 ORM 資料庫文件 | `~/.fragile/fragile.db`                  |
+| `FRAGILE_INPUT_HISTORY_FILE`       | 互動式輸入歷史文件                      | `~/.fragile/.fragile_history`            |
+| `FRAGILE_LOG_ROOT`                 | `fragile.log`、`llm.log`及輪轉檔目錄  | `~/.fragile/logs`                        |
+| `FRAGILE_INTERRUPT_EXIT_THRESHOLD` | 兩次`Ctrl+C`觸發退出的最大間隔（秒）         | `0.5`                                    |
+| `FRAGILE_ENABLED_COMMANDS`         | 啟用的互動式命令類別路徑列表                 | `quit`、`new`、`history`、`account`、`model` |
+
+Fragile 預設在啟動時按需創建`~/.fragile`及日誌目錄。設定`FRAGILE_DATA_ROOT`會同步改變資料庫、輸入歷史和日誌的預設位置，也可以分別覆蓋對應路徑。此行為只會影響 Fragile 本身的文件，不會改變 Tomorrow 的 store 或 filesystem/local-shell workspace 配置，也不會自動移轉或刪除舊目錄中的檔案。
 
 Fragile 的其他互動行為透過命令列選項和內建斜線命令控制。命令透過註冊表統一發現和處理，可使用`FRAGILE_ENABLED_COMMANDS`調整啟用的命令。帳戶憑證由`Account`模型以單例形式保存於 Fragile 的資料庫中，啟動交互會話時會恢復到 Tomorrow 的模型配置；環境變數仍可作為配置來源並擁有更高優先權。
 
