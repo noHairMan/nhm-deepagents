@@ -1,5 +1,6 @@
 """Database setup and shared ORM infrastructure for Fragile."""
 
+from asyncio import Lock
 from datetime import datetime
 from pathlib import Path
 
@@ -83,10 +84,34 @@ def _migrate_session_output_trace(connection: object) -> None:
         connection.execute(text("ALTER TABLE fragile_session_output ADD COLUMN trace_payload VARCHAR"))
 
 
-async def get_initialized_session_factory() -> async_sessionmaker[AsyncSession]:
-    """Return an asynchronous session factory after initializing Fragile tables."""
-    await create_tables(engine)
-    return async_sessionmaker(engine, expire_on_commit=False)
-
-
 engine = get_engine()
+
+# Keep these resources at runtime scope.  Model compatibility methods can still
+# obtain the factory, but they no longer repeat schema inspection.
+_session_factories: dict[AsyncEngine, async_sessionmaker[AsyncSession]] = {}
+_initialized_engines: set[AsyncEngine] = set()
+_initialization_lock = Lock()
+
+
+async def get_initialized_session_factory(
+    async_engine: AsyncEngine | None = None,
+) -> async_sessionmaker[AsyncSession]:
+    """Return the runtime session factory, initializing a database once."""
+    database_engine = async_engine or engine
+    async with _initialization_lock:
+        if database_engine not in _initialized_engines:
+            await create_tables(database_engine)
+            _initialized_engines.add(database_engine)
+        factory = _session_factories.get(database_engine)
+        if factory is None:
+            factory = async_sessionmaker(database_engine, expire_on_commit=False)
+            _session_factories[database_engine] = factory
+        return factory
+
+
+async def dispose_database(async_engine: AsyncEngine | None = None) -> None:
+    """Dispose a runtime engine and forget its cached resources."""
+    database_engine = async_engine or engine
+    await database_engine.dispose()
+    _session_factories.pop(database_engine, None)
+    _initialized_engines.discard(database_engine)

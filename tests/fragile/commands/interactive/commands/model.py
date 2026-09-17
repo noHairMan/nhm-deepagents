@@ -20,6 +20,7 @@ from fragile.commands.interactive.commands.model import (
 )
 from fragile.models import InvalidAccountError, SessionState
 from fragile.models.constants import CommandResult
+from fragile.services.runtime import RuntimeServices, current_services
 from tomorrow.models.constants import ModelType
 
 
@@ -375,6 +376,35 @@ class TestModelCommand:
 
         assert result is CommandResult.MODEL_CHANGED
         save.assert_awaited_once_with(ModelType.OPENAI, "gpt-5")
+
+    @pytest.mark.asyncio
+    async def test_handle_persists_changed_selection_through_runtime_services(self) -> None:
+        command = ModelCommand()
+        account_service = MagicMock()
+        account_service.get_credentials = AsyncMock(return_value=("openai", "key", "https://example.com"))
+        account_service.get_model_selection = AsyncMock(return_value=("openai", "gpt-4o-mini"))
+        account_service.save_model_selection = AsyncMock()
+        services = RuntimeServices(account=account_service, conversation=None, session=None)  # type: ignore[arg-type]
+        token = current_services.set(services)
+        try:
+            with (
+                patch(
+                    "fragile.commands.interactive.commands.model.discover_models",
+                    new_callable=AsyncMock,
+                    return_value=[ModelRecord(ModelType.OPENAI, "gpt-5")],
+                ),
+                patch(
+                    "fragile.commands.interactive.commands.model.choose_model",
+                    new_callable=AsyncMock,
+                    return_value=(ModelType.OPENAI, "gpt-5"),
+                ),
+            ):
+                result = await command.handle(None, SessionState(thread_id=UUID(int=1)))
+        finally:
+            current_services.reset(token)
+
+        assert result is CommandResult.MODEL_CHANGED
+        account_service.save_model_selection.assert_awaited_once_with(ModelType.OPENAI, "gpt-5")
 
     @pytest.mark.asyncio
     async def test_handle_returns_continue_with_recovery_action_when_saving_fails(self, capsys) -> None:

@@ -5,7 +5,6 @@ import asyncclick as click
 import httpx
 import pytest
 from langchain_anthropic.chat_models import AnthropicInvalidRequestError
-from sqlalchemy import create_engine
 
 from fragile.commands.interactive.commands import CommandRegistry, command_registry
 from fragile.commands.interactive.commands.base import extract_prompt
@@ -13,17 +12,14 @@ from fragile.commands.interactive.commands.quit import QuitCommand
 from fragile.commands.interactive.input import BoundedFileHistory
 from fragile.commands.interactive.session import InteractiveSession, interactive
 from fragile.exceptions import AgentResponseError, FragileError, InvalidThreadIdError
-from fragile.models import Base, SessionState
+from fragile.models import SessionState
 from fragile.models.constants import CommandResult
 from fragile.utils.uid import resolve_thread_id
 
 
 class TestSession:
     @pytest.fixture(autouse=True)
-    def database(self, tmp_path, monkeypatch) -> None:
-        engine = create_engine(f"sqlite:///{tmp_path / 'history.db'}")
-        Base.metadata.create_all(engine)
-        monkeypatch.setattr("fragile.commands.interactive.commands.history.engine", engine)
+    def database(self, monkeypatch) -> None:
         monkeypatch.setattr(
             "fragile.commands.interactive.session.Account.get_credentials",
             AsyncMock(return_value=("anthropic", "key", "https://example.com")),
@@ -70,6 +66,26 @@ class TestSession:
             prompt_session.history.record_string.assert_called_once_with(user_input)
         else:
             prompt_session.history.record_string.assert_not_called()
+
+    @pytest.mark.asyncio
+    async def test_run_loads_and_flushes_file_history(self, tmp_path) -> None:
+        history_file = tmp_path / "history.jsonl"
+        history_file.write_text('"restored"\n', encoding="utf-8")
+        history = BoundedFileHistory(history_file, 100)
+        with (
+            patch("fragile.commands.interactive.session.create_prompt_session") as create_session,
+            patch.object(InteractiveSession, "refresh_toolbar_model", new_callable=AsyncMock),
+            patch("fragile.commands.interactive.session.enter_fullscreen"),
+            patch("fragile.commands.interactive.session.leave_fullscreen"),
+            patch("fragile.commands.interactive.session.show_startup"),
+        ):
+            create_session.return_value.history = history
+            session = InteractiveSession(None)
+            session.is_running = False
+
+            await session.run()
+
+        assert list(history.load_history_strings()) == ["restored"]
 
     @pytest.mark.asyncio
     async def test_run_iteration_clears_registered_command_before_handling(self) -> None:
@@ -628,3 +644,81 @@ class TestSession:
 
         value = UUID("12345678-1234-5678-1234-567812345678")
         assert resolve_thread_id(str(value)) == value
+
+    @pytest.mark.asyncio
+    async def test_refresh_toolbar_model_uses_services_when_available(self) -> None:
+        from fragile.services.runtime import RuntimeServices
+
+        account_service = AsyncMock()
+        account_service.get_credentials = AsyncMock(return_value=("openai", "key", "url"))
+        account_service.get_model_selection = AsyncMock(return_value=("openai", "gpt-4"))
+
+        services = RuntimeServices(account_service, AsyncMock(), AsyncMock())
+
+        with patch("fragile.commands.interactive.session.create_prompt_session"):
+            session = InteractiveSession(None)
+            session.services = services
+
+            await session.refresh_toolbar_model()
+
+            assert session.toolbar_model["provider"] == "openai"
+            assert session.toolbar_model["model"] == "gpt-4"
+            account_service.get_credentials.assert_awaited_once()
+            account_service.get_model_selection.assert_awaited_once()
+
+    @pytest.mark.asyncio
+    async def test_handle_result_model_changed_uses_services_when_available(self) -> None:
+        from fragile.services.runtime import RuntimeServices
+
+        account_service = AsyncMock()
+        account_service.restore_configuration = AsyncMock(return_value=True)
+
+        services = RuntimeServices(account_service, AsyncMock(), AsyncMock())
+
+        with patch("fragile.commands.interactive.session.create_prompt_session"):
+            session = InteractiveSession(None)
+            session.services = services
+
+            agent = MagicMock()
+            checkpointer = MagicMock()
+
+            with patch("fragile.commands.interactive.session.create_agent", return_value=agent):
+                result = await session.handle_result(agent, checkpointer, CommandResult.MODEL_CHANGED, "/model")
+
+            account_service.restore_configuration.assert_awaited_once()
+            assert result is agent
+
+    @pytest.mark.asyncio
+    async def test_handle_result_chat_uses_services_when_available(self) -> None:
+        from fragile.services.runtime import RuntimeServices
+
+        account_service = AsyncMock()
+        account_service.get_credentials = AsyncMock(return_value=("openai", "key", "url"))
+
+        conversation_service = AsyncMock()
+        conversation_service.register = AsyncMock()
+
+        session_service = AsyncMock()
+
+        services = RuntimeServices(account_service, conversation_service, session_service)
+
+        with patch("fragile.commands.interactive.session.create_prompt_session"):
+            session = InteractiveSession(None)
+            session.services = services
+
+            agent = MagicMock()
+            checkpointer = MagicMock()
+
+            with (
+                patch("fragile.commands.interactive.session.chat", new_callable=AsyncMock) as chat_mock,
+                patch(
+                    "fragile.commands.interactive.session.ConversationHistory.register_conversation",
+                    new_callable=AsyncMock,
+                ),
+            ):
+                await session.handle_result(agent, checkpointer, CommandResult.NOT_HANDLED, "hello")
+
+            conversation_service.register.assert_awaited_once()
+            chat_mock.assert_awaited_once()
+            # Verify that session_service was passed to chat as 4th positional arg
+            assert chat_mock.await_args.args[3] is session_service

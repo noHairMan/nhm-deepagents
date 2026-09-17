@@ -1,6 +1,8 @@
+import asyncio
 from types import SimpleNamespace
-from unittest.mock import MagicMock, patch
+from unittest.mock import AsyncMock, MagicMock, patch
 
+import pytest
 from prompt_toolkit.document import Document
 from prompt_toolkit.keys import Keys
 from prompt_toolkit.output import DummyOutput
@@ -16,25 +18,32 @@ from fragile.commands.interactive.input import (
 
 
 class TestInput:
-    def test_bounded_file_history_restores_multiline_unicode_in_recent_first_order(self, tmp_path) -> None:
+    @pytest.mark.asyncio
+    async def test_bounded_file_history_restores_multiline_unicode_in_recent_first_order(self, tmp_path) -> None:
         history_file = tmp_path / "nested" / "history.jsonl"
         history = BoundedFileHistory(history_file, 100)
 
         history.record_string("first")
         history.record_string("第二行\nthird")
+        await history.save_async()
 
         restored = BoundedFileHistory(history_file, 100)
+        await restored.load_async()
         assert list(restored.load_history_strings()) == ["第二行\nthird", "first"]
 
-    def test_bounded_file_history_trims_oldest_entries(self, tmp_path) -> None:
+    @pytest.mark.asyncio
+    async def test_bounded_file_history_trims_oldest_entries(self, tmp_path) -> None:
         history_file = tmp_path / "history.jsonl"
         history = BoundedFileHistory(history_file, 2)
 
         history.record_string("first")
         history.record_string("second")
         history.record_string("third")
+        await history.save_async()
 
-        assert list(BoundedFileHistory(history_file, 2).load_history_strings()) == ["third", "second"]
+        restored = BoundedFileHistory(history_file, 2)
+        await restored.load_async()
+        assert list(restored.load_history_strings()) == ["third", "second"]
         assert history.get_strings() == ["second", "third"]
 
     def test_bounded_file_history_handles_missing_file_and_ignores_automatic_append(self, tmp_path) -> None:
@@ -44,6 +53,85 @@ class TestInput:
         history.append_string("registered command")
 
         assert not history.filename.exists()
+
+    @pytest.mark.asyncio
+    async def test_bounded_file_history_async_load_handles_missing_file(self, tmp_path) -> None:
+        history = BoundedFileHistory(tmp_path / "missing" / "history.jsonl", 100)
+
+        await history.load_async()
+
+        assert list(history.load_history_strings()) == []
+
+    @pytest.mark.asyncio
+    async def test_bounded_file_history_limit_zero_keeps_no_entries(self, tmp_path) -> None:
+        history = BoundedFileHistory(tmp_path / "history.jsonl", 0)
+        history.record_string("entry")
+
+        await history.save_async()
+        restored = BoundedFileHistory(history.filename, 0)
+        await restored.load_async()
+
+        assert restored.get_strings() == []
+
+    @pytest.mark.asyncio
+    async def test_bounded_file_history_ignores_empty_and_corrupt_lines(self, tmp_path) -> None:
+        history_file = tmp_path / "history.jsonl"
+        history_file.write_text('"first"\nnot-json\n\n42\n"last"\n', encoding="utf-8")
+
+        history = BoundedFileHistory(history_file, 100)
+        await history.load_async()
+
+        assert list(history.load_history_strings()) == ["last", "first"]
+
+    @pytest.mark.asyncio
+    async def test_bounded_file_history_serializes_quick_saves(self, tmp_path) -> None:
+        history = BoundedFileHistory(tmp_path / "history.jsonl", 100)
+        history.record_string("first")
+        first_save = asyncio.create_task(history.save_async())
+        history.record_string("second")
+        second_save = asyncio.create_task(history.save_async())
+
+        await asyncio.gather(first_save, second_save)
+        restored = BoundedFileHistory(history.filename, 100)
+        await restored.load_async()
+        assert list(restored.load_history_strings()) == ["second", "first"]
+
+    @pytest.mark.asyncio
+    async def test_bounded_file_history_save_uses_thread_and_flushes(self, tmp_path, monkeypatch) -> None:
+        history = BoundedFileHistory(tmp_path / "history.jsonl", 100)
+        history.record_string("entry")
+        to_thread = AsyncMock(wraps=asyncio.to_thread)
+        monkeypatch.setattr("fragile.commands.interactive.input.asyncio.to_thread", to_thread)
+
+        await history.save_async()
+        await history.flush()
+
+        assert to_thread.await_count == 1
+
+    @pytest.mark.asyncio
+    async def test_bounded_file_history_preserves_file_on_write_failure(self, tmp_path, monkeypatch) -> None:
+        history_file = tmp_path / "history.jsonl"
+        history_file.write_text('"existing"\n', encoding="utf-8")
+        history = BoundedFileHistory(history_file, 100)
+        await history.load_async()
+        history.record_string("new_entry")
+
+        # Patch os.replace to raise an exception
+        def failing_replace(src: str, dst: str) -> None:
+            raise OSError("Simulated write failure")
+
+        monkeypatch.setattr("os.replace", failing_replace)
+
+        # Attempt to save; the error should propagate
+        with pytest.raises(OSError, match="Simulated write failure"):
+            await history.save_async()
+
+        # Verify the original file is unchanged
+        assert history_file.read_text(encoding="utf-8") == '"existing"\n'
+
+        # Verify no .tmp file is left behind
+        tmp_files = list(tmp_path.glob(".history.jsonl.*.tmp"))
+        assert len(tmp_files) == 0
 
     def test_clear_submitted_input_erases_each_multiline_input_line(self) -> None:
         output = DummyOutput()

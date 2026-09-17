@@ -7,8 +7,6 @@ import pytest
 from prompt_toolkit.key_binding import KeyBindings
 from prompt_toolkit.output import DummyOutput
 from prompt_toolkit.widgets import RadioList
-from sqlalchemy import create_engine
-from sqlalchemy.orm import Session
 
 from fragile.commands.interactive.commands.history import (
     HISTORY_STYLE,
@@ -19,7 +17,7 @@ from fragile.commands.interactive.commands.history import (
     list_history,
     select_history,
 )
-from fragile.models import Base, ConversationHistory, SessionState
+from fragile.models import ConversationHistory, SessionState
 from fragile.models.constants import CommandResult
 
 
@@ -155,31 +153,31 @@ class TestHistoryCommand:
         assert isinstance(exception, click.Abort)
 
     @pytest.mark.asyncio
-    async def test_list_history_returns_titles(self, tmp_path, monkeypatch) -> None:
+    async def test_list_history_returns_titles(self, session_factory, monkeypatch) -> None:
         first = UUID(int=1)
-        database_path = tmp_path / "history.db"
-        engine = create_engine(f"sqlite:///{database_path}")
-        Base.metadata.create_all(engine)
-        monkeypatch.setattr("fragile.commands.interactive.commands.history.engine", engine)
-
-        with Session(engine) as session:
+        monkeypatch.setattr(
+            "fragile.commands.interactive.commands.history.get_initialized_session_factory",
+            AsyncMock(return_value=session_factory),
+        )
+        async with session_factory() as session:
             session.add(ConversationHistory(thread_id=str(first), title="第一次对话"))
-            session.commit()
+            await session.commit()
         assert await list_history() == [(first, "第一次对话    just now")]
 
     @pytest.mark.asyncio
-    async def test_list_history_returns_newest_conversations_first(self, tmp_path, monkeypatch) -> None:
-        engine = create_engine(f"sqlite:///{tmp_path / 'history.db'}")
-        Base.metadata.create_all(engine)
-        monkeypatch.setattr("fragile.commands.interactive.commands.history.engine", engine)
+    async def test_list_history_returns_newest_conversations_first(self, session_factory, monkeypatch) -> None:
+        monkeypatch.setattr(
+            "fragile.commands.interactive.commands.history.get_initialized_session_factory",
+            AsyncMock(return_value=session_factory),
+        )
         older = ConversationHistory(thread_id=str(UUID(int=1)), title="较早对话")
         newer = ConversationHistory(thread_id=str(UUID(int=2)), title="较新对话")
         created_at = datetime.now()
         older.update_time = created_at - timedelta(days=1)
         newer.update_time = created_at
-        with Session(engine) as session:
+        async with session_factory() as session:
             session.add_all([older, newer])
-            session.commit()
+            await session.commit()
 
         assert await list_history() == [
             (UUID(int=2), "较新对话    just now"),
@@ -187,22 +185,22 @@ class TestHistoryCommand:
         ]
 
     @pytest.mark.asyncio
-    async def test_list_history_returns_empty_for_empty_database(self, tmp_path, monkeypatch) -> None:
-        engine = create_engine(f"sqlite:///{tmp_path / 'history.db'}")
-        Base.metadata.create_all(engine)
-        monkeypatch.setattr("fragile.commands.interactive.commands.history.engine", engine)
+    async def test_list_history_returns_empty_for_empty_database(self, session_factory, monkeypatch) -> None:
+        monkeypatch.setattr(
+            "fragile.commands.interactive.commands.history.get_initialized_session_factory",
+            AsyncMock(return_value=session_factory),
+        )
         assert await list_history() == []
 
     @pytest.mark.asyncio
-    async def test_list_history_reads_existing_schema(self, tmp_path, monkeypatch) -> None:
-        database_path = tmp_path / "history.db"
-        engine = create_engine(f"sqlite:///{database_path}")
-        Base.metadata.create_all(engine)
-        monkeypatch.setattr("fragile.commands.interactive.commands.history.engine", engine)
-        with Session(engine) as session:
+    async def test_list_history_reads_existing_schema(self, session_factory, monkeypatch) -> None:
+        monkeypatch.setattr(
+            "fragile.commands.interactive.commands.history.get_initialized_session_factory",
+            AsyncMock(return_value=session_factory),
+        )
+        async with session_factory() as session:
             session.add(ConversationHistory(thread_id=str(UUID(int=3)), title="已有对话"))
-            session.commit()
-        engine.dispose()
+            await session.commit()
         assert await list_history() == [(UUID(int=3), "已有对话    just now")]
 
     @pytest.mark.asyncio
@@ -215,7 +213,6 @@ class TestHistoryCommand:
         session_factory = MagicMock()
         session_factory.return_value.__aenter__ = AsyncMock(return_value=session)
         session_factory.return_value.__aexit__ = AsyncMock(return_value=None)
-        monkeypatch.setattr("fragile.commands.interactive.commands.history.engine", object())
         with patch(
             "fragile.commands.interactive.commands.history.get_initialized_session_factory",
             new_callable=AsyncMock,

@@ -14,6 +14,7 @@ from prompt_toolkit.widgets import Label, RadioList
 from fragile.commands.interactive.commands.base import Command as BaseCommand
 from fragile.models import Account, InvalidAccountError, SessionState
 from fragile.models.constants import CommandResult
+from fragile.services.runtime import current_services
 from tomorrow.models.constants import ModelType
 
 logger = logging.getLogger(__name__)
@@ -45,7 +46,11 @@ class AccountCommand(BaseCommand):
             click.echo()
             return CommandResult.CONTINUE
         try:
-            await Account.save_credentials(provider, api_key, base_url)
+            services = current_services.get()
+            if services:
+                await services.account.save_credentials(provider, api_key, base_url)
+            else:
+                await Account.save_credentials(provider, api_key, base_url)
         except (InvalidAccountError, ValueError) as error:
             logger.exception("Account settings could not be saved: %s", error)
             click.echo(
@@ -65,7 +70,8 @@ class AccountCommand(BaseCommand):
 
     async def _current_account_text(self) -> str:
         """Return persisted account details without exposing the full API key."""
-        credentials = await Account.get_credentials()
+        services = current_services.get()
+        credentials = await services.account.get_credentials() if services else await Account.get_credentials()
         if credentials is None:
             return ""
         saved_provider, api_key, base_url = credentials

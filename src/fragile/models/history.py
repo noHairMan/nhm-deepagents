@@ -1,13 +1,11 @@
 """Conversation history models and persistence helpers."""
 
-from datetime import datetime
 from uuid import UUID
 
-from sqlalchemy import String, delete, select
+from sqlalchemy import String
 from sqlalchemy.orm import Mapped, mapped_column
 
 from fragile.models.base import Base, get_initialized_session_factory
-from fragile.utils.uid import to_hex
 
 
 class ConversationHistory(Base):
@@ -26,16 +24,11 @@ class ConversationHistory(Base):
     @classmethod
     async def register_conversation(cls, thread_id: UUID, title: str) -> None:
         """Persist a conversation title without blocking the event loop."""
-        thread_id_hex = to_hex(thread_id)
         formatted_title = cls.format_title(title)
         session_factory = await get_initialized_session_factory()
-        async with session_factory() as session:
-            conversation = await session.scalar(select(cls).where(cls.thread_id == thread_id_hex))
-            if conversation is None:
-                session.add(cls(thread_id=thread_id_hex, title=formatted_title))
-            else:
-                conversation.update_time = datetime.now()
-            await session.commit()
+        from fragile.repositories.conversation import ConversationRepository
+
+        await ConversationRepository(session_factory).register(thread_id, formatted_title)
 
 
 class SessionOutput(Base):
@@ -62,32 +55,24 @@ class SessionOutput(Base):
     ) -> None:
         """Save a completed turn without blocking the event loop."""
         session_factory = await get_initialized_session_factory()
-        async with session_factory() as session:
-            session.add(
-                cls(
-                    thread_id=to_hex(thread_id),
-                    user_input=user_input,
-                    assistant_output=assistant_output,
-                    style_payload=style_payload,
-                    thinking_output=thinking_output,
-                    trace_payload=trace_payload,
-                )
-            )
-            await session.commit()
+        from fragile.repositories.session_output import SessionOutputRepository
+
+        await SessionOutputRepository(session_factory).save(
+            thread_id, user_input, assistant_output, style_payload, thinking_output, trace_payload
+        )
 
     @classmethod
     async def list_for_thread(cls, thread_id: UUID) -> list[SessionOutput]:
         """Return output records in their insertion order."""
         session_factory = await get_initialized_session_factory()
-        async with session_factory() as session:
-            result = await session.scalars(select(cls).where(cls.thread_id == to_hex(thread_id)).order_by(cls.id))
-            return list(result)
+        from fragile.repositories.session_output import SessionOutputRepository
+
+        return await SessionOutputRepository(session_factory).list_for_thread(thread_id)
 
     @classmethod
     async def delete_for_thread(cls, thread_id: UUID) -> int:
         """Delete all output records belonging to a thread."""
         session_factory = await get_initialized_session_factory()
-        async with session_factory() as session:
-            result = await session.execute(delete(cls).where(cls.thread_id == to_hex(thread_id)))
-            await session.commit()
-            return result.rowcount or 0
+        from fragile.repositories.session_output import SessionOutputRepository
+
+        return await SessionOutputRepository(session_factory).delete_for_thread(thread_id)

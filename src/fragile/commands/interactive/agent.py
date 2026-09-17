@@ -21,6 +21,11 @@ from fragile.commands.interactive.trace import (
 from fragile.conf import settings as fragile_settings
 from fragile.exceptions import AgentFactoryImportError, AgentFactoryTypeError, AgentGraphTypeError, AgentResponseError
 from fragile.models import SessionOutput, restore_account_configuration
+from fragile.models.base import get_initialized_session_factory
+from fragile.services.account import AccountService
+from fragile.services.conversation import ConversationService
+from fragile.services.runtime import RuntimeServices, current_services
+from fragile.services.session import SessionService
 from tomorrow.conf import settings
 from tomorrow.core.checkpoint import get_checkpointer_context
 
@@ -80,11 +85,24 @@ def create_agent(checkpointer: BaseCheckpointSaver | None = None) -> CompiledSta
 async def agent_runtime() -> AsyncIterator[tuple[CompiledStateGraph, BaseCheckpointSaver | None]]:
     """Create an agent and its checkpointer for one interactive session."""
     async with get_checkpointer_context() as checkpointer:
+        factory = await get_initialized_session_factory()
+        services = RuntimeServices(AccountService(factory), ConversationService(factory), SessionService(factory))
+        # Keep the public restore hook for compatibility; the runtime services
+        # are then reused by all subsequent interactive operations.
         await restore_account_configuration()
-        yield create_agent(checkpointer), checkpointer
+        token = current_services.set(services)
+        try:
+            yield create_agent(checkpointer), checkpointer
+        finally:
+            current_services.reset(token)
 
 
-async def chat(agent: CompiledStateGraph, prompt: str, thread_id: UUID) -> None:
+async def chat(
+    agent: CompiledStateGraph,
+    prompt: str,
+    thread_id: UUID,
+    session_service: SessionService | None = None,
+) -> None:
     contents: list[str] = []
     thinking_contents: list[str] = []
     trace_events: list[TraceEvent] = []
@@ -99,11 +117,21 @@ async def chat(agent: CompiledStateGraph, prompt: str, thread_id: UUID) -> None:
     renderer.finish()
     complete_output = "".join(contents)
     thinking_output = "".join(thinking_contents)
-    await SessionOutput.save_output(
-        thread_id,
-        prompt,
-        complete_output,
-        complete_output,
-        thinking_output=thinking_output or None,
-        trace_payload=trace_to_json(trace_events),
-    )
+    if session_service is None:
+        await SessionOutput.save_output(
+            thread_id,
+            prompt,
+            complete_output,
+            complete_output,
+            thinking_output=thinking_output or None,
+            trace_payload=trace_to_json(trace_events),
+        )
+    else:
+        await session_service.save(
+            thread_id,
+            prompt,
+            complete_output,
+            complete_output,
+            thinking_output=thinking_output or None,
+            trace_payload=trace_to_json(trace_events),
+        )

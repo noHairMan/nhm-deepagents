@@ -17,6 +17,7 @@ from fragile.commands.interactive.agent import (
 )
 from fragile.commands.interactive.trace import TraceEvent, trace_from_json
 from fragile.exceptions import AgentFactoryImportError, AgentFactoryTypeError, AgentGraphTypeError, AgentResponseError
+from fragile.services.runtime import current_services
 
 
 class TestAgent:
@@ -264,3 +265,56 @@ class TestAgent:
             async with agent_runtime():
                 pass
         context.__aexit__.assert_awaited_once()
+
+    @pytest.mark.asyncio
+    async def test_agent_runtime_sets_services(self, session_factory, monkeypatch) -> None:
+        # Mock create_agent to avoid needing a real LangGraph agent
+        monkeypatch.setattr(
+            "fragile.commands.interactive.agent.create_agent",
+            lambda checkpointer: "mock_agent",
+        )
+
+        # Mock restore_account_configuration
+        async def mock_restore():
+            return None
+
+        monkeypatch.setattr("fragile.commands.interactive.agent.restore_account_configuration", mock_restore)
+
+        # Mock get_initialized_session_factory to return our fixture factory
+        async def mock_factory():
+            return session_factory
+
+        monkeypatch.setattr("fragile.commands.interactive.agent.get_initialized_session_factory", mock_factory)
+
+        assert current_services.get() is None
+
+        async with agent_runtime() as (agent, checkpointer):
+            assert agent == "mock_agent"
+            assert current_services.get() is not None
+            assert current_services.get().account is not None
+            assert current_services.get().conversation is not None
+            assert current_services.get().session is not None
+
+        assert current_services.get() is None
+
+    @pytest.mark.asyncio
+    async def test_chat_with_session_service_persists_output(self) -> None:
+        agent = MagicMock(spec=CompiledStateGraph)
+        session_service = AsyncMock()
+
+        async def segments():
+            yield TraceEvent(0, "thinking", content="思考")
+            yield TraceEvent(1, "text", content="答案")
+
+        with (
+            patch("fragile.commands.interactive.agent.stream_events", return_value=segments()),
+            patch("fragile.commands.interactive.display.print_thinking"),
+            patch("fragile.commands.interactive.display.print_stream"),
+        ):
+            await chat(agent, "prompt", UUID(int=1), session_service=session_service)
+
+        session_service.save.assert_awaited_once()
+        saved_args = session_service.save.await_args.args
+        saved_kwargs = session_service.save.await_args.kwargs
+        assert saved_args == (UUID(int=1), "prompt", "答案", "答案")
+        assert saved_kwargs["thinking_output"] == "思考"

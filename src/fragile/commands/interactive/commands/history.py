@@ -12,15 +12,14 @@ from prompt_toolkit.output import Output
 from prompt_toolkit.styles import Style
 from prompt_toolkit.utils import get_cwidth
 from prompt_toolkit.widgets import Label, RadioList
-from sqlalchemy import Engine, select
-from sqlalchemy.orm import Session
 
 from fragile.commands.interactive.commands.base import Command as BaseCommand
 from fragile.commands.interactive.display import replay_outputs, show_startup
 from fragile.models import SessionOutput, SessionState
-from fragile.models.base import engine, get_initialized_session_factory
+from fragile.models.base import get_initialized_session_factory
 from fragile.models.constants import CommandResult
-from fragile.models.history import ConversationHistory
+from fragile.repositories.conversation import ConversationRepository
+from fragile.services.runtime import current_services
 
 HISTORY_STYLE = Style.from_dict({"selected-option": "fg:ansigreen bold"})
 
@@ -106,23 +105,24 @@ class HistoryCommand(BaseCommand):
         if selected_thread is not None:
             state.thread_id = selected_thread
             show_startup(state.thread_id, True)
-            replay_outputs(await SessionOutput.list_for_thread(selected_thread))
+            services = current_services.get()
+            outputs = (
+                await services.session.list_for_thread(selected_thread)
+                if services
+                else await SessionOutput.list_for_thread(selected_thread)
+            )
+            replay_outputs(outputs)
         return CommandResult.CONTINUE
 
 
 async def list_history() -> list[tuple[UUID, str]]:
     """Return conversations with their elapsed update time."""
-    if isinstance(engine, Engine):
-        with Session(engine) as session:
-            conversations = session.scalars(
-                select(ConversationHistory).order_by(ConversationHistory.update_time.desc())
-            ).all()
-    else:
-        session_factory = await get_initialized_session_factory()
-        async with session_factory() as session:
-            conversations = (
-                await session.scalars(select(ConversationHistory).order_by(ConversationHistory.update_time.desc()))
-            ).all()
+    services = current_services.get()
+    conversations = (
+        await services.conversation.list()
+        if services
+        else await ConversationRepository(await get_initialized_session_factory()).list()
+    )
     titles = [conversation.title for conversation in conversations]
     title_width = max((get_cwidth(title) for title in titles), default=0)
     return [

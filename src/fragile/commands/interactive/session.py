@@ -30,6 +30,7 @@ from fragile.conf import settings
 from fragile.exceptions import AgentResponseError
 from fragile.models import Account, ConversationHistory, SessionState, restore_account_configuration
 from fragile.models.constants import CommandResult
+from fragile.services.runtime import RuntimeServices, current_services
 from fragile.utils.uid import resolve_thread_id
 from tomorrow.conf import settings as tomorrow_settings
 
@@ -51,6 +52,7 @@ class InteractiveSession:
         self.state = SessionState(thread_id=self.thread_id)
         self.is_running = True
         self.last_keyboard_interrupt: float | None = None
+        self.services: RuntimeServices | None = None
 
     async def run(self) -> None:
         """Run the interactive session until an exit action is received."""
@@ -58,10 +60,15 @@ class InteractiveSession:
         try:
             show_startup(self.thread_id, self.thread is not None)
             async with agent_runtime() as (agent, checkpointer):
+                self.services = current_services.get()
+                if isinstance(self.session.history, BoundedFileHistory):
+                    await self.session.history.load_async()
                 await self.refresh_toolbar_model()
                 while self.is_running:
                     agent = await self.run_iteration(agent, checkpointer)
         finally:
+            if isinstance(self.session.history, BoundedFileHistory):
+                await self.session.history.flush()
             leave_fullscreen()
 
     async def run_iteration(
@@ -75,6 +82,7 @@ class InteractiveSession:
             is_registered_command = command_registry.is_registered(user_input)
             if not is_registered_command and user_input and isinstance(self.session.history, BoundedFileHistory):
                 self.session.history.record_string(user_input)
+                await self.session.history.save_async()
             if is_registered_command:
                 clear_submitted_input(self.session.output, user_input)
             try:
@@ -111,8 +119,9 @@ class InteractiveSession:
 
     async def refresh_toolbar_model(self) -> None:
         """Refresh the toolbar from Fragile's persisted account model selection."""
-        credentials = await Account.get_credentials()
-        selection = await Account.get_model_selection()
+        account = self.services.account if self.services else None
+        credentials = await account.get_credentials() if account else await Account.get_credentials()
+        selection = await account.get_model_selection() if account else await Account.get_model_selection()
         provider = selection[0] if selection is not None else credentials[0] if credentials is not None else None
         model = selection[1] if selection is not None else None
         self.toolbar_model["provider"] = provider or "unknown"
@@ -129,16 +138,26 @@ class InteractiveSession:
         if result is CommandResult.EXIT:
             self.is_running = False
         elif result is CommandResult.MODEL_CHANGED:
-            await restore_account_configuration()
+            if self.services:
+                await self.services.account.restore_configuration()
+            else:
+                await restore_account_configuration()
             await self.refresh_toolbar_model()
             return create_agent(checkpointer)
         elif result is CommandResult.NOT_HANDLED and user_input:
-            if await Account.get_credentials() is None:
+            account = self.services.account if self.services else None
+            if (await account.get_credentials() if account else await Account.get_credentials()) is None:
                 show_account_required()
                 return agent
-            await ConversationHistory.register_conversation(self.state.thread_id, user_input)
+            if self.services:
+                await self.services.conversation.register(self.state.thread_id, user_input)
+            else:
+                await ConversationHistory.register_conversation(self.state.thread_id, user_input)
             try:
-                await chat(agent, user_input, self.state.thread_id)
+                if self.services:
+                    await chat(agent, user_input, self.state.thread_id, self.services.session)
+                else:
+                    await chat(agent, user_input, self.state.thread_id)
             except httpx.ConnectError:
                 model_type = str(tomorrow_settings.MODEL.get("type") or "unknown")
                 model_config = tomorrow_settings.MODEL.get(model_type) or {}

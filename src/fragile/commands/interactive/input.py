@@ -1,5 +1,6 @@
 """Prompt-toolkit input handling."""
 
+import asyncio
 import json
 import os
 from collections.abc import Callable, Iterator
@@ -30,26 +31,62 @@ class BoundedFileHistory(History):
         super().__init__()
         self.filename = filename
         self.limit = limit
+        self._entries: list[str] = []
+        self._save_lock = asyncio.Lock()
 
     def load_history_strings(self) -> Iterator[str]:
-        if not self.filename.exists():
-            return
-        entries = [json.loads(line) for line in self.filename.read_text(encoding="utf-8").splitlines() if line]
-        yield from reversed(entries[-self.limit :])
+        yield from reversed(self._entries)
 
     def store_string(self, string: str) -> None:
-        entries = list(reversed(list(self.load_history_strings())))
-        entries.append(string)
-        entries = entries[-self.limit :]
+        """Keep prompt-toolkit's compatibility hook in memory only."""
+
+    async def load_async(self) -> None:
+        """Load history without blocking the interactive event loop."""
+        entries = await asyncio.to_thread(self._read_entries)
+        self._entries = self._bounded_entries(entries)
+        self._loaded_strings = list(reversed(self._entries))
+
+    async def save_async(self) -> None:
+        """Persist the current in-memory history in a serialized worker."""
+        async with self._save_lock:
+            entries = list(self._entries)
+            await asyncio.to_thread(self._write_entries, entries)
+
+    async def flush(self) -> None:
+        """Wait for any in-flight save before the interactive session exits."""
+        async with self._save_lock:
+            return
+
+    def _read_entries(self) -> list[str]:
+        if not self.filename.exists():
+            return []
+        entries: list[str] = []
+        for line in self.filename.read_text(encoding="utf-8").splitlines():
+            if not line:
+                continue
+            try:
+                entry = json.loads(line)
+            except json.JSONDecodeError:
+                continue
+            if isinstance(entry, str):
+                entries.append(entry)
+        return entries
+
+    def _write_entries(self, entries: list[str]) -> None:
         self.filename.parent.mkdir(parents=True, exist_ok=True)
         temporary_path = self.filename.with_name(f".{self.filename.name}.{uuid4().hex}.tmp")
         try:
             with temporary_path.open("w", encoding="utf-8") as temporary_file:
-                for entry in entries:
+                for entry in self._bounded_entries(entries):
                     temporary_file.write(f"{json.dumps(entry, ensure_ascii=False)}\n")
             os.replace(temporary_path, self.filename)
         finally:
             temporary_path.unlink(missing_ok=True)
+
+    def _bounded_entries(self, entries: list[str]) -> list[str]:
+        if self.limit <= 0:
+            return []
+        return entries[-self.limit :]
 
     def append_string(self, string: str) -> None:
         """Ignore prompt-toolkit's automatic submission recording."""
@@ -58,6 +95,7 @@ class BoundedFileHistory(History):
         """Explicitly add an accepted ordinary input to history."""
         super().append_string(string)
         del self._loaded_strings[self.limit :]
+        self._entries = list(reversed(self._loaded_strings))
 
 
 def _single_line(value: object, default: str = TOOLBAR_FALLBACK) -> str:

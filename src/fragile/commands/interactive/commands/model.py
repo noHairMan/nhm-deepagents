@@ -16,6 +16,7 @@ from prompt_toolkit.widgets import Label, RadioList
 from fragile.commands.interactive.commands.base import Command as BaseCommand
 from fragile.models import Account, InvalidAccountError, SessionState
 from fragile.models.constants import CommandResult
+from fragile.services.runtime import current_services
 from tomorrow.conf import settings as tomorrow_settings
 from tomorrow.models.constants import ModelType
 
@@ -235,7 +236,8 @@ class ModelCommand(BaseCommand):
     async def handle(self, prompt: str | None, state: SessionState) -> CommandResult:
         """Persist a changed model selection for the configured account provider."""
         del prompt, state
-        credentials = await Account.get_credentials()
+        services = current_services.get()
+        credentials = await services.account.get_credentials() if services else await Account.get_credentials()
         if credentials is None:
             click.echo("Configure an account with /account before selecting a model.")
             return CommandResult.CONTINUE
@@ -259,7 +261,10 @@ class ModelCommand(BaseCommand):
         if selected is None or selected == current:
             return CommandResult.CONTINUE
         try:
-            await Account.save_model_selection(selected[0], selected[1])
+            if services:
+                await services.account.save_model_selection(selected[0], selected[1])
+            else:
+                await Account.save_model_selection(selected[0], selected[1])
         except InvalidAccountError as error:
             logger.exception("Model selection could not be saved: %s", error)
             click.echo("Could not save model selection. Verify the account with /account, then retry /model.")
@@ -269,7 +274,8 @@ class ModelCommand(BaseCommand):
     @staticmethod
     async def _current_selection(provider: ModelType) -> ModelSelection:
         """Return the persisted selection or the provider's active default model."""
-        selection = await Account.get_model_selection()
+        services = current_services.get()
+        selection = await services.account.get_model_selection() if services else await Account.get_model_selection()
         if selection is not None and selection[0] == provider:
             return provider, selection[1]
         model_config = getattr(tomorrow_settings.MODEL, provider.value)

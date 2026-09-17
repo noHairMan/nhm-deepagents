@@ -2,7 +2,7 @@
 
 from urllib.parse import urlparse
 
-from sqlalchemy import String, select
+from sqlalchemy import String
 from sqlalchemy.orm import Mapped, mapped_column
 
 from fragile.exceptions import FragileError
@@ -46,32 +46,18 @@ class Account(Base):
         """Create or update the singleton account in one transaction."""
         normalized_provider, normalized_key, normalized_url = cls.validate_credentials(provider, api_key, base_url)
         session_factory = await get_initialized_session_factory()
-        async with session_factory() as session:
-            account = await session.scalar(select(cls).where(cls.singleton == "default"))
-            if account is None:
-                session.add(
-                    cls(
-                        singleton="default",
-                        provider=normalized_provider,
-                        api_key=normalized_key,
-                        base_url=normalized_url,
-                    )
-                )
-            else:
-                if account.provider != normalized_provider:
-                    account.model = None
-                account.provider = normalized_provider
-                account.api_key = normalized_key
-                account.base_url = normalized_url
-            await session.commit()
+        from fragile.repositories.account import AccountRepository
+
+        await AccountRepository(session_factory).save_credentials(normalized_provider, normalized_key, normalized_url)
 
     @classmethod
     async def get_credentials(cls) -> tuple[str, str, str] | None:
         """Return persisted credentials, or ``None`` when none are configured."""
         session_factory = await get_initialized_session_factory()
-        async with session_factory() as session:
-            account = await session.scalar(select(cls).where(cls.singleton == "default"))
-            return None if account is None else (account.provider, account.api_key, account.base_url)
+        from fragile.repositories.account import AccountRepository
+
+        account = await AccountRepository(session_factory).get()
+        return None if account is None else (account.provider, account.api_key, account.base_url)
 
     @staticmethod
     def validate_model_selection(provider: str, model: str) -> tuple[str, str]:
@@ -91,24 +77,23 @@ class Account(Base):
         """Persist the selected model for the configured account provider."""
         normalized_provider, normalized_model = cls.validate_model_selection(provider, model)
         session_factory = await get_initialized_session_factory()
-        async with session_factory() as session:
-            account = await session.scalar(select(cls).where(cls.singleton == "default"))
-            if account is None:
-                raise InvalidAccountError("account must be configured before selecting a model")
-            if account.provider != normalized_provider:
-                raise InvalidAccountError("selected model provider does not match the configured account")
-            account.model = normalized_model
-            await session.commit()
+        from fragile.repositories.account import AccountRepository
+
+        try:
+            await AccountRepository(session_factory).save_model(normalized_provider, normalized_model)
+        except ValueError as error:
+            raise InvalidAccountError(str(error)) from error
 
     @classmethod
     async def get_model_selection(cls) -> tuple[str, str] | None:
         """Return the persisted provider and selected model, if present."""
         session_factory = await get_initialized_session_factory()
-        async with session_factory() as session:
-            account = await session.scalar(select(cls).where(cls.singleton == "default"))
-            if account is None or account.model is None or not account.model.strip():
-                return None
-            return account.provider.strip().lower(), account.model.strip()
+        from fragile.repositories.account import AccountRepository
+
+        account = await AccountRepository(session_factory).get()
+        if account is None or account.model is None or not account.model.strip():
+            return None
+        return account.provider.strip().lower(), account.model.strip()
 
 
 async def restore_account_configuration() -> bool:

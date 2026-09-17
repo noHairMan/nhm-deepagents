@@ -1,4 +1,4 @@
-from unittest.mock import patch
+from unittest.mock import AsyncMock, patch
 from uuid import UUID
 
 import pytest
@@ -7,6 +7,7 @@ from fragile.commands.interactive.commands import account
 from fragile.commands.interactive.commands.account import AccountCommand
 from fragile.models import SessionState
 from fragile.models.constants import CommandResult
+from fragile.services.runtime import RuntimeServices, current_services
 from tomorrow.models.constants import ModelType
 
 
@@ -130,6 +131,31 @@ class TestAccountCommand:
         assert result is CommandResult.CONTINUE
         assert saved == {"provider": "OpenAI", "api_key": "secret-key", "base_url": "https://api.example.com"}
         assert "secret-key" not in capsys.readouterr().out
+
+    @pytest.mark.asyncio
+    async def test_handle_saves_credentials_through_runtime_services(self, monkeypatch, capsys) -> None:
+        async def select_provider(self) -> ModelType:
+            return ModelType.OPENAI
+
+        class FakePromptSession:
+            async def prompt_async(self, message: str, **kwargs: object) -> str:
+                return "https://api.example.com" if "base URL" in message else "secret-key"
+
+        account_service = type("AccountService", (), {"save_credentials": AsyncMock()})()
+        services = RuntimeServices(account=account_service, conversation=None, session=None)  # type: ignore[arg-type]
+        token = current_services.set(services)
+        monkeypatch.setattr(AccountCommand, "_select_provider", select_provider)
+        monkeypatch.setattr(account, "PromptSession", FakePromptSession)
+        try:
+            result = await AccountCommand().handle(None, SessionState(thread_id=UUID(int=1)))
+        finally:
+            current_services.reset(token)
+
+        assert result is CommandResult.CONTINUE
+        account_service.save_credentials.assert_awaited_once_with(
+            ModelType.OPENAI, "secret-key", "https://api.example.com"
+        )
+        assert "Account settings saved." in capsys.readouterr().out
 
     @pytest.mark.asyncio
     @pytest.mark.parametrize("cancel_at", ["base URL", "API key"])
