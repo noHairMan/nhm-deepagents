@@ -16,7 +16,7 @@ For development environment, project structure, code specifications and testing 
 
 The project contains three main modules:
 
--   **`tomorrow`**: Core agent module. The codename is taken from a character in the game "Death Stranding 2: On the Beach"**Tomorrow**(played by Elle Fanning). In the plot, she is the daughter of protagonist Sam Bridges, who was also revealed to be a character in the previous game.**Lou**(BB-28)。
+-   **`tomorrow`**: Core agent module. The code name is taken from a character in the game "Death Stranding 2: On the Beach"**Tomorrow**(played by Elle Fanning). In the plot, she is the daughter of protagonist Sam Bridges, and is also revealed to be a character in the previous game.**Lou**(BB-28)。
 -   **`rainy`**: API service module based on FastAPI. The codename is also taken from a character in Death Stranding 2**Rainy**(played by Shiori Kutsuna). In the game, she has the magical power to cause "Timefall" and the healing "Corefall", and is described as a "Pharmakon" that can both hurt and heal.
 -   **`fragile`**: based on`asyncclick`An asynchronous command line client for asking questions directly to the Tomorrow agent or starting interactive sessions. Its name is taken from a character in the same work**Fragile**. Fragile is the founder and courier of Fragile Express. He has aged rapidly due to exposure to the rain of time, but he has always delivered important supplies to others in dangerous environments. This image of a "fragile" appearance that still insists on the mission of connection and delivery is the background of the name of this client.
 
@@ -30,7 +30,8 @@ This project provides a general smart assistant agent that utilizes`deepagents`T
 -   **recursive control**: support through`TOMORROW_RECURSION_LIMIT`Limit the depth of agent recursive calls.
 -   **life cycle management**: introduction`AgentManager`Unified management of the creation and destruction of agent instances ensures graceful initialization of resources.
 -   **High performance API**: Built on FastAPI, supports synchronous responses and Server-Sent Events (SSE) streaming output.
--   **Interactive CLI**:`fragile`support`/new`Create new session,`/history`Browse and switch between persisted historical sessions,`/account`Configure external model account,`/model`Select model,`/quit`Exit, session resume, input history, slash command completion and multi-line editing, with an appended timeline showing model summary, tool calls, command results and final answers.
+-   **Interactive CLI**:`fragile`support`/new`Create new session,`/history`Browse and switch between persisted historical sessions,`/account`Configure external model account,`/model`Select model,`/quit`Exit, session recovery, input history, slash command completion and multi-line editing, and display model summary, tool calls, command results and final answers in an appended timeline; unified reuse of accounts, conversations and session services during interactive running.
+-   **Hierarchical persistence**:`fragile`pass`repositories`The storage layer handles accounts, conversations, session output and cleanup operations in a unified manner, and then`services`The application service layer coordinates business logic; the interactive runtime shares the same initialized database session factory to avoid repeated management of persistence dependencies in each process.
 -   **Account configuration persistence**: Supports saving API credentials for Anthropic and OpenAI via interactive commands and automatically restoring them in subsequent sessions.
 -   **Reliability guaranteed**: Forced type hints, Ruff static checking, 100% test coverage requirement.
 
@@ -125,7 +126,7 @@ If not used yet`uv tool install .`The installation command can also be run in th
 uv run fragile
 ```
 
-pass`--thread`or`-t`Passing in the UUID can restore an existing session; if not passed in, a new thread will be automatically created. Input during interaction`/new`To clear the screen and start a new session, enter`/history`To view saved sessions and switch by number or UUID, enter`/quit`Exit; you can also press twice in succession`Ctrl+C`To exit a session in a short time, press`Esc`Press Enter to insert a line feed.
+pass`--thread`or`-t`Passing in the UUID can restore an existing session; if not passed in, a new thread will be automatically created. Input during interaction`/new`To clear the screen and start a new session, enter`/history`To view saved sessions and switch by number or UUID, enter`/quit`Exit; you can also press twice in succession`Ctrl+C`To exit a session in a short time, press`Esc`Press Enter to insert a line feed. Input history is loaded asynchronously at the beginning of the session and saved asynchronously during the session; save operations are performed sequentially to avoid concurrent write conflicts.
 
 #### Fragile output timeline
 
@@ -134,7 +135,7 @@ Each ordinary conversation will append the actually generated blocks in the orde
 -   `Thinking (provider summary)`: Only display thinking/reasoning summaries explicitly returned by the model provider, no private thinking chains are inferred or generated.
 -   `Tool`: Display the tool name, desensitized parameters and running status;`execute`The actual command is also highlighted.
 -   `Completed`/`Failed`: Display tool results or failure information; content that is too long will be marked as truncated in the terminal.
--   `Assistant`: The final answer is still continuously streamed out as fragments returned by the model.
+-   `Assistant`: The final answer is still streamed continuously as pieces returned by the model.
 
 The actual tools, commands, skill/subagent stages, and model summaries that occurred are saved with the answers; empty tool or stage prompts are not displayed when there is no corresponding invocation. use`/history`Playback in original order when switching sessions. The timeline uses a sample-style compact appended status line without using dynamic split-screen panels; API Keys, Authorizations, passwords, and URL credentials in parameters, results, and errors are desensitized before being displayed and saved.
 
@@ -156,20 +157,20 @@ Environment variables are prefixed by default`TOMORROW_`(core module),`RAINY_`(A
 
 #### Tomorrow configuration (core)
 
-| variable                                            | describe                                                   | default value                 |
-| --------------------------------------------------- | ---------------------------------------------------------- | ----------------------------- |
-| `TOMORROW_APP`                                      | Application name (used as environment variable prefix)     | `tomorrow`                    |
-| `TOMORROW_MODEL`                                    | Model configuration, support`ANTHROPIC`and`OPENAI`         | `anthropic`/`claude-sonnet-5` |
-| `TOMORROW_CHECKPOINT`                               | Checkpoint configuration, supports MEMORY and SQLITE       | `{"type":"memory"}`           |
-| `TOMORROW_BACKEND`                                  | Backend configuration, supports FILESYSTEM and LOCAL_SHELL | `{"type":"filesystem"}`       |
-| `TOMORROW_STORE`                                    | Storage configuration, supports MEMORY and SQLITE          | `{"type":"sqlite"}`           |
-| `TOMORROW_SKILLS`                                   | Skill Catalog List                                         | `[]`                          |
-| `TOMORROW_SUBAGENTS`                                | Subagent configuration list                                | `[]`                          |
-| `TOMORROW_RECURSION_LIMIT`                          | The upper limit of agent recursive calls                   | `100`                         |
-| `TOMORROW_MODEL__ANTHROPIC__THINKING_ENABLED`       | Whether to request Anthropic thinking output               | `false`                       |
-| `TOMORROW_MODEL__ANTHROPIC__THINKING_BUDGET_TOKENS` | Anthropic thinking’s token budget (required when enabled)  | not set                       |
-| `TOMORROW_MODEL__OPENAI__REASONING_EFFORT`          | OpenAI reasoning strength:`low`、`medium`or`high`           | not set                       |
-| `TOMORROW_MODEL__OPENAI__REASONING_SUMMARY`         | OpenAI reasoning summary:`auto`、`concise`or`detailed`      | not set                       |
+| variable                                            | describe                                                    | default value                 |
+| --------------------------------------------------- | ----------------------------------------------------------- | ----------------------------- |
+| `TOMORROW_APP`                                      | Application name (used as environment variable prefix)      | `tomorrow`                    |
+| `TOMORROW_MODEL`                                    | Model configuration, support`ANTHROPIC`and`OPENAI`          | `anthropic`/`claude-sonnet-5` |
+| `TOMORROW_CHECKPOINT`                               | Checkpoint configuration, supports MEMORY and SQLITE        | `{"type":"memory"}`           |
+| `TOMORROW_BACKEND`                                  | Backend configuration, supports FILESYSTEM and LOCAL_SHELL  | `{"type":"filesystem"}`       |
+| `TOMORROW_STORE`                                    | Storage configuration, supports MEMORY and SQLITE           | `{"type":"sqlite"}`           |
+| `TOMORROW_SKILLS`                                   | Skill Catalog List                                          | `[]`                          |
+| `TOMORROW_SUBAGENTS`                                | Subagent configuration list                                 | `[]`                          |
+| `TOMORROW_RECURSION_LIMIT`                          | The upper limit of agent recursive calls                    | `100`                         |
+| `TOMORROW_MODEL__ANTHROPIC__THINKING_ENABLED`       | Whether to request Anthropic thinking output                | `true`                        |
+| `TOMORROW_MODEL__ANTHROPIC__THINKING_BUDGET_TOKENS` | Anthropic thinking token budget (must be a positive number) | `2048`                        |
+| `TOMORROW_MODEL__OPENAI__REASONING_EFFORT`          | OpenAI reasoning strength:`low`、`medium`or`high`            | not set                       |
+| `TOMORROW_MODEL__OPENAI__REASONING_SUMMARY`         | OpenAI reasoning summary:`auto`、`concise`or`detailed`       | not set                       |
 
 Model configuration passed`TOMORROW_MODEL`Or pass in nested environment variables. By default Anthropic is used`claude-sonnet-5`, Anthropic compatible interfaces can also be configured. For example:
 
@@ -190,7 +191,7 @@ export TOMORROW_MODEL__OPENAI__BASE_URL="https://api.openai.com/v1"
 export TOMORROW_MODEL__OPENAI__TEMPERATURE="0"
 ```
 
-thinking/reasoning is turned off by default. need to be in`fragile`When viewing the thinking or reasoning summary explicitly returned by the model in the CLI, configure the corresponding parameters according to the provider; this feature may increase token consumption and response latency. For example:
+Anthropic thinking is enabled by default, and the budget is enabled by default.`2048`;You can also override the budget through the following environment variables, or change`THINKING_ENABLED`set to`false`Explicitly closed. OpenAI reasoning is still turned off by default. Thinking/reasoning may increase token consumption and response latency. For example:
 
 ```bash
 export TOMORROW_MODEL__ANTHROPIC__THINKING_ENABLED="true"
@@ -226,8 +227,14 @@ export TOMORROW_SUBAGENTS='[{"name":"researcher","description":"负责资料检�
 | variable                           | describe                                                         | default value                            |
 | ---------------------------------- | ---------------------------------------------------------------- | ---------------------------------------- |
 | `FRAGILE_APP`                      | Application name (used as environment variable prefix)           | `fragile`                                |
+| `FRAGILE_DATA_ROOT`                | Fragile data root directory                                      | `~/.fragile`                             |
+| `FRAGILE_DATABASE_FILE`            | Fragile checkpoint and ORM database files                        | `~/.fragile/fragile.db`                  |
+| `FRAGILE_INPUT_HISTORY_FILE`       | Interactive input of history files                               | `~/.fragile/.fragile_history`            |
+| `FRAGILE_LOG_ROOT`                 | `fragile.log`、`llm.log`and rotating file directory               | `~/.fragile/logs`                        |
 | `FRAGILE_INTERRUPT_EXIT_THRESHOLD` | twice`Ctrl+C`Maximum interval between triggering exits (seconds) | `0.5`                                    |
 | `FRAGILE_ENABLED_COMMANDS`         | Enabled interactive command classpath list                       | `quit`、`new`、`history`、`account`、`model` |
+
+Fragile is created on demand by default at startup`~/.fragile`and log directory. set up`FRAGILE_DATA_ROOT`The default locations of the database, input history and logs will be changed synchronously, and the corresponding paths can also be overwritten respectively. This behavior only affects Fragile's own files, does not change Tomorrow's store or filesystem/local-shell workspace configuration, and will not automatically migrate or delete files in the old directory.
 
 Other interactive behavior of Fragile is controlled through command line options and built-in slash commands. Commands are discovered and processed uniformly through the registry, using`FRAGILE_ENABLED_COMMANDS`Adjust enabled commands. Account credentials are provided by`Account`The model is saved in Fragile's database as a singleton, and will be restored to Tomorrow's model configuration when an interactive session is started; environment variables can still be used as a configuration source and have higher priority.
 
