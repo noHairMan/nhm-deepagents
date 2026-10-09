@@ -149,10 +149,14 @@ class InteractiveSession:
             if (await account.get_credentials() if account else await Account.get_credentials()) is None:
                 show_account_required()
                 return agent
+            title = user_input
             if self.services:
-                await self.services.conversation.register(self.state.thread_id, user_input)
+                generated = await self.services.conversation.generate_title(user_input)
+                if generated is not None:
+                    title = generated
+                await self.services.conversation.register(self.state.thread_id, title)
             else:
-                await ConversationHistory.register_conversation(self.state.thread_id, user_input)
+                await ConversationHistory.register_conversation(self.state.thread_id, title)
             try:
                 if self.services:
                     await chat(agent, user_input, self.state.thread_id, self.services.session)

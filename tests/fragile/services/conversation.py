@@ -16,9 +16,9 @@ class TestConversationService:
 
         conversations = await service.list()
         assert len(conversations) == 1
-        assert conversations[0].title == "Test Convers..."
+        assert conversations[0].title == "Test Conversation"
 
         await service.register(thread_id, "Updated Title")
         conversations = await service.list()
         assert len(conversations) == 1
-        assert conversations[0].title == "Test Convers..."
+        assert conversations[0].title == "Test Conversation"

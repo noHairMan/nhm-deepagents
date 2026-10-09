@@ -26,7 +26,7 @@ class ConversationRepository:
                 session.add(
                     ConversationHistory(
                         thread_id=to_hex(thread_id),
-                        title=ConversationHistory.format_title(title),
+                        title=title,
                     )
                 )
             else:

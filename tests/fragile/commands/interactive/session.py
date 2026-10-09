@@ -697,6 +697,7 @@ class TestSession:
 
         conversation_service = AsyncMock()
         conversation_service.register = AsyncMock()
+        conversation_service.generate_title = AsyncMock(return_value="Generated Title")
 
         session_service = AsyncMock()
 
@@ -718,6 +719,7 @@ class TestSession:
             ):
                 await session.handle_result(agent, checkpointer, CommandResult.NOT_HANDLED, "hello")
 
+            conversation_service.generate_title.assert_awaited_once_with("hello")
             conversation_service.register.assert_awaited_once()
             chat_mock.assert_awaited_once()
             # Verify that session_service was passed to chat as 4th positional arg
