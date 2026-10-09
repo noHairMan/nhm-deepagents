@@ -12,7 +12,7 @@ For development environment, project structure, code specifications and testing 
 
 ## 🌟 Project Overview
 
-`nhm-deepagents`is a professional Python project focusing on deep agents. It leverages Python 3.14 and powerful tools to provide a high-quality development experience for AI agent research and applications.
+`nhm-deepagents` 是一个专注于深度智能体的专业 Python 项目。它利用 Python 3.14 和强大的工具，为 AI 智能体研究和应用提供高质量的开发体验。
 
 The project contains three main modules:
 
@@ -33,7 +33,7 @@ This project provides a general smart assistant agent that utilizes`deepagents`T
 -   **Interactive CLI**:`fragile`support`/new`Create new session,`/history`Browse and switch between persisted historical sessions,`/account`Configure external model account,`/model`Select model,`/quit`Exit, session recovery, input history, slash command completion and multi-line editing, and display model summary, tool calls, command results and final answers in an appended timeline; unified reuse of accounts, conversations and session services during interactive running.
 -   **Hierarchical persistence**:`fragile`pass`repositories`The storage layer handles accounts, conversations, session output and cleanup operations in a unified manner, and then`services`The application service layer coordinates business logic; the interactive runtime shares the same initialized database session factory to avoid repeated management of persistence dependencies in each process.
 -   **Account configuration persistence**: Supports saving API credentials for Anthropic and OpenAI via interactive commands and automatically restoring them in subsequent sessions.
--   **Reliability guaranteed**: Forced type hints, Ruff static checking, 100% test coverage requirement.
+-   **Reliability guarantee**: Forced type hints, Ruff static checking, 100% test coverage requirement.
 
 ## 🛠️ Technology stack
 
@@ -157,20 +157,20 @@ Environment variables are prefixed by default`TOMORROW_`(core module),`RAINY_`(A
 
 #### Tomorrow configuration (core)
 
-| variable                                            | describe                                                    | default value                 |
-| --------------------------------------------------- | ----------------------------------------------------------- | ----------------------------- |
-| `TOMORROW_APP`                                      | Application name (used as environment variable prefix)      | `tomorrow`                    |
-| `TOMORROW_MODEL`                                    | Model configuration, support`ANTHROPIC`and`OPENAI`          | `anthropic`/`claude-sonnet-5` |
-| `TOMORROW_CHECKPOINT`                               | Checkpoint configuration, supports MEMORY and SQLITE        | `{"type":"memory"}`           |
-| `TOMORROW_BACKEND`                                  | Backend configuration, supports FILESYSTEM and LOCAL_SHELL  | `{"type":"filesystem"}`       |
-| `TOMORROW_STORE`                                    | Storage configuration, supports MEMORY and SQLITE           | `{"type":"sqlite"}`           |
-| `TOMORROW_SKILLS`                                   | Skill Catalog List                                          | `[]`                          |
-| `TOMORROW_SUBAGENTS`                                | Subagent configuration list                                 | `[]`                          |
-| `TOMORROW_RECURSION_LIMIT`                          | The upper limit of agent recursive calls                    | `100`                         |
-| `TOMORROW_MODEL__ANTHROPIC__THINKING_ENABLED`       | Whether to request Anthropic thinking output                | `true`                        |
-| `TOMORROW_MODEL__ANTHROPIC__THINKING_BUDGET_TOKENS` | Anthropic thinking token budget (must be a positive number) | `2048`                        |
-| `TOMORROW_MODEL__OPENAI__REASONING_EFFORT`          | OpenAI reasoning strength:`low`、`medium`or`high`            | not set                       |
-| `TOMORROW_MODEL__OPENAI__REASONING_SUMMARY`         | OpenAI reasoning summary:`auto`、`concise`or`detailed`       | not set                       |
+| variable                                            | describe                                                                       | default value                 |
+| --------------------------------------------------- | ------------------------------------------------------------------------------ | ----------------------------- |
+| `TOMORROW_APP`                                      | Application name (used as environment variable prefix)                         | `tomorrow`                    |
+| `TOMORROW_MODEL`                                    | Model configuration, support`ANTHROPIC`and`OPENAI`                             | `anthropic`/`claude-sonnet-5` |
+| `TOMORROW_CHECKPOINT`                               | Checkpoint configuration, supports MEMORY, SQLITE, POSTGRES, REDIS and MONGODB | `{"type":"memory"}`           |
+| `TOMORROW_BACKEND`                                  | Backend configuration, supports FILESYSTEM and LOCAL_SHELL                     | `{"type":"filesystem"}`       |
+| `TOMORROW_STORE`                                    | Storage configuration, supports MEMORY and SQLITE                              | `{"type":"sqlite"}`           |
+| `TOMORROW_SKILLS`                                   | Skill Catalog List                                                             | `[]`                          |
+| `TOMORROW_SUBAGENTS`                                | Subagent configuration list                                                    | `[]`                          |
+| `TOMORROW_RECURSION_LIMIT`                          | The upper limit of agent recursive calls                                       | `100`                         |
+| `TOMORROW_MODEL__ANTHROPIC__THINKING_ENABLED`       | Whether to request Anthropic thinking output                                   | `true`                        |
+| `TOMORROW_MODEL__ANTHROPIC__THINKING_BUDGET_TOKENS` | Anthropic thinking token budget (must be a positive number)                    | `2048`                        |
+| `TOMORROW_MODEL__OPENAI__REASONING_EFFORT`          | OpenAI reasoning strength:`low`、`medium`or`high`                               | not set                       |
+| `TOMORROW_MODEL__OPENAI__REASONING_SUMMARY`         | OpenAI reasoning summary:`auto`、`concise`or`detailed`                          | not set                       |
 
 Model configuration passed`TOMORROW_MODEL`Or pass in nested environment variables. By default Anthropic is used`claude-sonnet-5`, Anthropic compatible interfaces can also be configured. For example:
 
@@ -224,15 +224,17 @@ export TOMORROW_SUBAGENTS='[{"name":"researcher","description":"负责资料检�
 
 #### Fragile configuration (CLI)
 
-| variable                           | describe                                                         | default value                            |
-| ---------------------------------- | ---------------------------------------------------------------- | ---------------------------------------- |
-| `FRAGILE_APP`                      | Application name (used as environment variable prefix)           | `fragile`                                |
-| `FRAGILE_DATA_ROOT`                | Fragile data root directory                                      | `~/.fragile`                             |
-| `FRAGILE_DATABASE_FILE`            | Fragile checkpoint and ORM database files                        | `~/.fragile/fragile.db`                  |
-| `FRAGILE_INPUT_HISTORY_FILE`       | Interactive input of history files                               | `~/.fragile/.fragile_history`            |
-| `FRAGILE_LOG_ROOT`                 | `fragile.log`、`llm.log`and rotating file directory               | `~/.fragile/logs`                        |
-| `FRAGILE_INTERRUPT_EXIT_THRESHOLD` | twice`Ctrl+C`Maximum interval between triggering exits (seconds) | `0.5`                                    |
-| `FRAGILE_ENABLED_COMMANDS`         | Enabled interactive command classpath list                       | `quit`、`new`、`history`、`account`、`model` |
+| variable                           | describe                                                           | default value                                   |
+| ---------------------------------- | ------------------------------------------------------------------ | ----------------------------------------------- |
+| `FRAGILE_APP`                      | Application name (used as environment variable prefix)             | `fragile`                                       |
+| `FRAGILE_DATA_ROOT`                | Fragile data root directory                                        | `~/.fragile`                                    |
+| `FRAGILE_DATABASE_FILE`            | Fragile checkpoint and ORM database files                          | `~/.fragile/fragile.db`                         |
+| `FRAGILE_INPUT_HISTORY_FILE`       | Interactive input of history files                                 | `~/.fragile/.fragile_history`                   |
+| `FRAGILE_LOG_ROOT`                 | `fragile.log`、`llm.log`and rotating file directory                 | `~/.fragile/logs`                               |
+| `FRAGILE_INTERRUPT_EXIT_THRESHOLD` | twice`Ctrl+C`Maximum interval between triggering exits (seconds)   | `0.5`                                           |
+| `FRAGILE_INPUT_HISTORY_LIMIT`      | The upper limit of the number of interactive input history records | `100`                                           |
+| `FRAGILE_AGENT`                    | Agent creation entry class path                                    | `tomorrow.core.agent.AgentManager.create_agent` |
+| `FRAGILE_ENABLED_COMMANDS`         | Enabled interactive command classpath list                         | `quit`、`new`、`history`、`account`、`model`        |
 
 Fragile is created on demand by default at startup`~/.fragile`and log directory. set up`FRAGILE_DATA_ROOT`The default locations of the database, input history and logs will be changed synchronously, and the corresponding paths can also be overwritten respectively. This behavior only affects Fragile's own files, does not change Tomorrow's store or filesystem/local-shell workspace configuration, and will not automatically migrate or delete files in the old directory.
 
