@@ -16,8 +16,8 @@
 
 プロジェクトには 3 つの主要なモジュールが含まれています。
 
--   **`tomorrow`**: コアエージェントモジュール。コードネームはゲーム「デス・ストランディング2: オン・ザ・ビーチ」のキャラクターから取られています。**明日**（エル・ファニングが演じる）。プロットでは、彼女は主人公サム・ブリッジスの娘であり、前作のキャラクターでもあることが明らかにされています。**ルー**(BB-28)。
--   **`rainy`**: FastAPIをベースとしたAPIサービスモジュール。コードネームもデス・ストランディング2のキャラクターから取られています**雨が降る**（忽那汐里が演じる）。ゲーム内では「タイムフォール」と回復の「コアフォール」を引き起こす魔法の力を持ち、傷つけることも治すこともできる「ファルマコン」として描かれている。
+-   **`tomorrow`**: コアエージェントモジュール。コードネームはゲーム『デス・ストランディング2: オン・ザ・ビーチ』のキャラクターから取られています。**明日**（エル・ファニングが演じる）。プロットでは、彼女は主人公サム・ブリッジスの娘であり、前作のキャラクターでもあることが明らかにされています。**ルー**(BB-28)。
+-   **`rainy`**: FastAPIをベースとしたAPIサービスモジュール。コードネームもデス・ストランディング2のキャラクターから取られています**雨が降る**（忽那汐里が演じる）。ゲーム内では「タイムフォール」と治癒の「コアフォール」を引き起こす魔法の力を持ち、傷つけることも治すこともできる「ファルマコン」として描かれている。
 -   **`fragile`**： に基づく`asyncclick`Tomorrow エージェントに直接質問したり、対話型セッションを開始したりするための非同期コマンド ライン クライアント。名前は同作の登場人物から。**壊れやすい**。 Fragile は Fragile Express の創設者であり配達員です。彼は時の雨にさらされて急速に老化しましたが、危険な環境で常に重要な物資を他の人に届けてきました。つながりと届けという使命を主張しながらも、「壊れやすい」佇まいのイメージが、このクライアント名の背景となっている。
 
 このプロジェクトは、`deepagents`フレームワークはユーザー入力を分析して渡します`rainy`このモジュールは外部同期を提供します (`/api/chat`）そして**ストリーミング (`/api/chat/stream`）**APIインターフェース。
@@ -54,7 +54,7 @@
 -   **Python 3.14 (3.15 以降はサポートされていません)**
 -   **紫外線**: 高速な Python パッケージ インストーラーおよびパーサー。
 -   **LLMプロバイダー**: Anthropic および OpenAI 互換インターフェイスをサポートします。これらは環境変数または`.env`配置 API Key。
--   **LLMモデル**: デフォルトで Anthropic を使用します`claude-sonnet-5`、パスすることもできます`TOMORROW_MODEL__TYPE`OpenAI に切り替えます。
+-   **LLMモデル**: デフォルトで Anthropic を使用します`claude-sonnet-5`、渡すこともできます`TOMORROW_MODEL__TYPE`OpenAI に切り替えます。
 
 ## 🚀 クイックスタート
 
@@ -137,7 +137,7 @@ uv run fragile
 -   `Completed`/`Failed`: ツールの結果または失敗情報を表示します。長すぎるコンテンツは、ターミナルで切り捨てられたものとしてマークされます。
 -   `Assistant`: 最終的な答えは、モデルによって返された部分として継続的にストリーミングされます。
 
-実際に発生したツール、コマンド、スキル/サブエージェント ステージ、およびモデルの概要は、回答とともに保存されます。対応する呼び出しがない場合、空のツールまたはステージのプロンプトは表示されません。使用`/history`セッションを切り替えると元の順序で再生されます。タイムラインは、動的な分割画面パネルを使用せずに、サンプル スタイルのコンパクトな追加ステータス ラインを使用します。パラメーター、結果、エラー内の API キー、承認、パスワード、URL 認証情報は、表示および保存される前に感度が解除されます。
+発生した実際のツール、コマンド、スキル/サブエージェント ステージ、およびモデルの概要は、回答とともに保存されます。対応する呼び出しがない場合、空のツールまたはステージのプロンプトは表示されません。使用`/history`セッションを切り替えると元の順序で再生されます。タイムラインは、動的な分割画面パネルを使用せずに、サンプル スタイルのコンパクトな追加ステータス ラインを使用します。パラメーター、結果、エラー内の API キー、承認、パスワード、URL 認証情報は、表示および保存される前に感度が解除されます。
 
 別のモデル プロバイダーを初めて使用する場合は、対話型セッションで入力できます。`/account`、プロンプトに従ってプロバイダーを選択し、ベース URL と API キーを入力します。モデル名などの他の構成は引き続き合格します`TOMORROW_MODEL`または、対応する環境変数設定。資格情報は、次回以降の起動のためにローカル データベースに保存されます。`fragile`実行中に自動的に復元します。設定を変更する必要がある場合は、再度実行してください`/account`それでおしまい。
 
@@ -157,20 +157,20 @@ fragile purge
 
 #### Tomorrow 配置 (核心)
 
-| 変数                                                  | 説明する                                       | デフォルト値                        |
-| --------------------------------------------------- | ------------------------------------------ | ----------------------------- |
-| `TOMORROW_APP`                                      | アプリケーション名 (環境変数の接頭辞として使用)                  | `tomorrow`                    |
-| `TOMORROW_MODEL`                                    | 模型配置，支持`ANTHROPIC`そして`OPENAI`              | `anthropic`/`claude-sonnet-5` |
-| `TOMORROW_CHECKPOINT`                               | チェックポイント構成、MEMORY および SQLITE をサポート         | `{"type":"memory"}`           |
-| `TOMORROW_BACKEND`                                  | バックエンド構成、FILESYSTEM および LOCAL_SHELL をサポート  | `{"type":"filesystem"}`       |
-| `TOMORROW_STORE`                                    | ストレージ構成、MEMORY および SQLITE をサポート            | `{"type":"sqlite"}`           |
-| `TOMORROW_SKILLS`                                   | スキルカタログ一覧                                  | `[]`                          |
-| `TOMORROW_SUBAGENTS`                                | サブエージェント構成リスト                              | `[]`                          |
-| `TOMORROW_RECURSION_LIMIT`                          | エージェント再帰呼び出しの上限                            | `100`                         |
-| `TOMORROW_MODEL__ANTHROPIC__THINKING_ENABLED`       | 人間的思考のアウトプットを要求するかどうか                      | `true`                        |
-| `TOMORROW_MODEL__ANTHROPIC__THINKING_BUDGET_TOKENS` | 人間的思考のトークン予算 (正の数である必要があります)               | `2048`                        |
-| `TOMORROW_MODEL__OPENAI__REASONING_EFFORT`          | OpenAI 推論の強み:`low`、`medium`または`high`       | 設定されていません                     |
-| `TOMORROW_MODEL__OPENAI__REASONING_SUMMARY`         | OpenAI 推論の要約:`auto`、`concise`または`detailed` | 設定されていません                     |
+| 変数                                                  | 説明する                                                  | デフォルト値                        |
+| --------------------------------------------------- | ----------------------------------------------------- | ----------------------------- |
+| `TOMORROW_APP`                                      | アプリケーション名 (環境変数の接頭辞として使用)                             | `tomorrow`                    |
+| `TOMORROW_MODEL`                                    | 模型配置，支持`ANTHROPIC`そして`OPENAI`                         | `anthropic`/`claude-sonnet-5` |
+| `TOMORROW_CHECKPOINT`                               | チェックポイント構成、MEMORY、SQLITE、POSTGRES、REDIS、MONGODB をサポート | `{"type":"memory"}`           |
+| `TOMORROW_BACKEND`                                  | バックエンド構成、FILESYSTEM および LOCAL_SHELL をサポート             | `{"type":"filesystem"}`       |
+| `TOMORROW_STORE`                                    | ストレージ構成、MEMORY および SQLITE をサポート                       | `{"type":"sqlite"}`           |
+| `TOMORROW_SKILLS`                                   | スキルカタログ一覧                                             | `[]`                          |
+| `TOMORROW_SUBAGENTS`                                | サブエージェント構成リスト                                         | `[]`                          |
+| `TOMORROW_RECURSION_LIMIT`                          | エージェント再帰呼び出しの上限                                       | `100`                         |
+| `TOMORROW_MODEL__ANTHROPIC__THINKING_ENABLED`       | 人間的思考のアウトプットを要求するかどうか                                 | `true`                        |
+| `TOMORROW_MODEL__ANTHROPIC__THINKING_BUDGET_TOKENS` | 人間的思考のトークン予算 (正の数である必要があります)                          | `2048`                        |
+| `TOMORROW_MODEL__OPENAI__REASONING_EFFORT`          | OpenAI 推論の強み:`low`、`medium`または`high`                  | 設定されていません                     |
+| `TOMORROW_MODEL__OPENAI__REASONING_SUMMARY`         | OpenAI 推論の要約:`auto`、`concise`または`detailed`            | 設定されていません                     |
 
 モデル設定が渡されました`TOMORROW_MODEL`または、ネストされた環境変数を渡します。デフォルトでは Anthropic が使用されます`claude-sonnet-5`, Anthropic 互換インターフェイスも設定できます。例えば：
 
@@ -219,20 +219,22 @@ export TOMORROW_SUBAGENTS='[{"name":"researcher","description":"负责资料检�
 | `RAINY_PORT`                          | APIサービスポート                | `8000`                           |
 | `RAINY_APP`                           | アプリケーション名 (環境変数の接頭辞として使用) | `rainy`                          |
 | `RAINY_MIDDLEWARE`                    | 有効なミドルウェアのリスト             | 統一された応答形式と処理時間                   |
-| `RAINY_UNIFY_RESPONSE_FORMAT_EXCLUDE` | 統一応答パッケージ化のないパス           | `/docs`、`/redoc`、`/openapi.json` |
+| `RAINY_UNIFY_RESPONSE_FORMAT_EXCLUDE` | 不进行统一响应包装的路径              | `/docs`、`/redoc`、`/openapi.json` |
 | `RAINY_LOG_LEVEL`                     | ログレベル                     | `INFO`                           |
 
 #### Fragile 配置 (CLI)
 
-| 変数                                 | 説明する                                 | デフォルト値                                   |
-| ---------------------------------- | ------------------------------------ | ---------------------------------------- |
-| `FRAGILE_APP`                      | アプリケーション名 (環境変数の接頭辞として使用)            | `fragile`                                |
-| `FRAGILE_DATA_ROOT`                | 脆弱なデータのルート ディレクトリ                    | `~/.fragile`                             |
-| `FRAGILE_DATABASE_FILE`            | 脆弱なチェックポイントおよび ORM データベース ファイル       | `~/.fragile/fragile.db`                  |
-| `FRAGILE_INPUT_HISTORY_FILE`       | 履歴ファイルの対話型入力                         | `~/.fragile/.fragile_history`            |
-| `FRAGILE_LOG_ROOT`                 | `fragile.log`、`llm.log`ファイルディレクトリの回転 | `~/.fragile/logs`                        |
-| `FRAGILE_INTERRUPT_EXIT_THRESHOLD` | 二度`Ctrl+C`終了をトリガーする間の最大間隔 (秒)        | `0.5`                                    |
-| `FRAGILE_ENABLED_COMMANDS`         | 有効な対話型コマンドのクラスパス リスト                 | `quit`、`new`、`history`、`account`、`model` |
+| 変数                                 | 説明する                                 | デフォルト値                                          |
+| ---------------------------------- | ------------------------------------ | ----------------------------------------------- |
+| `FRAGILE_APP`                      | アプリケーション名 (環境変数の接頭辞として使用)            | `fragile`                                       |
+| `FRAGILE_DATA_ROOT`                | 脆弱なデータのルート ディレクトリ                    | `~/.fragile`                                    |
+| `FRAGILE_DATABASE_FILE`            | Fragile checkpoint 与 ORM 数据库文件       | `~/.fragile/fragile.db`                         |
+| `FRAGILE_INPUT_HISTORY_FILE`       | 履歴ファイルの対話型入力                         | `~/.fragile/.fragile_history`                   |
+| `FRAGILE_LOG_ROOT`                 | `fragile.log`、`llm.log`ファイルディレクトリの回転 | `~/.fragile/logs`                               |
+| `FRAGILE_INTERRUPT_EXIT_THRESHOLD` | 二度`Ctrl+C`終了をトリガーする間の最大間隔 (秒)        | `0.5`                                           |
+| `FRAGILE_INPUT_HISTORY_LIMIT`      | 対話入力履歴件数の上限                          | `100`                                           |
+| `FRAGILE_AGENT`                    | エージェント作成エントリのクラスパス                   | `tomorrow.core.agent.AgentManager.create_agent` |
+| `FRAGILE_ENABLED_COMMANDS`         | 启用的交互式命令类路径列表                        | `quit`、`new`、`history`、`account`、`model`        |
 
 Fragile は起動時にデフォルトでオンデマンドで作成されます`~/.fragile`そしてログディレクトリ。設定`FRAGILE_DATA_ROOT`データベース、入力履歴、ログのデフォルトの場所は同期的に変更され、対応するパスをそれぞれ上書きすることもできます。この動作は Fragile 自体のファイルにのみ影響し、Tomorrow のストアやファイルシステム/ローカル シェル ワークスペースの構成は変更されず、古いディレクトリ内のファイルは自動的に移行または削除されません。
 
