@@ -159,7 +159,7 @@ fragile purge
 |----------|-------------|---------|
 | `TOMORROW_APP` | 应用名称（用作环境变量前缀） | `tomorrow` |
 | `TOMORROW_MODEL` | 模型配置，支持 `ANTHROPIC` 和 `OPENAI` | `anthropic` / `claude-sonnet-5` |
-| `TOMORROW_CHECKPOINT` | 检查点配置，支持 MEMORY 和 SQLITE | `{"type":"memory"}` |
+| `TOMORROW_CHECKPOINT` | 检查点配置，支持 MEMORY、SQLITE、POSTGRES、REDIS 和 MONGODB | `{"type":"memory"}` |
 | `TOMORROW_BACKEND` | 后端配置，支持 FILESYSTEM 和 LOCAL_SHELL | `{"type":"filesystem"}` |
 | `TOMORROW_STORE` | 存储配置，支持 MEMORY 和 SQLITE | `{"type":"sqlite"}` |
 | `TOMORROW_SKILLS` | 技能目录列表 | `[]` |
@@ -230,6 +230,8 @@ export TOMORROW_SUBAGENTS='[{"name":"researcher","description":"负责资料检�
 | `FRAGILE_INPUT_HISTORY_FILE` | 交互式输入历史文件 | `~/.fragile/.fragile_history` |
 | `FRAGILE_LOG_ROOT` | `fragile.log`、`llm.log` 及轮转文件目录 | `~/.fragile/logs` |
 | `FRAGILE_INTERRUPT_EXIT_THRESHOLD` | 两次 `Ctrl+C` 触发退出的最大间隔（秒） | `0.5` |
+| `FRAGILE_INPUT_HISTORY_LIMIT` | 交互式输入历史记录条数上限 | `100` |
+| `FRAGILE_AGENT` | 智能体创建入口类路径 | `tomorrow.core.agent.AgentManager.create_agent` |
 | `FRAGILE_ENABLED_COMMANDS` | 启用的交互式命令类路径列表 | `quit`、`new`、`history`、`account`、`model` |
 
 Fragile 默认在启动时按需创建 `~/.fragile` 及日志目录。设置 `FRAGILE_DATA_ROOT` 会同步改变数据库、输入历史和日志的默认位置，也可以分别覆盖对应路径。此行为只影响 Fragile 自身的文件，不改变 Tomorrow 的 store 或 filesystem/local-shell workspace 配置，也不会自动迁移或删除旧目录中的文件。
