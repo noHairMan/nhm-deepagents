@@ -44,12 +44,12 @@
 -   **智能體框架**:[深度代理](https://github.com/zongxuheng/deepagents)(基於 LangGraph/LangChain)
 -   **LLM 提供者**:[人擇](https://www.anthropic.com/)和[開放人工智慧](https://openai.com/)
 -   **終端交互**:[非同步點擊](https://github.com/python-trio/asyncclick)提供非同步 CLI 命令、參數解析和幫助資訊；[提示工具包](https://github.com/prompt-toolkit/python-prompt-toolkit)提供非同步輸入、輸入歷史記錄、命令補全和多行編輯；[富有的](https://github.com/Textualize/rich)提供終端輸出樣式。
--   **配置管理**:[金字塔設置](https://docs.pydantic.dev/latest/usage/settings/)
+-   **配置管理**:[懸垂設定](https://docs.pydantic.dev/latest/usage/settings/)
 -   **例外處理**: 自訂異常體系 (`TomorrowError`及其子類)，涵蓋模型、後端、儲存和檢查點錯誤。
 -   **代碼品質**:[拉夫](https://github.com/astral-sh/ruff)(替代 Black 和 Isort)、`pre-commit`、強制型別提示 (Strict Type Hinting)
 -   **測試與覆蓋率**:`pytest`,`coverage`
 
-## 📋 环境要求
+## 📋 環境要求
 
 -   **Python 3.14（不支援 3.15 及更高版本）**
 -   **紫外線**: 一個快速的 Python 套件安裝和解析器。
@@ -149,7 +149,7 @@ fragile purge
 
 ## ⚙️ 配置
 
-該項目使用**金字塔設置**進行配置管理。設定分別定義在`src/tomorrow/settings.py`（明天），`src/rainy/settings.py`(Rainy) 和`src/fragile/settings.py`(Fragile) 中，可以透過環境變數或`.env`文件進行覆蓋。環境變數優先權最高，三個模組分別使用`TOMORROW_`、`RAINY_`和`FRAGILE_`前綴；也可以透過`TOMORROW_ENV_FILE`、`RAINY_ENV_FILE`或`FRAGILE_ENV_FILE`指定設定檔路徑。
+該項目使用**懸垂設定**進行配置管理。設定分別定義在`src/tomorrow/settings.py`（明天），`src/rainy/settings.py`(Rainy) 和`src/fragile/settings.py`(Fragile) 中，可以透過環境變數或`.env`文件進行覆蓋。環境變數優先權最高，三個模組分別使用`TOMORROW_`、`RAINY_`和`FRAGILE_`前綴；也可以透過`TOMORROW_ENV_FILE`、`RAINY_ENV_FILE`或`FRAGILE_ENV_FILE`指定設定檔路徑。
 
 ### 環境變數
 
@@ -161,7 +161,7 @@ fragile purge
 | --------------------------------------------------- | ----------------------------------------------- | ----------------------------- |
 | `TOMORROW_APP`                                      | 應用名稱（用作環境變數前綴）                                  | `tomorrow`                    |
 | `TOMORROW_MODEL`                                    | 模型配置，支持`ANTHROPIC`和`OPENAI`                     | `anthropic`/`claude-sonnet-5` |
-| `TOMORROW_CHECKPOINT`                               | 檢查點配置，支援 MEMORY 和 SQLITE                        | `{"type":"memory"}`           |
+| `TOMORROW_CHECKPOINT`                               | 檢查點配置，支援 MEMORY、SQLITE、POSTGRES、REDIS 和 MONGODB | `{"type":"memory"}`           |
 | `TOMORROW_BACKEND`                                  | 後端配置，支援 FILESYSTEM 和 LOCAL_SHELL                | `{"type":"filesystem"}`       |
 | `TOMORROW_STORE`                                    | 儲存配置，支援 MEMORY 和 SQLITE                         | `{"type":"sqlite"}`           |
 | `TOMORROW_SKILLS`                                   | 技能目錄列表                                          | `[]`                          |
@@ -224,15 +224,17 @@ export TOMORROW_SUBAGENTS='[{"name":"researcher","description":"负责资料检�
 
 #### Fragile 設定 (CLI)
 
-| 變數                                 | 描述                             | 預設值                                      |
-| ---------------------------------- | ------------------------------ | ---------------------------------------- |
-| `FRAGILE_APP`                      | 應用名稱（用作環境變數前綴）                 | `fragile`                                |
-| `FRAGILE_DATA_ROOT`                | Fragile 資料根目錄                  | `~/.fragile`                             |
-| `FRAGILE_DATABASE_FILE`            | Fragile checkpoint 與 ORM 資料庫文件 | `~/.fragile/fragile.db`                  |
-| `FRAGILE_INPUT_HISTORY_FILE`       | 互動式輸入歷史文件                      | `~/.fragile/.fragile_history`            |
-| `FRAGILE_LOG_ROOT`                 | `fragile.log`、`llm.log`及輪轉檔目錄  | `~/.fragile/logs`                        |
-| `FRAGILE_INTERRUPT_EXIT_THRESHOLD` | 兩次`Ctrl+C`觸發退出的最大間隔（秒）         | `0.5`                                    |
-| `FRAGILE_ENABLED_COMMANDS`         | 啟用的互動式命令類別路徑列表                 | `quit`、`new`、`history`、`account`、`model` |
+| 變數                                 | 描述                             | 預設值                                             |
+| ---------------------------------- | ------------------------------ | ----------------------------------------------- |
+| `FRAGILE_APP`                      | 應用名稱（用作環境變數前綴）                 | `fragile`                                       |
+| `FRAGILE_DATA_ROOT`                | Fragile 資料根目錄                  | `~/.fragile`                                    |
+| `FRAGILE_DATABASE_FILE`            | Fragile checkpoint 與 ORM 資料庫文件 | `~/.fragile/fragile.db`                         |
+| `FRAGILE_INPUT_HISTORY_FILE`       | 互動式輸入歷史文件                      | `~/.fragile/.fragile_history`                   |
+| `FRAGILE_LOG_ROOT`                 | `fragile.log`、`llm.log`及輪轉檔目錄  | `~/.fragile/logs`                               |
+| `FRAGILE_INTERRUPT_EXIT_THRESHOLD` | 兩次`Ctrl+C`觸發退出的最大間隔（秒）         | `0.5`                                           |
+| `FRAGILE_INPUT_HISTORY_LIMIT`      | 互動式輸入歷史記錄條數上限                  | `100`                                           |
+| `FRAGILE_AGENT`                    | 智能體創建入口類路徑                     | `tomorrow.core.agent.AgentManager.create_agent` |
+| `FRAGILE_ENABLED_COMMANDS`         | 啟用的互動式命令類別路徑列表                 | `quit`、`new`、`history`、`account`、`model`        |
 
 Fragile 預設在啟動時按需創建`~/.fragile`及日誌目錄。設定`FRAGILE_DATA_ROOT`會同步改變資料庫、輸入歷史和日誌的預設位置，也可以分別覆蓋對應路徑。此行為只會影響 Fragile 本身的文件，不會改變 Tomorrow 的 store 或 filesystem/local-shell workspace 配置，也不會自動移轉或刪除舊目錄中的檔案。
 
