@@ -13,6 +13,7 @@ from prompt_toolkit.application import get_app
 from prompt_toolkit.completion import Completer, Completion
 from prompt_toolkit.history import History
 from prompt_toolkit.key_binding import KeyBindings
+from prompt_toolkit.keys import Keys
 from prompt_toolkit.output import Output
 from prompt_toolkit.styles import Style
 
@@ -181,13 +182,21 @@ def create_prompt_session(
 ) -> PromptSession[str]:
     key_bindings = KeyBindings()
 
-    @key_bindings.add("enter")
+    @key_bindings.add(Keys.Enter)
     def submit(event: Any) -> None:
         event.current_buffer.validate_and_handle()
 
-    @key_bindings.add("escape", "enter")
+    @key_bindings.add(Keys.Escape, Keys.Enter)
     def insert_newline(event: Any) -> None:
         event.current_buffer.insert_text("\n")
+
+    @key_bindings.add(Keys.ScrollUp, eager=True)
+    def ignore_scroll_up(event: Any) -> None:
+        pass
+
+    @key_bindings.add(Keys.ScrollDown, eager=True)
+    def ignore_scroll_down(event: Any) -> None:
+        pass
 
     return PromptSession(
         history=BoundedFileHistory(settings.INPUT_HISTORY_FILE, settings.INPUT_HISTORY_LIMIT),
@@ -195,6 +204,7 @@ def create_prompt_session(
         style=PROMPT_STYLE,
         multiline=True,
         enable_suspend=True,
+        mouse_support=True,
         key_bindings=key_bindings,
         output=output,
         bottom_toolbar=create_toolbar(thread_id, output, model_provider, model),

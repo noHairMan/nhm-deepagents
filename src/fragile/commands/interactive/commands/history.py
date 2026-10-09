@@ -7,6 +7,7 @@ from uuid import UUID
 import asyncclick as click
 from prompt_toolkit.application import Application
 from prompt_toolkit.key_binding import KeyBindings, merge_key_bindings
+from prompt_toolkit.keys import Keys
 from prompt_toolkit.layout import HSplit, Layout
 from prompt_toolkit.output import Output
 from prompt_toolkit.styles import Style
@@ -64,13 +65,13 @@ def build_history_application(
     )
     bindings = KeyBindings()
 
-    @bindings.add("enter", eager=True)
+    @bindings.add(Keys.Enter, eager=True)
     def accept_selection(event: Any) -> None:
         event.app.exit(result=radio_list.current_value)
 
     if enable_interrupt:
 
-        @bindings.add("c-c", eager=True)
+        @bindings.add(Keys.ControlC, eager=True)
         def interrupt_selection(event: Any) -> None:
             event.app.exit(exception=click.Abort())
 
@@ -167,7 +168,7 @@ async def choose_history(histories: list[tuple[UUID, str]]) -> UUID | None:
         return None
     key_bindings = KeyBindings()
 
-    @key_bindings.add("escape", eager=True)
+    @key_bindings.add(Keys.Escape, eager=True)
     def cancel_selection(event: Any) -> None:
         event.app.exit(exception=click.Abort())
 
