@@ -1,5 +1,8 @@
-from unittest.mock import patch
+import asyncio
+from unittest.mock import MagicMock, patch
 from uuid import UUID
+
+import pytest
 
 from fragile.commands.interactive.display import (
     TimelineRenderer,
@@ -13,8 +16,118 @@ from fragile.commands.interactive.display import (
     show_internal_error,
     show_request_error,
     show_startup,
+    show_thinking_spinner,
+    stop_thinking_spinner,
 )
 from fragile.commands.interactive.trace import TraceEvent, trace_to_json
+
+
+class TestSpinner:
+    def test_show_thinking_spinner_early_return_when_running(self) -> None:
+        import fragile.commands.interactive.display as display_mod
+
+        mock_task = MagicMock(spec=asyncio.Task)
+        mock_task.done.return_value = False
+        display_mod._spinner_task = mock_task
+        display_mod._live = None
+
+        with patch.object(display_mod, "console"):
+            show_thinking_spinner()
+
+        assert display_mod._spinner_task is mock_task
+        display_mod._spinner_task = None
+        display_mod._live = None
+
+    def test_show_and_stop_thinking_spinner_starts_and_cleans_up(self) -> None:
+        import fragile.commands.interactive.display as display_mod
+
+        mock_live = MagicMock()
+        mock_live.is_started = True
+        mock_task = MagicMock(spec=asyncio.Task)
+        mock_task.done.return_value = False
+
+        display_mod._spinner_task = None
+        display_mod._live = None
+
+        with patch("fragile.commands.interactive.display.Live", return_value=mock_live) as mock_live_cls:
+            with patch("asyncio.create_task", return_value=mock_task) as mock_create_task:
+                show_thinking_spinner()
+
+        mock_live_cls.assert_called_once()
+        mock_live.start.assert_called_once()
+        mock_create_task.assert_called_once()
+
+        assert display_mod._spinner_task is mock_task
+        assert display_mod._live is mock_live
+
+        stop_thinking_spinner()
+
+        mock_live.stop.assert_called_once()
+        mock_task.cancel.assert_called_once()
+        assert display_mod._spinner_task is None
+        assert display_mod._live is None
+
+    @pytest.mark.asyncio
+    async def test_animate_coroutine_runs_loop_body_then_exits(self) -> None:
+        import fragile.commands.interactive.display as display_mod
+
+        mock_live = MagicMock()
+        mock_live.is_started = True
+        display_mod._spinner_task = None
+        display_mod._live = None
+
+        with patch("fragile.commands.interactive.display.Live", return_value=mock_live):
+            show_thinking_spinner()
+
+        real_task = display_mod._spinner_task
+        assert real_task is not None
+        assert not real_task.done()
+
+        await asyncio.sleep(0.15)
+        assert not real_task.done()
+
+        mock_live.is_started = False
+        await asyncio.sleep(0.15)
+
+        assert real_task.done()
+        assert display_mod._live is mock_live
+
+        mock_live.is_started = True
+        stop_thinking_spinner()
+
+        mock_live.stop.assert_called_once()
+        assert display_mod._live is None
+        display_mod._spinner_task = None
+
+    @pytest.mark.asyncio
+    async def test_animate_coroutine_handles_cancelled_error(self) -> None:
+        import fragile.commands.interactive.display as display_mod
+
+        mock_live = MagicMock()
+        mock_live.is_started = True
+        display_mod._spinner_task = None
+        display_mod._live = None
+
+        with patch("fragile.commands.interactive.display.Live", return_value=mock_live):
+            show_thinking_spinner()
+
+        real_task = display_mod._spinner_task
+        assert real_task is not None
+        assert not real_task.done()
+
+        await asyncio.sleep(0.15)
+        assert not real_task.done()
+
+        real_task.cancel()
+        await real_task
+
+        assert real_task.done()
+        assert display_mod._live is mock_live
+        mock_live.is_started = True
+        stop_thinking_spinner()
+        mock_live.stop.assert_called_once()
+        assert display_mod._live is None
+        display_mod._spinner_task = None
 
 
 class TestDisplay:

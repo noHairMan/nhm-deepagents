@@ -724,3 +724,37 @@ class TestSession:
             chat_mock.assert_awaited_once()
             # Verify that session_service was passed to chat as 4th positional arg
             assert chat_mock.await_args.args[3] is session_service
+
+    @pytest.mark.asyncio
+    async def test_handle_result_generate_title_none_falls_back_to_user_input(self) -> None:
+        from fragile.services.runtime import RuntimeServices
+
+        account_service = AsyncMock()
+        account_service.get_credentials = AsyncMock(return_value=("openai", "key", "url"))
+
+        conversation_service = AsyncMock()
+        conversation_service.register = AsyncMock()
+        conversation_service.generate_title = AsyncMock(return_value=None)
+
+        session_service = AsyncMock()
+
+        services = RuntimeServices(account_service, conversation_service, session_service)
+
+        with patch("fragile.commands.interactive.session.create_prompt_session"):
+            session = InteractiveSession(None)
+            session.services = services
+
+            agent = MagicMock()
+
+            with (
+                patch("fragile.commands.interactive.session.chat", new_callable=AsyncMock) as chat_mock,
+                patch(
+                    "fragile.commands.interactive.session.ConversationHistory.register_conversation",
+                    new_callable=AsyncMock,
+                ),
+            ):
+                await session.handle_result(agent, MagicMock(), CommandResult.NOT_HANDLED, "hello")
+
+            conversation_service.generate_title.assert_awaited_once_with("hello")
+            conversation_service.register.assert_awaited_once_with(session.state.thread_id, "hello")
+            chat_mock.assert_awaited_once()
