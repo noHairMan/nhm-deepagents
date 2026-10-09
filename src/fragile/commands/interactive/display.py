@@ -1,12 +1,15 @@
 """Terminal display handling."""
 
+import asyncio
 import json
 from urllib.parse import urlsplit, urlunsplit
 from uuid import UUID
 
 import asyncclick as click
 from rich.console import Console
+from rich.live import Live
 from rich.panel import Panel
+from rich.spinner import Spinner
 from rich.text import Text
 
 from fragile.commands.interactive.trace import TraceEvent, safe_value, trace_from_json
@@ -21,6 +24,45 @@ STARTUP_BANNER = """\
 """
 console = Console()
 MAX_DISPLAY_CHARS = 4000
+
+# Spinner state management
+_spinner_task: asyncio.Task[None] | None = None
+_live: Live | None = None
+
+
+def show_thinking_spinner() -> None:
+    """Start a background animation task showing a rotating 'Thinking...' message."""
+    global _spinner_task, _live
+
+    if _spinner_task is not None and not _spinner_task.done():
+        return
+
+    spinner = Spinner("dots", "Thinking...", style="dim cyan")
+    # transient=True ensures the spinner disappears completely when stopped, leaving no trace
+    _live = Live(spinner, console=console, refresh_per_second=10, transient=True)
+    _live.start()
+
+    async def _animate() -> None:
+        try:
+            while _live is not None and _live.is_started:
+                await asyncio.sleep(0.1)
+        except asyncio.CancelledError:
+            pass
+
+    _spinner_task = asyncio.create_task(_animate())
+
+
+def stop_thinking_spinner() -> None:
+    """Stop the animation task and clean up resources."""
+    global _spinner_task, _live
+
+    if _live is not None and _live.is_started:
+        _live.stop()
+        _live = None
+
+    if _spinner_task is not None and not _spinner_task.done():
+        _spinner_task.cancel()
+        _spinner_task = None
 
 
 def enter_fullscreen() -> None:

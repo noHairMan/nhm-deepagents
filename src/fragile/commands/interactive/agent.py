@@ -9,7 +9,7 @@ from uuid import UUID
 from langgraph.checkpoint.base import BaseCheckpointSaver
 from langgraph.graph.state import CompiledStateGraph
 
-from fragile.commands.interactive.display import TimelineRenderer
+from fragile.commands.interactive.display import TimelineRenderer, show_thinking_spinner, stop_thinking_spinner
 from fragile.commands.interactive.trace import (
     StreamSegment,
     TraceEvent,
@@ -107,13 +107,21 @@ async def chat(
     thinking_contents: list[str] = []
     trace_events: list[TraceEvent] = []
     renderer = TimelineRenderer()
-    async for event in stream_events(agent, prompt, thread_id):
-        trace_events.append(event)
-        renderer.render(event)
-        if event.kind == "thinking":
-            thinking_contents.append(event.content or "")
-        elif event.kind == "text":
-            contents.append(event.content or "")
+    show_thinking_spinner()
+    try:
+        first_event = True
+        async for event in stream_events(agent, prompt, thread_id):
+            if first_event:
+                stop_thinking_spinner()
+                first_event = False
+            trace_events.append(event)
+            renderer.render(event)
+            if event.kind == "thinking":
+                thinking_contents.append(event.content or "")
+            elif event.kind == "text":
+                contents.append(event.content or "")
+    finally:
+        stop_thinking_spinner()
     renderer.finish()
     complete_output = "".join(contents)
     thinking_output = "".join(thinking_contents)
