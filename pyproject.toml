@@ -1,7 +1,7 @@
 [project]
 name = "nhm-deepagents"
 version = "0.1.0"
-requires-python = ">=3.14,<3.15"
+requires-python = ">=3.14,<3.16"
 dependencies = [
     "deepagents>=0.7.1",
     "aiosqlite>=0.22.1",
@@ -11,7 +11,6 @@ dependencies = [
     "langchain-anthropic>=1.5.3",
     "langchain-ollama>=1.1.0",
     "langgraph-checkpoint-sqlite>=3.1.1",
-    "langgraph-cli[inmem]>=0.4.31",
     "prompt-toolkit>=3.0.53",
     "pydantic>=2.13.4",
     "pydantic-settings>=2.14.2",
@@ -33,13 +32,18 @@ fragile = "fragile.__main__:main"
 packages = ["src/fragile", "src/tomorrow", "src/rainy"]
 
 [dependency-groups]
-dev = [
+test = [
     "coverage>=7.15.2",
-    "pre-commit>=4.6.1",
     "pytest>=9.1.1",
     "pytest-asyncio>=1.4.0",
+]
+
+dev = [
+    "langgraph-cli[inmem]>=0.4.31",
+    "pre-commit>=4.6.1",
     "ruff>=0.16.1",
     "tox>=4.58.0",
+    "tox-uv>=1.10.0",
 ]
 
 [tool.uv.sources]
@@ -119,13 +123,13 @@ pretty_print = true
 output = ".coverage.xml"
 
 [tool.tox]
-env_list = ["py314"]
+env_list = ["py314", "py315"]
 requires = ["tox-uv"]
 uv_python_preference = "system"
 
 [tool.tox.env_run_base]
 description = "Run tests with coverage"
-dependency_groups = ["dev"]
+dependency_groups = ["test"]
 pass_env = ["COVERAGE_FILE", "TOMORROW_APP", "RAINY_APP", "TOMORROW_SETTINGS_MODULE", "RAINY_SETTINGS_MODULE"]
 set_env = { PYTHONPATH = "{toxinidir}/src" }
 allowlist_externals = ["uv"]

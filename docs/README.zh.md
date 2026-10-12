@@ -3,7 +3,7 @@
 [![Build Status](https://github.com/noHairMan/nhm-deepagents/actions/workflows/build.yml/badge.svg)](https://github.com/noHairMan/nhm-deepagents/actions/workflows/build.yml)
 [![Coverage badge](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/noHairMan/nhm-deepagents/python-coverage-comment-action-data/endpoint.json)](https://htmlpreview.github.io/?https://github.com/noHairMan/nhm-deepagents/blob/python-coverage-comment-action-data/htmlcov/index.html)
 [![Lint: Ruff](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/astral-sh/ruff/main/assets/badge/v2.json)](https://github.com/astral-sh/ruff)
-[![Python Version](https://img.shields.io/badge/python-3.14-blue.svg)](https://www.python.org/downloads/release/python-3140/)
+[![Python Version](https://img.shields.io/badge/python-3.14%20%7C%203.15-blue.svg)](https://www.python.org/downloads/)
 [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
 [![Repo Size](https://img.shields.io/github/repo-size/noHairMan/nhm-deepagents)](https://github.com/noHairMan/nhm-deepagents)
 [![Last Commit](https://img.shields.io/github/last-commit/noHairMan/nhm-deepagents)](https://github.com/noHairMan/nhm-deepagents)
@@ -41,7 +41,7 @@
 
 ## 🛠️ 技术栈
 
-- **语言**: [Python](https://www.python.org/) >= 3.14, < 3.15
+- **语言**: [Python](https://www.python.org/) >= 3.14, < 3.16
 - **包管理器**: [uv](https://github.com/astral-sh/uv)
 - **API 框架**: [FastAPI](https://fastapi.tiangolo.com/)
 - **Web 服务器**: [Uvicorn](https://www.uvicorn.org/)
@@ -55,7 +55,7 @@
 
 ## 📋 环境要求
 
-- **Python 3.14（不支持 3.15 及更高版本）**
+- **Python 3.14 或 3.15**
 - **uv**: 一个快速的 Python 包安装和解析器。
 - **LLM 提供商**: 支持 Anthropic 和 OpenAI 兼容接口，需要通过环境变量或 `.env` 配置 API Key。
 - **LLM 模型**: 默认使用 Anthropic 的 `claude-sonnet-5`，也可以通过 `TOMORROW_MODEL__TYPE` 切换到 OpenAI。

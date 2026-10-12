@@ -6,7 +6,7 @@
 
 ## 🛠️ 技术栈
 
-- **语言**: [Python](https://www.python.org/) >= 3.14
+- **语言**: [Python](https://www.python.org/) >= 3.14, < 3.16
 - **包管理器**: [uv](https://github.com/astral-sh/uv)
 - **API 框架**: [FastAPI](https://fastapi.tiangolo.com/)
 - **Web 服务器**: [Uvicorn](https://www.uvicorn.org/)
