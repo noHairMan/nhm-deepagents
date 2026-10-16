@@ -49,7 +49,7 @@ jobs:
 
       - name: Run tests
         run: |
-          uv run coverage run --rcfile=pyproject.toml -m pytest
+          uv run --group test coverage run --rcfile=pyproject.toml -m pytest
         env:
           PYTHONPATH: "src"
           TOMORROW_APP: "tomorrow"
