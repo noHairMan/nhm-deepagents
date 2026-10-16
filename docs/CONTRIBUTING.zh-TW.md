@@ -6,13 +6,12 @@
 
 ## 🛠️ 技術棧
 
--   **語言**:[Python](https://www.python.org/)>= 3.14
+-   **語言**:[Python](https://www.python.org/)>= 3.14, &lt; 3.16
 -   **套件管理器**:[紫外線](https://github.com/astral-sh/uv)
 -   **API 框架**:[迅速](https://fastapi.tiangolo.com/)
 -   **Web 伺服器**:[獨角獸](https://www.uvicorn.org/)
 -   **智能體框架**:[深度代理](https://github.com/zongxuheng/deepagents)（基於 LangGraph/LangChain）
 -   **LLM 提供者**:[成為](https://ollama.com/)、[人擇](https://www.anthropic.com/)和[開放人工智慧](https://openai.com/)
--   **程式碼執行**:[langchain-quickjs](https://github.com/langchain-ai/langchainjs)提供的 QuickJS 中介軟體
 -   **終端交互**:`asyncclick`、`prompt-toolkit`和`Rich`
 -   **配置管理**:[懸垂設定](https://docs.pydantic.dev/latest/usage/settings/)
 -   **代碼品質**:[拉夫](https://github.com/astral-sh/ruff)、`pre-commit`和強制類型提示
