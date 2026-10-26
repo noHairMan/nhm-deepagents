@@ -39,7 +39,6 @@ test = [
 ]
 
 dev = [
-    "langgraph-cli[inmem]>=0.4.31",
     "pre-commit>=4.6.1",
     "ruff>=0.16.1",
     "tox>=4.58.0",

@@ -1,9 +1,0 @@
-{
-  "dependencies": ["./src"],
-  "graphs": {
-    "tomorrow": "./src/tomorrow/graph.py:graph"
-  },
-  "python_version": "3.14",
-  "image_distro": "wolfi",
-  "env": ".env"
-}

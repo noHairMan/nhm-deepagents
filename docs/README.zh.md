@@ -98,13 +98,6 @@ uv run python src/main.py
 uv run uvicorn main:app --app-dir src --host localhost --port 8000
 ```
 
-使用 `langgraph-cli` 启动智能体 API 服务：
-```bash
-uv run langgraph dev
-```
-
-CLI 会读取根目录的 `langgraph.json`，并暴露名为 `tomorrow` 的 graph。
-
 Rainy API 的请求体包含必填的 `message` 字段和可选的会话 `thread_id`。同步接口返回智能体的最终回复：
 
 ```bash

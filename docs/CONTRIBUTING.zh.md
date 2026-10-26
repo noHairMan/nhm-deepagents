@@ -56,7 +56,6 @@ uv run pre-commit run --all-files
 - `tests/`: 测试目录，结构与 `src` 保持一致。
 - `docs/`: 多语言文档。
 - `pyproject.toml`: 项目元数据、依赖项和工具配置。
-- `langgraph.json`: `langgraph-cli` 的 graph 与环境配置。
 - `uv.lock`: 锁定依赖版本。
 
 ## 🧪 测试
