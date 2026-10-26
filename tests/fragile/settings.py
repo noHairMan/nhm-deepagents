@@ -54,6 +54,7 @@ class TestFragileSettings:
             "fragile.commands.interactive.commands.history.HistoryCommand",
             "fragile.commands.interactive.commands.account.AccountCommand",
             "fragile.commands.interactive.commands.model.ModelCommand",
+            "fragile.commands.interactive.commands.plan.PlanCommand",
         )
 
     def test_data_root_setting_derives_runtime_paths(self, monkeypatch, tmp_path):

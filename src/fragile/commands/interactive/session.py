@@ -144,6 +144,38 @@ class InteractiveSession:
                 await restore_account_configuration()
             await self.refresh_toolbar_model()
             return create_agent(checkpointer)
+        elif result is CommandResult.PLAN_APPROVED:
+            task, plan = self.state.approved_task, self.state.approved_plan
+            self.state.approved_task = None
+            self.state.approved_plan = None
+            if not task or not plan:
+                return agent
+            account = self.services.account if self.services else None
+            if (await account.get_credentials() if account else await Account.get_credentials()) is None:
+                show_account_required()
+                return agent
+            if self.services:
+                await self.services.conversation.register(self.state.thread_id, task)
+            else:
+                await ConversationHistory.register_conversation(self.state.thread_id, task)
+            execution_prompt = (
+                f"请执行以下原始任务，并遵循用户确认的计划。\n\n原始任务：\n{task}\n\n用户确认的计划：\n{plan}"
+            )
+            try:
+                if self.services:
+                    await chat(agent, execution_prompt, self.state.thread_id, self.services.session)
+                else:
+                    await chat(agent, execution_prompt, self.state.thread_id)
+            except httpx.ConnectError:
+                model_type = str(tomorrow_settings.MODEL.get("type") or "unknown")
+                model_config = tomorrow_settings.MODEL.get(model_type) or {}
+                show_connection_error(
+                    model_type,
+                    str(model_config.get("model", "unknown")),
+                    str(model_config.get("base_url") or "未配置"),
+                )
+            except AnthropicInvalidRequestError, AgentResponseError:
+                show_request_error()
         elif result is CommandResult.NOT_HANDLED and user_input:
             account = self.services.account if self.services else None
             if (await account.get_credentials() if account else await Account.get_credentials()) is None:

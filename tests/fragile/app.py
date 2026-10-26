@@ -15,6 +15,8 @@ class TestCli:
         result = await runner.invoke(app, ["--help"])
         assert result.exit_code == 0
         assert "interactive" not in result.stdout
+        assert "purge" in result.stdout
+        assert "Review a plan for TASK" not in result.stdout
 
     @pytest.mark.asyncio
     async def testprompt_argument_is_rejected(self) -> None:

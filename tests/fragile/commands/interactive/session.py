@@ -203,6 +203,140 @@ class TestSession:
         assert not session.is_running
 
     @pytest.mark.asyncio
+    async def test_plan_approval_without_task_or_plan_is_ignored(self) -> None:
+        with patch("fragile.commands.interactive.session.create_prompt_session"):
+            session = InteractiveSession(None)
+        session.state.approved_task = "task"
+        session.state.approved_plan = None
+        agent = MagicMock()
+
+        with patch("fragile.commands.interactive.session.chat", new_callable=AsyncMock) as chat:
+            result = await session.handle_result(agent, MagicMock(), CommandResult.PLAN_APPROVED, "/plan")
+
+        assert result is agent
+        assert session.state.approved_task is None
+        assert session.state.approved_plan is None
+        chat.assert_not_awaited()
+
+    @pytest.mark.asyncio
+    async def test_plan_approval_requires_credentials(self) -> None:
+        with (
+            patch("fragile.commands.interactive.session.create_prompt_session"),
+            patch(
+                "fragile.commands.interactive.session.Account.get_credentials",
+                new_callable=AsyncMock,
+                return_value=None,
+            ),
+            patch("fragile.commands.interactive.session.show_account_required") as show_account_required,
+            patch("fragile.commands.interactive.session.chat", new_callable=AsyncMock) as chat,
+        ):
+            session = InteractiveSession(None)
+            session.state.approved_task = "task"
+            session.state.approved_plan = "plan"
+            agent = MagicMock()
+
+            result = await session.handle_result(agent, MagicMock(), CommandResult.PLAN_APPROVED, "/plan task")
+
+        assert result is agent
+        assert session.state.approved_task is None
+        assert session.state.approved_plan is None
+        show_account_required.assert_called_once_with()
+        chat.assert_not_awaited()
+
+    @pytest.mark.asyncio
+    async def test_plan_approval_registers_task_and_executes_with_services(self) -> None:
+        from fragile.services.runtime import RuntimeServices
+
+        account_service = MagicMock()
+        account_service.get_credentials = AsyncMock(return_value=("openai", "key", "url"))
+        conversation_service = MagicMock()
+        conversation_service.register = AsyncMock()
+        services = RuntimeServices(account=account_service, conversation=conversation_service, session=MagicMock())
+        with patch("fragile.commands.interactive.session.create_prompt_session"):
+            session = InteractiveSession(None)
+        session.services = services
+        session.state.approved_task = "task"
+        session.state.approved_plan = "plan"
+        agent = MagicMock()
+
+        with patch("fragile.commands.interactive.session.chat", new_callable=AsyncMock) as chat:
+            result = await session.handle_result(agent, MagicMock(), CommandResult.PLAN_APPROVED, "/plan task")
+
+        assert result is agent
+        conversation_service.register.assert_awaited_once_with(session.state.thread_id, "task")
+        chat.assert_awaited_once_with(
+            agent,
+            "请执行以下原始任务，并遵循用户确认的计划。\n\n原始任务：\ntask\n\n用户确认的计划：\nplan",
+            session.state.thread_id,
+            services.session,
+        )
+        assert session.state.approved_task is None
+        assert session.state.approved_plan is None
+
+    @pytest.mark.asyncio
+    async def test_plan_approval_shows_connection_error(self) -> None:
+        with (
+            patch("fragile.commands.interactive.session.create_prompt_session"),
+            patch(
+                "fragile.commands.interactive.session.Account.get_credentials",
+                new_callable=AsyncMock,
+                return_value=("openai", "key", "url"),
+            ),
+            patch(
+                "fragile.commands.interactive.session.ConversationHistory.register_conversation",
+                new_callable=AsyncMock,
+            ),
+            patch(
+                "fragile.commands.interactive.session.chat",
+                new_callable=AsyncMock,
+                side_effect=httpx.ConnectError("offline"),
+            ),
+            patch("fragile.commands.interactive.session.show_connection_error") as show_error,
+        ):
+            session = InteractiveSession(None)
+            session.state.approved_task = "task"
+            session.state.approved_plan = "plan"
+
+            await session.handle_result(MagicMock(), MagicMock(), CommandResult.PLAN_APPROVED, "/plan task")
+
+        show_error.assert_called_once()
+
+    @pytest.mark.asyncio
+    @pytest.mark.parametrize(
+        "failure",
+        [
+            AgentResponseError("bad response"),
+            AnthropicInvalidRequestError(
+                "invalid request",
+                response=httpx.Response(400, request=httpx.Request("POST", "https://example.com")),
+                body=None,
+            ),
+        ],
+    )
+    async def test_plan_approval_shows_request_error(self, failure: Exception) -> None:
+        with (
+            patch("fragile.commands.interactive.session.create_prompt_session"),
+            patch(
+                "fragile.commands.interactive.session.Account.get_credentials",
+                new_callable=AsyncMock,
+                return_value=("openai", "key", "url"),
+            ),
+            patch(
+                "fragile.commands.interactive.session.ConversationHistory.register_conversation",
+                new_callable=AsyncMock,
+            ),
+            patch("fragile.commands.interactive.session.chat", new_callable=AsyncMock, side_effect=failure),
+            patch("fragile.commands.interactive.session.show_request_error") as show_error,
+        ):
+            session = InteractiveSession(None)
+            session.state.approved_task = "task"
+            session.state.approved_plan = "plan"
+
+            await session.handle_result(MagicMock(), MagicMock(), CommandResult.PLAN_APPROVED, "/plan task")
+
+        show_error.assert_called_once_with()
+
+    @pytest.mark.asyncio
     async def test_model_change_restores_selection_before_recreating_agent(self) -> None:
         replacement_agent = MagicMock()
         events: list[str] = []

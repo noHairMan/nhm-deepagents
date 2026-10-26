@@ -8,3 +8,4 @@ class CommandResult(IntChoices):
     CONTINUE = 2, "Continue"
     EXIT = 3, "Exit"
     MODEL_CHANGED = 4, "Model changed"
+    PLAN_APPROVED = 5, "Plan approved"

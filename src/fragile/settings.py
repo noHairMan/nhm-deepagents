@@ -62,6 +62,7 @@ class FragileSettings(BaseSettings):
         "fragile.commands.interactive.commands.history.HistoryCommand",
         "fragile.commands.interactive.commands.account.AccountCommand",
         "fragile.commands.interactive.commands.model.ModelCommand",
+        "fragile.commands.interactive.commands.plan.PlanCommand",
     )
 
     model_config = SettingsConfigDict(

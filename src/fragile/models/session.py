@@ -9,3 +9,5 @@ class SessionState(BaseModel):
     """Mutable state shared by interactive command handlers."""
 
     thread_id: UUID
+    approved_task: str | None = None
+    approved_plan: str | None = None
