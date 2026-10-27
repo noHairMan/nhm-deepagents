@@ -18,7 +18,7 @@
 
 ## 🌟 项目概览
 
-`nhm-deepagents` 是一个专注于深度智能体的专业 Python 项目。它利用 Python 3.14 和强大的工具，为 AI 智能体研究和应用提供高质量的开发体验。
+`nhm-deepagents` 是一个专注于深度智能体的专业 Python 项目。它利用 Python 3.14 和 3.15 及相关工具，为 AI 智能体研究和应用提供高质量的开发体验。
 
 项目内部包含三个主要模块：
 - **`tomorrow`**: 核心智能体模块。代号取自游戏《死亡搁浅 2：冥滩之上》（Death Stranding 2: On the Beach）中的角色 **Tomorrow**（由艾丽·范宁饰演）。在剧情中，她是主角山姆·布里吉斯（Sam Bridges）的女儿，也被揭示为前作中的 **Lou** (BB-28)。
@@ -34,7 +34,7 @@
 - **递归控制**: 支持通过 `TOMORROW_RECURSION_LIMIT` 限制智能体递归调用深度。
 - **生命周期管理**: 引入 `AgentManager` 统一管理智能体实例的创建与销毁，确保资源的优雅初始化。
 - **高性能 API**: 基于 FastAPI 构建，支持同步响应与 Server-Sent Events (SSE) 流式输出。
-- **交互式 CLI**: `fragile` 支持 `/new` 创建新会话、`/history` 浏览并切换已持久化的历史会话、`/account` 配置外部模型账户、`/model` 选择模型、`/quit` 退出、会话恢复、输入历史、斜线命令补全和多行编辑，并以追加式时间线显示模型摘要、工具调用、命令结果和最终答案；交互运行期间统一复用账户、对话和会话服务。
+- **交互式 CLI**: `fragile` 支持 `/new` 创建新会话、`/history` 浏览并切换已持久化的历史会话、`/account` 配置外部模型账户、`/model` 选择模型、`/plan <任务>` 审阅并确认任务计划、`/quit` 退出、会话恢复、输入历史、斜线命令补全和多行编辑，并以追加式时间线显示模型摘要、工具调用、命令结果和最终答案；交互运行期间统一复用账户、对话和会话服务。
 - **分层持久化**: `fragile` 通过 `repositories` 存储层统一处理账户、对话、会话输出及清理操作，再由 `services` 应用服务层协调业务逻辑；交互式运行时共享同一个已初始化的数据库会话工厂，避免各流程重复管理持久化依赖。
 - **账户配置持久化**: 支持通过交互式命令保存 Anthropic 和 OpenAI 的 API 凭据，并在后续会话中自动恢复。
 - **可靠性保障**: 强制类型提示、Ruff 静态检查、100% 测试覆盖率要求。
@@ -119,6 +119,8 @@ uv run fragile
 ```
 
 通过 `--thread` 或 `-t` 传入 UUID 可以恢复已有会话；不传入时会自动创建新的线程。交互过程中输入 `/new` 可清屏并开始新会话，输入 `/history` 可查看已保存的会话并按编号或 UUID 切换，输入 `/quit` 退出；也可以连续两次按 `Ctrl+C` 在短时间内退出会话，按 `Esc` 后回车可插入换行。输入历史会在会话开始时异步加载，并在会话过程中异步保存；保存操作会按顺序执行，避免并发写入冲突。
+
+输入 `/plan <任务>` 可以为任务生成分步计划。查看计划后可选择确认、提供修改要求并重新生成计划，或取消；只有确认计划后，Fragile 才会开始执行原始任务并遵循已确认的计划。规划阶段只生成计划，不执行任务。
 
 #### Fragile 输出时间线
 
@@ -225,7 +227,7 @@ export TOMORROW_SUBAGENTS='[{"name":"researcher","description":"负责资料检�
 | `FRAGILE_INTERRUPT_EXIT_THRESHOLD` | 两次 `Ctrl+C` 触发退出的最大间隔（秒） | `0.5` |
 | `FRAGILE_INPUT_HISTORY_LIMIT` | 交互式输入历史记录条数上限 | `100` |
 | `FRAGILE_AGENT` | 智能体创建入口类路径 | `tomorrow.core.agent.AgentManager.create_agent` |
-| `FRAGILE_ENABLED_COMMANDS` | 启用的交互式命令类路径列表 | `quit`、`new`、`history`、`account`、`model` |
+| `FRAGILE_ENABLED_COMMANDS` | 启用的交互式命令类路径列表 | `quit`、`new`、`history`、`account`、`model`、`plan` |
 
 Fragile 默认在启动时按需创建 `~/.fragile` 及日志目录。设置 `FRAGILE_DATA_ROOT` 会同步改变数据库、输入历史和日志的默认位置，也可以分别覆盖对应路径。此行为只影响 Fragile 自身的文件，不改变 Tomorrow 的 store 或 filesystem/local-shell workspace 配置，也不会自动迁移或删除旧目录中的文件。
 

@@ -11,7 +11,7 @@
 - **API 框架**: [FastAPI](https://fastapi.tiangolo.com/)
 - **Web 服务器**: [Uvicorn](https://www.uvicorn.org/)
 - **智能体框架**: [deepagents](https://github.com/zongxuheng/deepagents)（基于 LangGraph/LangChain）
-- **LLM 提供商**: [Ollama](https://ollama.com/)、[Anthropic](https://www.anthropic.com/) 和 [OpenAI](https://openai.com/)
+- **LLM 提供商**: [Anthropic](https://www.anthropic.com/) 和 [OpenAI](https://openai.com/)
 - **终端交互**: `asyncclick`、`prompt-toolkit` 和 `Rich`
 - **配置管理**: [Pydantic Settings](https://docs.pydantic.dev/latest/usage/settings/)
 - **代码质量**: [Ruff](https://github.com/astral-sh/ruff)、`pre-commit` 和强制类型提示
@@ -21,10 +21,10 @@
 
 项目集成了 GitHub Actions 工作流，包括：
 
-- **测试与覆盖率**: 自动运行测试并检查代码覆盖率。
+- **测试与覆盖率**: 在 Python 3.14 和 3.15 上运行测试并汇总覆盖率。
 - **文档翻译**: 自动将 `README.zh.md` 和 `CONTRIBUTING.zh.md` 翻译为 English、日本語和繁体中文。
-- **代码规范**: 自动执行 `ruff` 检查与格式化，确保代码风格统一。
-- **CI 流程优化**: 根据相关代码或配置变更触发构建，减少不必要的构建任务。
+
+Ruff 检查和格式化可通过下方开发脚本手动运行；当前构建工作流不自动执行 Ruff。
 
 ## 📜 开发脚本
 
@@ -40,6 +40,8 @@ uv sync
 uv run ruff check . --fix
 uv run ruff format .
 ```
+
+Ruff、`pre-commit` 和 `tox` 属于 `dev` 依赖组；测试与覆盖率工具属于 `test` 组。运行 `uv sync` 安装开发依赖，运行测试命令时使用 `--group test`。
 
 手动运行 `pre-commit` 钩子：
 
@@ -65,9 +67,9 @@ uv run pre-commit run --all-files
 运行各模块测试：
 
 ```bash
-PYTHONPATH=src TOMORROW_APP=tomorrow uv run pytest tests/tomorrow
-PYTHONPATH=src RAINY_APP=rainy uv run pytest tests/rainy
-PYTHONPATH=src FRAGILE_APP=fragile uv run pytest tests/fragile
+PYTHONPATH=src TOMORROW_APP=tomorrow uv run --group test pytest tests/tomorrow
+PYTHONPATH=src RAINY_APP=rainy uv run --group test pytest tests/rainy
+PYTHONPATH=src FRAGILE_APP=fragile uv run --group test pytest tests/fragile
 ```
 
 运行完整覆盖率测试：
@@ -77,7 +79,13 @@ PYTHONPATH=src \
 TOMORROW_APP=tomorrow \
 RAINY_APP=rainy \
 FRAGILE_APP=fragile \
-uv run coverage run --rcfile=pyproject.toml -m pytest -q && uv run coverage report --rcfile=pyproject.toml
+uv run --group test coverage run --rcfile=pyproject.toml -m pytest -q && uv run --group test coverage report --rcfile=pyproject.toml
+```
+
+使用 `tox` 运行配置的完整测试矩阵（Python 3.14 和 3.15）：
+
+```bash
+uv run tox
 ```
 
 测试文件应按照 `src/` 的模块路径组织，并使用以 `Test` 开头的测试类包裹测试方法。
