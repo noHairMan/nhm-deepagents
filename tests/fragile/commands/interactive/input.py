@@ -164,8 +164,6 @@ class TestInput:
         assert {binding.keys for binding in session.key_bindings.bindings} == {
             (Keys.ControlM,),
             (Keys.Escape, Keys.ControlM),
-            (Keys.ScrollUp,),
-            (Keys.ScrollDown,),
         }
         with patch.object(session, "prompt", return_value="answer") as prompt:
             assert prompt("你> ") == "answer"
@@ -241,12 +239,9 @@ class TestInput:
         assert completions[0].text == "/quit"
         assert completions[0].start_position == -3
 
-    def test_scroll_key_bindings_are_no_ops(self) -> None:
+    def test_scroll_keys_are_not_bound_to_no_ops(self) -> None:
         session = create_prompt_session(output=DummyOutput())
-        event = MagicMock()
-        handlers = {binding.keys: binding.handler for binding in session.key_bindings.bindings}
+        bound_keys = {binding.keys for binding in session.key_bindings.bindings}
 
-        handlers[(Keys.ScrollUp,)](event)
-        handlers[(Keys.ScrollDown,)](event)
-
-        assert event.call_count == 0
+        assert (Keys.ScrollUp,) not in bound_keys
+        assert (Keys.ScrollDown,) not in bound_keys

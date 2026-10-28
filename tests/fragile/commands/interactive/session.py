@@ -12,8 +12,9 @@ from fragile.commands.interactive.commands.quit import QuitCommand
 from fragile.commands.interactive.input import BoundedFileHistory
 from fragile.commands.interactive.session import InteractiveSession, interactive
 from fragile.exceptions import AgentResponseError, FragileError, InvalidThreadIdError
-from fragile.models import SessionState
+from fragile.models import ApprovedPlan, SessionState
 from fragile.models.constants import CommandResult
+from fragile.models.plan import PlanOutput
 from fragile.utils.uid import resolve_thread_id
 
 
@@ -75,8 +76,6 @@ class TestSession:
         with (
             patch("fragile.commands.interactive.session.create_prompt_session") as create_session,
             patch.object(InteractiveSession, "refresh_toolbar_model", new_callable=AsyncMock),
-            patch("fragile.commands.interactive.session.enter_fullscreen"),
-            patch("fragile.commands.interactive.session.leave_fullscreen"),
             patch("fragile.commands.interactive.session.show_startup"),
         ):
             create_session.return_value.history = history
@@ -206,7 +205,6 @@ class TestSession:
     async def test_plan_approval_without_task_or_plan_is_ignored(self) -> None:
         with patch("fragile.commands.interactive.session.create_prompt_session"):
             session = InteractiveSession(None)
-        session.state.approved_task = "task"
         session.state.approved_plan = None
         agent = MagicMock()
 
@@ -214,7 +212,20 @@ class TestSession:
             result = await session.handle_result(agent, MagicMock(), CommandResult.PLAN_APPROVED, "/plan")
 
         assert result is agent
-        assert session.state.approved_task is None
+        assert session.state.approved_plan is None
+        chat.assert_not_awaited()
+
+    @pytest.mark.asyncio
+    async def test_empty_approved_task_or_plan_is_ignored(self) -> None:
+        with patch("fragile.commands.interactive.session.create_prompt_session"):
+            session = InteractiveSession(None)
+        session.state.approved_plan = ApprovedPlan(task="", plan=PlanOutput())
+        agent = MagicMock()
+
+        with patch("fragile.commands.interactive.session.chat", new_callable=AsyncMock) as chat:
+            result = await session.handle_result(agent, MagicMock(), CommandResult.PLAN_APPROVED, "/plan")
+
+        assert result is agent
         assert session.state.approved_plan is None
         chat.assert_not_awaited()
 
@@ -231,14 +242,12 @@ class TestSession:
             patch("fragile.commands.interactive.session.chat", new_callable=AsyncMock) as chat,
         ):
             session = InteractiveSession(None)
-            session.state.approved_task = "task"
-            session.state.approved_plan = "plan"
+            session.state.approved_plan = ApprovedPlan(task="task", plan=PlanOutput(steps=["plan"]))
             agent = MagicMock()
 
             result = await session.handle_result(agent, MagicMock(), CommandResult.PLAN_APPROVED, "/plan task")
 
         assert result is agent
-        assert session.state.approved_task is None
         assert session.state.approved_plan is None
         show_account_required.assert_called_once_with()
         chat.assert_not_awaited()
@@ -255,8 +264,7 @@ class TestSession:
         with patch("fragile.commands.interactive.session.create_prompt_session"):
             session = InteractiveSession(None)
         session.services = services
-        session.state.approved_task = "task"
-        session.state.approved_plan = "plan"
+        session.state.approved_plan = ApprovedPlan(task="task", plan=PlanOutput(steps=["plan"]))
         agent = MagicMock()
 
         with patch("fragile.commands.interactive.session.chat", new_callable=AsyncMock) as chat:
@@ -266,11 +274,10 @@ class TestSession:
         conversation_service.register.assert_awaited_once_with(session.state.thread_id, "task")
         chat.assert_awaited_once_with(
             agent,
-            "请执行以下原始任务，并遵循用户确认的计划。\n\n原始任务：\ntask\n\n用户确认的计划：\nplan",
+            "请执行以下原始任务，并遵循用户确认的计划。\n\n原始任务：\ntask\n\n用户确认的计划：\n## 交付步骤\n1. plan",
             session.state.thread_id,
             services.session,
         )
-        assert session.state.approved_task is None
         assert session.state.approved_plan is None
 
     @pytest.mark.asyncio
@@ -294,8 +301,7 @@ class TestSession:
             patch("fragile.commands.interactive.session.show_connection_error") as show_error,
         ):
             session = InteractiveSession(None)
-            session.state.approved_task = "task"
-            session.state.approved_plan = "plan"
+            session.state.approved_plan = ApprovedPlan(task="task", plan=PlanOutput(steps=["plan"]))
 
             await session.handle_result(MagicMock(), MagicMock(), CommandResult.PLAN_APPROVED, "/plan task")
 
@@ -329,8 +335,7 @@ class TestSession:
             patch("fragile.commands.interactive.session.show_request_error") as show_error,
         ):
             session = InteractiveSession(None)
-            session.state.approved_task = "task"
-            session.state.approved_plan = "plan"
+            session.state.approved_plan = ApprovedPlan(task="task", plan=PlanOutput(steps=["plan"]))
 
             await session.handle_result(MagicMock(), MagicMock(), CommandResult.PLAN_APPROVED, "/plan task")
 
@@ -601,13 +606,11 @@ class TestSession:
         assert extract_prompt("你好呀").model_dump() == {"command": None, "prompt": "你好呀"}
 
     @pytest.mark.asyncio
-    async def test_interactive_handles_commands_and_chat(self) -> None:
+    async def test_interactive_handles_commands_and_chat(self, capsys) -> None:
         prompt_session = MagicMock()
         prompt_session.prompt_async = AsyncMock(side_effect=["  hello  ", "   ", "/new", "/quit"])
         state = MagicMock()
         with (
-            patch("fragile.commands.interactive.session.enter_fullscreen"),
-            patch("fragile.commands.interactive.session.leave_fullscreen") as leave_fullscreen,
             patch("fragile.commands.interactive.session.show_startup"),
             patch("fragile.commands.interactive.session.create_prompt_session", return_value=prompt_session),
             patch("fragile.commands.interactive.session.SessionState", return_value=state),
@@ -638,7 +641,9 @@ class TestSession:
 
         register.assert_awaited_once_with(state.thread_id, "hello")
         chat.assert_awaited_once_with(chat.call_args.args[0], "hello", state.thread_id)
-        leave_fullscreen.assert_called_once_with()
+        output = capsys.readouterr().out
+        assert "\033[?1049h" not in output
+        assert "\033[?1049l" not in output
 
     @pytest.mark.asyncio
     async def test_interactive_continues_to_quit_after_iteration_error(self) -> None:
@@ -646,8 +651,6 @@ class TestSession:
         prompt_session.prompt_async = AsyncMock(side_effect=["hello", "/quit"])
         error = RuntimeError("command failed")
         with (
-            patch("fragile.commands.interactive.session.enter_fullscreen"),
-            patch("fragile.commands.interactive.session.leave_fullscreen") as leave_fullscreen,
             patch("fragile.commands.interactive.session.show_startup"),
             patch("fragile.commands.interactive.session.create_prompt_session", return_value=prompt_session),
             patch.object(
@@ -663,7 +666,6 @@ class TestSession:
 
         assert handle.await_count == 2
         show_error.assert_called_once_with()
-        leave_fullscreen.assert_called_once_with()
 
     @pytest.mark.asyncio
     async def test_interactive_reuses_agent_and_switches_thread_on_new(self) -> None:
@@ -674,8 +676,6 @@ class TestSession:
         runtime.__aenter__ = AsyncMock(return_value=(agent, MagicMock()))
         runtime.__aexit__ = AsyncMock(return_value=None)
         with (
-            patch("fragile.commands.interactive.session.enter_fullscreen"),
-            patch("fragile.commands.interactive.session.leave_fullscreen"),
             patch("fragile.commands.interactive.session.show_startup"),
             patch("fragile.commands.interactive.session.create_prompt_session", return_value=prompt_session),
             patch("fragile.commands.interactive.session.agent_runtime", return_value=runtime),
@@ -706,8 +706,6 @@ class TestSession:
         runtime.__aenter__ = AsyncMock(return_value=(initial_agent, checkpointer))
         runtime.__aexit__ = AsyncMock(return_value=None)
         with (
-            patch("fragile.commands.interactive.session.enter_fullscreen"),
-            patch("fragile.commands.interactive.session.leave_fullscreen"),
             patch("fragile.commands.interactive.session.show_startup"),
             patch("fragile.commands.interactive.session.create_prompt_session", return_value=prompt_session),
             patch("fragile.commands.interactive.session.agent_runtime", return_value=runtime),
@@ -745,8 +743,6 @@ class TestSession:
         prompt_session = MagicMock()
         prompt_session.prompt_async = AsyncMock(side_effect=[KeyboardInterrupt, EOFError, "/quit"])
         with (
-            patch("fragile.commands.interactive.session.enter_fullscreen"),
-            patch("fragile.commands.interactive.session.leave_fullscreen"),
             patch("fragile.commands.interactive.session.show_startup"),
             patch("fragile.commands.interactive.session.create_prompt_session", return_value=prompt_session),
         ):
@@ -757,8 +753,6 @@ class TestSession:
         prompt_session = MagicMock()
         prompt_session.prompt_async = AsyncMock(side_effect=[KeyboardInterrupt, KeyboardInterrupt])
         with (
-            patch("fragile.commands.interactive.session.enter_fullscreen"),
-            patch("fragile.commands.interactive.session.leave_fullscreen"),
             patch("fragile.commands.interactive.session.show_startup"),
             patch("fragile.commands.interactive.session.create_prompt_session", return_value=prompt_session),
             patch("fragile.commands.interactive.session.time.monotonic", return_value=1.0),

@@ -190,14 +190,6 @@ def create_prompt_session(
     def insert_newline(event: Any) -> None:
         event.current_buffer.insert_text("\n")
 
-    @key_bindings.add(Keys.ScrollUp, eager=True)
-    def ignore_scroll_up(event: Any) -> None:
-        pass
-
-    @key_bindings.add(Keys.ScrollDown, eager=True)
-    def ignore_scroll_down(event: Any) -> None:
-        pass
-
     return PromptSession(
         history=BoundedFileHistory(settings.INPUT_HISTORY_FILE, settings.INPUT_HISTORY_LIMIT),
         completer=CommandCompleter(),

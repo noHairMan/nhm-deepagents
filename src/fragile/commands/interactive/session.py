@@ -11,9 +11,8 @@ from langgraph.graph.state import CompiledStateGraph
 
 from fragile.commands.interactive.agent import agent_runtime, chat, create_agent
 from fragile.commands.interactive.commands import command_registry
+from fragile.commands.interactive.commands.plan import PlanCommand
 from fragile.commands.interactive.display import (
-    enter_fullscreen,
-    leave_fullscreen,
     show_account_required,
     show_connection_error,
     show_internal_error,
@@ -30,6 +29,7 @@ from fragile.conf import settings
 from fragile.exceptions import AgentResponseError
 from fragile.models import Account, ConversationHistory, SessionState, restore_account_configuration
 from fragile.models.constants import CommandResult
+from fragile.models.plan import format_plan
 from fragile.services.runtime import RuntimeServices, current_services
 from fragile.utils.uid import resolve_thread_id
 from tomorrow.conf import settings as tomorrow_settings
@@ -49,6 +49,9 @@ class InteractiveSession:
             model_provider=lambda: self.toolbar_model["provider"],
             model=lambda: self.toolbar_model["model"],
         )
+        for handler in command_registry.handlers:
+            if isinstance(handler, PlanCommand):
+                handler.prompt_session = self.session
         self.state = SessionState(thread_id=self.thread_id)
         self.is_running = True
         self.last_keyboard_interrupt: float | None = None
@@ -56,7 +59,6 @@ class InteractiveSession:
 
     async def run(self) -> None:
         """Run the interactive session until an exit action is received."""
-        enter_fullscreen()
         try:
             show_startup(self.thread_id, self.thread is not None)
             async with agent_runtime() as (agent, checkpointer):
@@ -69,7 +71,6 @@ class InteractiveSession:
         finally:
             if isinstance(self.session.history, BoundedFileHistory):
                 await self.session.history.flush()
-            leave_fullscreen()
 
     async def run_iteration(
         self, agent: CompiledStateGraph, checkpointer: BaseCheckpointSaver | None
@@ -145,9 +146,12 @@ class InteractiveSession:
             await self.refresh_toolbar_model()
             return create_agent(checkpointer)
         elif result is CommandResult.PLAN_APPROVED:
-            task, plan = self.state.approved_task, self.state.approved_plan
-            self.state.approved_task = None
+            approval = self.state.approved_plan
             self.state.approved_plan = None
+            if approval is None:
+                return agent
+            task = approval.task
+            plan = format_plan(approval.plan)
             if not task or not plan:
                 return agent
             account = self.services.account if self.services else None
